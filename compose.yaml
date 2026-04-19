@@ -1,1 +1,66 @@
-services: {}
+services:
+  mongodb:
+    image: mongo:7.0
+    container_name: sensor_log_mongodb
+    ports:
+      - "27017:27017"
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: root
+      MONGO_INITDB_ROOT_PASSWORD: rootpassword
+      MONGO_INITDB_DATABASE: sensor_log
+    volumes:
+      - mongodb_data:/data/db
+    healthcheck:
+      test: ["CMD", "mongosh", "--eval", "db.adminCommand('ping')"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - sensor_log_network
+
+  mosquitto:
+    image: eclipse-mosquitto:2.0
+    container_name: sensor_log_mosquitto
+    ports:
+      - "1883:1883"
+      - "9001:9001"
+    volumes:
+      - mosquitto_data:/mosquitto/data
+      - mosquitto_logs:/mosquitto/log
+    healthcheck:
+      test: ["CMD", "mosquitto_sub", "-h", "localhost", "-t", "test/health", "-W", "1"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - sensor_log_network
+
+  spring_boot_app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: sensor_log_app
+    ports:
+      - "8080:8080"
+    environment:
+      SPRING_DATA_MONGODB_URI: mongodb://root:rootpassword@mongodb:27017/sensor_log?authSource=admin
+      SPRING_DATA_MONGODB_AUTO_INDEX_CREATION: "true"
+      MQTT_BROKER_ADDRESS: tcp://mosquitto:1883
+      MQTT_CLIENT_ID: spring_boot_sensor_log
+    depends_on:
+      mongodb:
+        condition: service_healthy
+      mosquitto:
+        condition: service_healthy
+    networks:
+      - sensor_log_network
+    restart: unless-stopped
+
+volumes:
+  mongodb_data:
+  mosquitto_data:
+  mosquitto_logs:
+
+networks:
+  sensor_log_network:
+    driver: bridge
