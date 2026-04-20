@@ -4,14 +4,16 @@ services:
     container_name: sensor_log_mongodb
     ports:
       - "27017:27017"
+    env_file: .env
     environment:
-      MONGO_INITDB_ROOT_USERNAME: root
-      MONGO_INITDB_ROOT_PASSWORD: rootpassword
+      MONGO_INITDB_ROOT_USERNAME: $MONGO_USERNAME
+      MONGO_INITDB_ROOT_PASSWORD: $MONGO_PASSWORD
       MONGO_INITDB_DATABASE: sensor_log
+    command: mongod --auth
     volumes:
       - mongodb_data:/data/db
     healthcheck:
-      test: ["CMD", "mongosh", "--eval", "db.adminCommand('ping')"]
+      test: ["CMD-SHELL", "mongosh --quiet --eval \"db.runCommand({ ping: 1 })\" || exit 1"]
       interval: 10s
       timeout: 5s
       retries: 5
@@ -22,15 +24,20 @@ services:
     image: eclipse-mosquitto:2.0
     container_name: sensor_log_mosquitto
     ports:
-      - "1883:1883"
+      - "8883:8883"
       - "9001:9001"
+    env_file: .env
     volumes:
+      - ./certs/live/growsensors.duckdns.org:/etc/mosquitto/certs:ro
+      - ./certs/archive/growsensors.duckdns.org:/etc/letsencrypt/archive/growsensors.duckdns.org:ro
+      - ./mosquitto.conf:/mosquitto/config/mosquitto.conf:ro
+      - ./mosquitto.passwd:/mosquitto/config/mosquitto.passwd:ro
       - mosquitto_data:/mosquitto/data
       - mosquitto_logs:/mosquitto/log
     healthcheck:
-      test: ["CMD", "mosquitto_sub", "-h", "localhost", "-t", "test/health", "-W", "1"]
-      interval: 10s
-      timeout: 5s
+      test: ["CMD", "sh", "-c", "mosquitto_pub -h localhost -p 1883 -u $MQTT_USER -P $MQTT_PASS -t healthcheck -m ok"]
+      interval: 5s
+      timeout: 3s
       retries: 5
     networks:
       - sensor_log_network
@@ -42,11 +49,16 @@ services:
     container_name: sensor_log_app
     ports:
       - "8080:8080"
+    env_file: .env
+    volumes:
+      - ./certs/live/growsensors.duckdns.org:/certs:ro
     environment:
-      SPRING_DATA_MONGODB_URI: mongodb://root:rootpassword@mongodb:27017/sensor_log?authSource=admin
+      SPRING_DATA_MONGODB_URI: $MONGO_URI
       SPRING_DATA_MONGODB_AUTO_INDEX_CREATION: "true"
-      MQTT_BROKER_ADDRESS: tcp://mosquitto:1883
+      MQTT_BROKER_ADDRESS: ssl://mosquitto:8883
       MQTT_CLIENT_ID: spring_boot_sensor_log
+      MQTT_USERNAME: $MQTT_USER
+      MQTT_PASSWORD: $MQTT_PASS
     depends_on:
       mongodb:
         condition: service_healthy
@@ -54,7 +66,7 @@ services:
         condition: service_healthy
     networks:
       - sensor_log_network
-    restart: unless-stopped
+    restart: no
 
 volumes:
   mongodb_data:
