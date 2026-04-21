@@ -23,19 +23,19 @@ services:
   mosquitto:
     image: eclipse-mosquitto:2.0
     container_name: sensor_log_mosquitto
+    hostname: $MQTT_HOST
     ports:
+      - "1883:1883"
       - "8883:8883"
-      - "9001:9001"
     env_file: .env
     volumes:
-      - ./certs/live/growsensors.duckdns.org:/etc/mosquitto/certs:ro
-      - ./certs/archive/growsensors.duckdns.org:/etc/letsencrypt/archive/growsensors.duckdns.org:ro
+      - ./certs:/certs
       - ./mosquitto.conf:/mosquitto/config/mosquitto.conf:ro
       - ./mosquitto.passwd:/mosquitto/config/mosquitto.passwd:ro
       - mosquitto_data:/mosquitto/data
       - mosquitto_logs:/mosquitto/log
     healthcheck:
-      test: ["CMD", "sh", "-c", "mosquitto_pub -h localhost -p 1883 -u $MQTT_USER -P $MQTT_PASS -t healthcheck -m ok"]
+      test: ["CMD", "sh", "-c", "mosquitto_pub -h ${MQTT_HOST} -p ${MQTT_PORT} --cafile /certs/ca/isrgrootx1.pem -u ${MQTT_USER} -P ${MQTT_PASS} -t healthcheck -m ok"]
       interval: 5s
       timeout: 3s
       retries: 5
@@ -50,15 +50,9 @@ services:
     ports:
       - "8080:8080"
     env_file: .env
-    volumes:
-      - ./certs/live/growsensors.duckdns.org:/certs:ro
     environment:
       SPRING_DATA_MONGODB_URI: $MONGO_URI
       SPRING_DATA_MONGODB_AUTO_INDEX_CREATION: "true"
-      MQTT_BROKER_ADDRESS: ssl://mosquitto:8883
-      MQTT_CLIENT_ID: spring_boot_sensor_log
-      MQTT_USERNAME: $MQTT_USER
-      MQTT_PASSWORD: $MQTT_PASS
     depends_on:
       mongodb:
         condition: service_healthy
