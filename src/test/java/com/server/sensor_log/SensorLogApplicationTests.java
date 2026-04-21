@@ -2,12 +2,20 @@ package com.server.sensor_log;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.test.context.ActiveProfiles;
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
 
-@SpringBootTest
+import com.server.sensor_log.services.MqttService;
+
+@SpringBootTest()
+@ActiveProfiles("test")
 class SensorLogApplicationTests {
 
-	@Test
-	void contextLoads() {
-	}
+    @MockitoBean
+    private MqttService mqttService;
 
+    @Test
+    void contextLoads() {
+
+    }
 }
