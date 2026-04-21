@@ -1,3 +1,8 @@
+.env
+certbot/duckdns.ini
+certs/*
+!certs/README.md
+mosquitto.passwd
 HELP.md
 .gradle
 build/
