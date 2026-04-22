@@ -3,7 +3,7 @@ package com.server.sensor_log.documents;
 import lombok.Data;
 
 @Data
-public class Timer {
+public final class Timer {
 
     private String name = "generic timer";
     private Integer hours = 0;
@@ -36,5 +36,14 @@ public class Timer {
         }
         this.hours = hours;
         this.minutes = minutes;
+    }
+
+    @Override
+    public String toString() {
+        return "Timer{"
+                + "name='" + name + '\''
+                + ", hours=" + hours
+                + ", minutes=" + minutes
+                + '}';
     }
 }
