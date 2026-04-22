@@ -15,8 +15,7 @@ public class Timer {
 
     public Timer(String name, Integer hours, Integer minutes) {
         this.name = name;
-        this.hours = hours;
-        this.minutes = minutes;
+        setTimer(hours, minutes);
     }
 
     public void setTimer(Integer hours, Integer minutes) {
