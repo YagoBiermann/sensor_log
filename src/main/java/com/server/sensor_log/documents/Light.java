@@ -27,6 +27,13 @@ public class Light extends Sensor {
         this.timer.setTimer(hours, minutes);
     }
 
+    public void setIntensity(double intensity) {
+        if (intensity < 0 || intensity > 100) {
+            throw new IllegalArgumentException("Intensity must be between 0 and 100%");
+        }
+        this.intensity.setValue(intensity);
+    }
+
     @Override
     public String toString() {
         return "Light(" + id + "){"
