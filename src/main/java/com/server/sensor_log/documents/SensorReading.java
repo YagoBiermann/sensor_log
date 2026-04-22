@@ -1,7 +1,11 @@
 package com.server.sensor_log.documents;
 
+import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
+@AllArgsConstructor
+@NoArgsConstructor
 @Data
 public class SensorReading {
     private String name;
