@@ -9,9 +9,19 @@ import lombok.EqualsAndHashCode;
 @EqualsAndHashCode(callSuper = true)
 @TypeAlias("light")
 public class Light extends Sensor {
+
     private SensorReading intensity;
     private SensorReading voltage;
     private SensorReading timer;
+
+    public Light() {
+        this.name = "Light";
+        this.location = "Unknown";
+        this.isActive = false;
+        this.intensity = new SensorReading("intensity", System.currentTimeMillis(), 0.0, "%");
+        this.voltage = new SensorReading("voltage", System.currentTimeMillis(), 0.0, "watts");
+        this.timer = new SensorReading("timer", System.currentTimeMillis(), 0.0, "hours");
+    }
 
     @Override
     public String toString() {
