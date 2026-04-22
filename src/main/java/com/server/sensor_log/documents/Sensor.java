@@ -8,8 +8,8 @@ import org.springframework.data.mongodb.core.mapping.Document;
 import lombok.Data;
 
 @Data
-@Document(collection = "payloads")
-public class Payload {
+@Document(collection = "Sensors")
+public class Sensor {
 
     @Id
     private String id;
