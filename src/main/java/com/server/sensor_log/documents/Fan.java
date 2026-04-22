@@ -1,7 +1,5 @@
 package com.server.sensor_log.documents;
 
-import java.time.Instant;
-
 import org.springframework.data.annotation.TypeAlias;
 
 import lombok.Data;
@@ -26,6 +24,21 @@ public class Fan extends Sensor {
         this.voltage = new SensorReading("voltage", System.currentTimeMillis(), 0.0, "watts");
         this.timer = new SensorReading("timer", System.currentTimeMillis(), 0.0, "hours");
         this.rpm = new SensorReading("rpm", System.currentTimeMillis(), 0.0, "rpm");
+    }
+
+    public void setTimer(double hours) {
+        if (hours < 0 || hours > 24) {
+            throw new IllegalArgumentException("Timer value cannot be negative or exceed 24 hours");
+        }
+
+        this.timer.setValue(hours);
+    }
+
+    public void setSpeed(double speed) {
+        if (speed < 0 || speed > 100) {
+            throw new IllegalArgumentException("Speed must be between 0 and 100%");
+        }
+        this.speed.setValue(speed);
     }
 
     @Override
