@@ -12,7 +12,7 @@ public class Light extends Sensor {
 
     private SensorReading intensity;
     private SensorReading voltage;
-    private SensorReading timer;
+    private Timer timer;
 
     public Light() {
         this.name = "Light";
@@ -20,7 +20,11 @@ public class Light extends Sensor {
         this.isActive = false;
         this.intensity = new SensorReading("intensity", System.currentTimeMillis(), 0.0, "%");
         this.voltage = new SensorReading("voltage", System.currentTimeMillis(), 0.0, "watts");
-        this.timer = new SensorReading("timer", System.currentTimeMillis(), 0.0, "hours");
+        this.timer = new Timer();
+    }
+
+    public void setTimer(Integer hours, Integer minutes) {
+        this.timer.setTimer(hours, minutes);
     }
 
     @Override
@@ -29,8 +33,7 @@ public class Light extends Sensor {
                 + "status=" + (isActive ? "ON" : "OFF")
                 + ", intensity=" + intensity + "%"
                 + ", voltage=" + voltage + "w"
-                + ", TimerOn=" + timer.getValue() + "h"
-                + ", timerOff=" + (timer.getValue() - 24) + "h"
+                + ", Timer Status=" + timer.getTimerStatus()
                 + '}';
     }
 }
