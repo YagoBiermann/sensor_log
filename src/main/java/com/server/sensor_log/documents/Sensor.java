@@ -8,18 +8,11 @@ import org.springframework.data.mongodb.core.mapping.Document;
 import lombok.Data;
 
 @Data
-@Document(collection = "Sensors")
-public class Sensor {
-
+@Document(collection = "sensors")
+public abstract class Sensor {
     @Id
-    private String id;
-    private String deviceId;
-    private String sensorType;
-    private long timestamp;
-    private Integer temperature;
-    private Integer humidity;
-    private Double ph;
-    private List<Light> light;
-    private List<Fan> fan;
-
+    public String id;
+    public String name;
+    public boolean isActive;
+    public String location;
 }
