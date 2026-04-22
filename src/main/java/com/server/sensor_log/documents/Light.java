@@ -9,15 +9,18 @@ import lombok.EqualsAndHashCode;
 @EqualsAndHashCode(callSuper = true)
 @TypeAlias("light")
 public class Light extends Sensor {
+    private SensorReading intensity;
+    private SensorReading voltage;
+    private SensorReading timer;
 
     @Override
     public String toString() {
-        return "Light(" + deviceId + "){"
-                + "status=" + status
+        return "Light(" + id + "){"
+                + "status=" + (isActive ? "ON" : "OFF")
                 + ", intensity=" + intensity + "%"
                 + ", voltage=" + voltage + "w"
-                + ", TimerOn=" + timer + "h"
-                + ", timerOff=" + (timer - 24) + "h"
+                + ", TimerOn=" + timer.getValue() + "h"
+                + ", timerOff=" + (timer.getValue() - 24) + "h"
                 + '}';
     }
 }

@@ -11,10 +11,15 @@ import lombok.EqualsAndHashCode;
 
 public class Fan extends Sensor {
 
+    private SensorReading speed;     // %
+    private SensorReading voltage;   // W
+    private SensorReading timer;     // h
+    private SensorReading rpm;
+
     @Override
     public String toString() {
-        return "Fan(" + deviceId + "){"
-                + "status=" + status
+        return "Fan(" + id + "){"
+                + "status=" + (isActive ? "ON" : "OFF")
                 + ", speed=" + speed + "%"
                 + ", voltage=" + voltage + "w"
                 + ", timer=" + timer + "h"
