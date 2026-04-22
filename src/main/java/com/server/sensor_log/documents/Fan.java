@@ -1,15 +1,15 @@
 package com.server.sensor_log.documents;
 
+import org.springframework.data.annotation.TypeAlias;
+
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 
 @Data
-public class Fan {
-    private String deviceId;
-    private boolean status;
-    private Integer speed;
-    private Integer voltage;
-    private Integer timer;
-    private Integer rpm;
+@EqualsAndHashCode(callSuper = true)
+@TypeAlias("fan")
+
+public class Fan extends Sensor {
 
     @Override
     public String toString() {
