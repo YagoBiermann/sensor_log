@@ -1,7 +1,5 @@
 package com.server.sensor_log.documents;
 
-import java.util.List;
-
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
 
