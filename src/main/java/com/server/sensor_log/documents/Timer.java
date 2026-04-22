@@ -9,7 +9,6 @@ public final class Timer {
     private Integer hours = 0;
     private Integer minutes = 0;
 
-
     public Timer() {
     }
 
@@ -19,13 +18,13 @@ public final class Timer {
     }
 
     public void setTimer(Integer hours, Integer minutes) {
-        if(hours == 24 && minutes == 0) {
+        if (hours == 24 && minutes == 0) {
             this.hours = hours;
             this.minutes = minutes;
             return;
         }
 
-        if(hours == null || minutes == null) {
+        if (hours == null || minutes == null) {
             throw new IllegalArgumentException("Hours and minutes cannot be null");
         }
         if (hours < 0 || hours > 24) {
@@ -36,6 +35,16 @@ public final class Timer {
         }
         this.hours = hours;
         this.minutes = minutes;
+    }
+
+    public String getTimerStatus() {
+        if (hours == 0 && minutes == 0) {
+            return "OFF";
+        } else if (hours == 24 && minutes == 0) {
+            return "ON";
+        } else {
+            return "ON for " + hours + "h " + minutes + "m";
+        }
     }
 
     @Override
