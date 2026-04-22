@@ -10,7 +10,7 @@ import lombok.EqualsAndHashCode;
 @TypeAlias("light")
 public class Light extends Sensor {
 
-    private SensorReading intensity;
+    private DeviceController intensity;
     private SensorReading voltage;
     private Timer timer;
 
@@ -18,7 +18,7 @@ public class Light extends Sensor {
         this.name = "Light";
         this.location = "Unknown";
         this.isActive = false;
-        this.intensity = new SensorReading("intensity", System.currentTimeMillis(), 0.0, "%");
+        this.intensity = new DeviceController();
         this.voltage = new SensorReading("voltage", System.currentTimeMillis(), 0.0, "watts");
         this.timer = new Timer();
     }
@@ -27,10 +27,7 @@ public class Light extends Sensor {
         this.timer.setTimer(hours, minutes);
     }
 
-    public void setIntensity(double intensity) {
-        if (intensity < 0 || intensity > 100) {
-            throw new IllegalArgumentException("Intensity must be between 0 and 100%");
-        }
+    public void setIntensity(Integer intensity) {
         this.intensity.setValue(intensity);
     }
 
