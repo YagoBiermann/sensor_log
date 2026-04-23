@@ -13,20 +13,20 @@ import lombok.EqualsAndHashCode;
 @AllArgsConstructor
 @Document(collection = "fans")
 public class Fan extends Sensor {
-
     private DeviceController speed;     // %
-    private SensorReading voltage;   // W
+    private Double voltage;   // W
     private Timer timer;     // h
-    private SensorReading rpm;
+    private Integer rpm;
 
     public Fan() {
         this.name = "Fan";
         this.location = "Unknown";
         this.isActive = false;
         this.speed = new DeviceController();
-        this.voltage = new SensorReading("voltage", System.currentTimeMillis(), 0.0, "watts");
         this.timer = new Timer();
-        this.rpm = new SensorReading("rpm", System.currentTimeMillis(), 0.0, "rpm");
+        this.voltage = 0.0;
+        this.rpm = 0;
+        this.readingTimestamp = System.currentTimeMillis();
     }
 
     public void setSpeed(Integer speed) {

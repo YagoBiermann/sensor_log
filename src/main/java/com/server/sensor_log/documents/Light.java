@@ -15,7 +15,7 @@ import lombok.EqualsAndHashCode;
 public class Light extends Sensor {
 
     private DeviceController intensity;
-    private SensorReading voltage;
+    private Double voltage;
     private Timer timer;
 
     public Light() {
@@ -23,8 +23,9 @@ public class Light extends Sensor {
         this.location = "Unknown";
         this.isActive = false;
         this.intensity = new DeviceController();
-        this.voltage = new SensorReading("voltage", System.currentTimeMillis(), 0.0, "watts");
+        this.voltage = 0.0;
         this.timer = new Timer();
+        this.readingTimestamp = System.currentTimeMillis();
     }
 
     public void setTimer(Integer hours, Integer minutes) {
