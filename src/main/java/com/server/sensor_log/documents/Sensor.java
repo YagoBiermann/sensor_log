@@ -9,6 +9,7 @@ public abstract class Sensor {
     @Id
     public String id;
     public String name;
+    public long readingTimestamp;
     public boolean isActive;
     public String location;
 }
