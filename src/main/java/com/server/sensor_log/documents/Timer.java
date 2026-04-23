@@ -5,10 +5,10 @@ import lombok.Data;
 @Data
 public final class Timer {
 
-    private String name = "generic timer";
+    private String name = "Timer";
     private Integer hours = 0;
     private Integer minutes = 0;
-
+    private Boolean isActive = false;
     public Timer() {
     }
 
