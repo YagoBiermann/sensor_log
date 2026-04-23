@@ -1,6 +1,7 @@
 package com.server.sensor_log.documents;
 
 import org.springframework.data.annotation.TypeAlias;
+import org.springframework.data.mongodb.core.mapping.Document;
 
 import lombok.Data;
 import lombok.EqualsAndHashCode;
@@ -8,13 +9,13 @@ import lombok.EqualsAndHashCode;
 @Data
 @EqualsAndHashCode(callSuper = true)
 @TypeAlias("fan")
-
+@Document(collection = "sensors")
 public class Fan extends Sensor {
 
-    private final DeviceController speed;     // %
-    private final SensorReading voltage;   // W
-    private final Timer timer;     // h
-    private final SensorReading rpm;
+    private DeviceController speed;     // %
+    private SensorReading voltage;   // W
+    private Timer timer;     // h
+    private SensorReading rpm;
 
     public Fan() {
         this.name = "Fan";
