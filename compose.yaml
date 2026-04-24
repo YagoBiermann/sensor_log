@@ -35,7 +35,7 @@ services:
       - mosquitto_data:/mosquitto/data
       - mosquitto_logs:/mosquitto/log
     healthcheck:
-      test: ["CMD", "sh", "-c", "mosquitto_pub -h ${MQTT_HOST} -p ${MQTT_PORT} --cafile /certs/ca/isrgrootx1.pem -u ${MQTT_USER} -P ${MQTT_PASS} -t healthcheck -m ok"]
+      test: ["CMD", "sh", "-c", "mosquitto_pub -h ${MQTT_HOST} -p ${MQTT_PORT} --cafile /certs/ca/isrgrootx1.pem -u ${MQTT_USERNAME} -P ${MQTT_PASSWORD} -t healthcheck -m ok"]
       interval: 5s
       timeout: 3s
       retries: 5
