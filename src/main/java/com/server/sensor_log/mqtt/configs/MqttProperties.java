@@ -1,4 +1,4 @@
-package com.server.sensor_log.configs;
+package com.server.sensor_log.mqtt.configs;
 
 import org.springframework.boot.context.properties.ConfigurationProperties;
 
