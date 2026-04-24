@@ -5,6 +5,10 @@ import org.springframework.stereotype.Service;
 import com.hivemq.client.mqtt.datatypes.MqttQos;
 import com.hivemq.client.mqtt.mqtt5.Mqtt5AsyncClient;
 import com.hivemq.client.mqtt.mqtt5.message.publish.Mqtt5Publish;
+import com.server.sensor_log.mqtt.MqttMessageDispatcher;
+import com.server.sensor_log.mqtt.handlers.FanDataHandler;
+import com.server.sensor_log.mqtt.handlers.LightDataHandler;
+import com.server.sensor_log.mqtt.handlers.SensorDataHandler;
 
 import jakarta.annotation.PostConstruct;
 import jakarta.annotation.PreDestroy;
@@ -17,7 +21,8 @@ import lombok.extern.slf4j.Slf4j;
 public class MqttService {
 
     private final Mqtt5AsyncClient mqttClient;
-
+    private final MqttMessageDispatcher dispatcher;
+    
     @PostConstruct
     public void connect() {
         log.info("Connecting to MQTT broker...");
@@ -30,6 +35,13 @@ public class MqttService {
                         subscribeToTopics();
                     }
                 });
+    }
+    @PostConstruct
+    public void registerHandlers() {
+        log.info("Registering MQTT topic handlers...");
+        dispatcher.register(new SensorDataHandler());
+        dispatcher.register(new FanDataHandler());
+        dispatcher.register(new LightDataHandler());
     }
 
     public void publish(String topic, String payload) {
@@ -66,16 +78,7 @@ public class MqttService {
     private void handleMessage(Mqtt5Publish mqttMessage) {
         String topic = mqttMessage.getTopic().toString();
         String payload = new String(mqttMessage.getPayloadAsBytes());
-        log.info("Handling message on {}: {}", topic, payload);
-
-        switch (topic) {
-            case "iot/home/room-1/sensor-01/data" -> log.info("Received sensor data: {}", payload);
-            case "iot/home/room-1/fan-01/data" -> log.info("Received fan data: {}", payload);
-            case "iot/home/room-1/fan-01/cmd" -> log.info("Received fan command: {}", payload);
-            case "iot/home/room-1/light-01/data" -> log.info("Received light data: {}", payload);
-            case "iot/home/room-1/light-01/cmd" -> log.info("Received light command: {}", payload);
-            default -> log.warn("Received message on unknown topic {}: {}", topic, payload);
-        }
+        dispatcher.dispatch(topic, payload);
     }
 
     @PreDestroy
