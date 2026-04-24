@@ -10,8 +10,10 @@ import com.hivemq.client.mqtt.mqtt5.Mqtt5AsyncClient;
 import com.hivemq.client.mqtt.mqtt5.Mqtt5ClientBuilder;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 
 @Configuration
+@Slf4j
 @RequiredArgsConstructor
 @EnableConfigurationProperties(MqttProperties.class)
 @Profile("!test")
@@ -28,17 +30,24 @@ public class MqttConfig {
                 .serverPort(props.getPort())
                 .automaticReconnectWithDefaultConfig();
 
-        System.out.println("MQTT Config - Host: " + props.getHost() + ", Port: " + props.getPort() + ", Client ID: " + props.getClientId());
         if (props.getUsername() != null) {
-            builder.simpleAuth()
+            builder = builder.simpleAuth()
                     .username(props.getUsername())
                     .password(props.getPassword().getBytes())
                     .applySimpleAuth();
         }
 
         if (props.isSslEnabled()) {
-            builder.sslWithDefaultConfig();
+            builder = builder.sslWithDefaultConfig();
+
         }
+        log.info("MQTT Config → host: {}, port: {}, clientId: {}, user: {}, ssl: {}",
+                props.getHost(),
+                props.getPort(),
+                props.getClientId(),
+                props.getUsername(),
+                props.isSslEnabled()
+        );
 
         return builder.buildAsync();
     }
