@@ -6,7 +6,7 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.data.mongodb.repository.config.EnableMongoRepositories;
 
-import com.server.sensor_log.configs.MqttProperties;
+import com.server.sensor_log.mqtt.configs.MqttProperties;
 import com.server.sensor_log.repository.SensorRepository;
 
 @SpringBootApplication
