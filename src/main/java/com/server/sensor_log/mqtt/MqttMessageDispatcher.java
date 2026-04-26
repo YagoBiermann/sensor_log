@@ -22,7 +22,14 @@ public class MqttMessageDispatcher {
 
     public void dispatch(String topic, String payload) {
         handlers.stream()
-                .filter(h -> matches(h.getTopic(), topic))
+                .filter(h -> {
+                    boolean matches = matches(h.getTopic(), topic);
+                    log.debug("Checking if handler {} matches topic '{}'", h.getClass().getSimpleName(), topic);
+                    log.debug("Handler topic pattern: '{}'", h.getTopic());
+                    log.debug(matches ? "Handler matches topic" : "Handler does not match topic");
+
+                    return matches;
+                })
                 .forEach(h -> {
                     log.debug("Handling topic '{}' with handler {}", topic, h.getClass().getSimpleName());
                     h.handle(topic, payload);
