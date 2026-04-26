@@ -1,17 +1,19 @@
 package com.server.sensor_log.mqtt;
 
-import java.util.ArrayList;
 import java.util.List;
 
 import org.springframework.stereotype.Component;
 
+import lombok.NoArgsConstructor;
+
 @Component
+@NoArgsConstructor
 public class MqttMessageDispatcher {
 
-    private final List<TopicHandler> handlers = new ArrayList<>();
+    private  List<TopicHandler> handlers;
 
     public MqttMessageDispatcher(List<TopicHandler> topicHandlers) {
-        topicHandlers.forEach(this::register);
+        this.handlers = topicHandlers;
     }
 
     public void register(TopicHandler handler) {
