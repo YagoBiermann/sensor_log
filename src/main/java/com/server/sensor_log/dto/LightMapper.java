@@ -4,7 +4,6 @@ import org.mapstruct.Mapper;
 
 import com.server.sensor_log.documents.DeviceController;
 import com.server.sensor_log.documents.Light;
-import com.server.sensor_log.documents.Timer;
 
 @Mapper(componentModel = "spring")
 public interface LightMapper {
@@ -21,15 +20,8 @@ public interface LightMapper {
         if (value == null) {
             return null;
         }
-
-        DeviceController device = new DeviceController().setValue(value);
+        DeviceController device = new DeviceController();
+        device.setValue(value);
         return device;
-    }
-
-    default Timer map(Timer timer) {
-        if (timer == null) {
-            return null;
-        }
-        return new Timer(timer.getName(), timer.getHours(), timer.getMinutes(), timer.getIsActive());
     }
 }
