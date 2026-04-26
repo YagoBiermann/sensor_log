@@ -28,6 +28,11 @@ public class MqttService {
     private final LightDataHandler lightDataHandler;
 
     @PostConstruct
+    public void init() {
+        registerHandlers();
+        connect();
+    }
+
     public void connect() {
         log.info("Connecting to MQTT broker...");
         mqttClient.connect()
@@ -41,7 +46,6 @@ public class MqttService {
                 });
     }
 
-    @PostConstruct
     public void registerHandlers() {
         log.info("Registering MQTT topic handlers...");
         dispatcher.register(sensorDataHandler);
