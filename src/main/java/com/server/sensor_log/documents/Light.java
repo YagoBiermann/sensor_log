@@ -4,14 +4,18 @@ import org.springframework.data.annotation.TypeAlias;
 import org.springframework.data.mongodb.core.mapping.Document;
 
 import lombok.AllArgsConstructor;
-import lombok.Data;
 import lombok.EqualsAndHashCode;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 
-@Data
+@Getter
+@Setter
 @EqualsAndHashCode(callSuper = true)
 @TypeAlias("light")
-@AllArgsConstructor
 @Document(collection = "lights")
+@NoArgsConstructor
+@AllArgsConstructor
 public class Light extends Sensor {
 
     private DeviceController intensity;
