@@ -1,5 +1,6 @@
 package com.server.sensor_log.services;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import com.hivemq.client.mqtt.datatypes.MqttQos;
@@ -22,7 +23,10 @@ public class MqttService {
 
     private final Mqtt5AsyncClient mqttClient;
     private final MqttMessageDispatcher dispatcher;
-    
+    private final SensorDataHandler sensorDataHandler;
+    private final FanDataHandler fanDataHandler;
+    private final LightDataHandler lightDataHandler;
+
     @PostConstruct
     public void connect() {
         log.info("Connecting to MQTT broker...");
@@ -36,12 +40,13 @@ public class MqttService {
                     }
                 });
     }
+
     @PostConstruct
     public void registerHandlers() {
         log.info("Registering MQTT topic handlers...");
-        dispatcher.register(new SensorDataHandler());
-        dispatcher.register(new FanDataHandler());
-        dispatcher.register(new LightDataHandler());
+        dispatcher.register(sensorDataHandler);
+        dispatcher.register(fanDataHandler);
+        dispatcher.register(lightDataHandler);
     }
 
     public void publish(String topic, String payload) {
