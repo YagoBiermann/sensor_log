@@ -14,8 +14,7 @@ public interface LightMapper {
     Light toEntity(LightPayloadDTO dto);
 
     default Integer map(DeviceController value) {
-        Integer valueFromDeviceController = value == null ? null : value.getValue();
-        return valueFromDeviceController;
+        return value == null ? null : value.getValue();
     }
 
     default DeviceController map(Integer value) {
