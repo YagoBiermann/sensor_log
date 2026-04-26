@@ -1,9 +1,7 @@
 package com.server.sensor_log.mqtt;
 
 import java.util.List;
-
 import org.springframework.stereotype.Component;
-
 import lombok.extern.slf4j.Slf4j;
 
 @Component
@@ -38,8 +36,9 @@ public class MqttMessageDispatcher {
 
     private boolean matches(String pattern, String topic) {
         String regex = pattern
-                .replace("+", "[^/]+")
-                .replace("#", ".+");
+                .replace(".", "\\.") // escape literal dots
+                .replace("+", "[^/]+") // MQTT single-level wildcard
+                .replace("#", ".*");      // MQTT multi-level wildcard
         return topic.matches(regex);
     }
 }
