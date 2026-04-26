@@ -33,9 +33,9 @@ public class MqttService {
         mqttClient.connect()
                 .whenComplete((ack, throwable) -> {
                     if (throwable != null) {
-                        log.error("Failed to connect to MQTT broker", throwable);
+                        log.error("🔴 Failed to connect to MQTT broker", throwable);
                     } else {
-                        log.info("Connected to MQTT broker: {}", ack);
+                        log.info("🟢 Successfully connected to MQTT broker");
                         subscribeToTopics();
                     }
                 });
@@ -73,9 +73,9 @@ public class MqttService {
                 .send()
                 .whenComplete((subAck, throwable) -> {
                     if (throwable != null) {
-                        log.error("Error during subscription setup", throwable);
+                        log.error("🔴 Error during subscription setup", throwable);
                     } else {
-                        log.info("Subscribed successfully to topic: iot/#");
+                        log.info("🟢 Subscribed successfully to topic: iot/#");
                     }
                 });
     }
@@ -89,6 +89,6 @@ public class MqttService {
     @PreDestroy
     public void disconnect() {
         mqttClient.disconnect()
-                .whenComplete((v, t) -> log.info("Disconnected from MQTT broker"));
+                .whenComplete((v, t) -> log.info("🟡 Disconnected from MQTT broker"));
     }
 }
