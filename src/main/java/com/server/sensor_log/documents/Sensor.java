@@ -1,15 +1,22 @@
 package com.server.sensor_log.documents;
 
+import lombok.AllArgsConstructor;
+import lombok.NoArgsConstructor;
+
+import lombok.Setter;
+import lombok.Getter;
 import org.springframework.data.annotation.Id;
 
-import lombok.Data;
-
-@Data
+@Getter
+@Setter
+@NoArgsConstructor
+@AllArgsConstructor
 public abstract class Sensor {
+
     @Id
-    public String id;
-    public String name;
-    public long readingTimestamp;
-    public boolean isActive;
-    public String location;
+    private String id = null;
+    private String name = "Generic Device";
+    private Long readingTimestamp = System.currentTimeMillis();
+    private Boolean active = false;
+    private String location = "Unknown";
 }
