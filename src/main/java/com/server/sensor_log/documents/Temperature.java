@@ -24,11 +24,11 @@ public class Temperature extends Sensor {
 
     @Override
     public String toString() {
-        return "Temperature(" + id + "){"
-                + "status=" + (isActive ? "ON" : "OFF")
-                + ", temperature=" + temperature + "°C"
-                + ", humidity=" + humidity + "%"
-                + ", ph=" + ph + "pH"
+        return "Temperature(" + this.getId() + "){"
+                + "status=" + (this.getActive() ? "ON" : "OFF")
+                + ", temperature=" + this.getTemperature() + "°C"
+                + ", humidity=" + this.getHumidity() + "%"
+                + ", ph=" + this.getPh() + "pH"
                 + '}';
     }
 

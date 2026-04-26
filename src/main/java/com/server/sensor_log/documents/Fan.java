@@ -39,12 +39,12 @@ public class Fan extends Sensor {
 
     @Override
     public String toString() {
-        return "Fan(" + id + "){"
-                + "status=" + (isActive ? "ON" : "OFF")
-                + ", speed=" + speed + "%"
-                + ", voltage=" + voltage + "w"
-                + ", timer=" + timer + "h"
-                + ", rpm=" + rpm + "rpm"
+        return "Fan(" + this.getId() + "){"
+                + "status=" + (this.getActive() ? "ON" : "OFF")
+                + ", speed=" + this.getSpeed() + "%"
+                + ", voltage=" + this.getVoltage() + "w"
+                + ", timer=" + this.getTimer() + "h"
+                + ", rpm=" + this.getRpm() + "rpm"
                 + '}';
     }
 }

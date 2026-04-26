@@ -42,11 +42,11 @@ public class Light extends Sensor {
 
     @Override
     public String toString() {
-        return "Light(" + id + "){"
-                + "status=" + (isActive ? "ON" : "OFF")
-                + ", intensity=" + intensity + "%"
-                + ", voltage=" + voltage + "w"
-                + ", Timer Status=" + timer.getTimerStatus()
+        return "Light(" + this.getId() + "){"
+                + "status=" + (this.getActive() ? "ON" : "OFF")
+                + ", intensity=" + this.getIntensity() + "%"
+                + ", voltage=" + this.getVoltage() + "w"
+                + ", Timer Status=" + (this.timer != null ? this.timer.getTimerStatus() : "N/A")
                 + '}';
     }
 }
