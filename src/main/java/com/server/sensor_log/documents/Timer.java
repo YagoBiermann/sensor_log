@@ -13,8 +13,6 @@ public final class Timer {
     private Integer hours = 0;
     private Integer minutes = 0;
     private Boolean isActive = false;
-    public Timer() {
-    }
 
     public Timer(String name, Integer hours, Integer minutes) {
         this.name = name;

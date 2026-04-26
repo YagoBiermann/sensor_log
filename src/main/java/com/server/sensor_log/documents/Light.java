@@ -19,25 +19,14 @@ import lombok.Setter;
 public class Light extends Sensor {
 
     private DeviceController intensity;
-    private Double voltage;
     private Timer timer;
-
-    public Light() {
-        this.name = "Light";
-        this.location = "Unknown";
-        this.isActive = false;
-        this.intensity = new DeviceController();
-        this.voltage = 0.0;
-        this.timer = new Timer();
-        this.readingTimestamp = System.currentTimeMillis();
-    }
+    private Double voltage = 0.0;
 
     public void setTimer(Integer hours, Integer minutes) {
+        if (this.timer == null) {
+            throw new IllegalStateException("Timer not set");
+        }
         this.timer.setTimer(hours, minutes);
-    }
-
-    public void setIntensity(Integer intensity) {
-        this.intensity.setValue(intensity);
     }
 
     @Override
