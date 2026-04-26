@@ -1,12 +1,32 @@
 package com.server.sensor_log.mqtt.handlers;
 
 import org.springframework.stereotype.Component;
+
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.server.sensor_log.documents.Light;
+import com.server.sensor_log.dto.LightMapper;
+import com.server.sensor_log.dto.LightPayloadDTO;
 import com.server.sensor_log.mqtt.TopicHandler;
+import com.server.sensor_log.repository.SensorRepository;
+
+import lombok.AllArgsConstructor;
+import lombok.NoArgsConstructor;
+import lombok.Getter;
+import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 
-@Component
+@Getter
+@Setter
+@AllArgsConstructor
+@NoArgsConstructor
 @Slf4j
+@Component
 public class LightDataHandler implements TopicHandler {
+
+    private SensorRepository repository;
+    private LightMapper lightMapper;
+    private ObjectMapper objectMapper;
 
     @Override
     public String getTopic() {
@@ -15,6 +35,22 @@ public class LightDataHandler implements TopicHandler {
 
     @Override
     public void handle(String topic, String payload) {
-        log.info("Light data from {}: {}", topic, payload);
+        log.info("Light data received from topic '{}': {}", topic, payload);
+        try {
+            log.trace("🟡 Attempting to deserialize payload from topic '{}'", topic);
+            LightPayloadDTO dto = objectMapper.readValue(payload, LightPayloadDTO.class);
+            log.trace("🔵 Payload deserialized successfully: {}", dto);
+
+            Light light = lightMapper.toEntity(dto);
+            log.trace("🔵 Mapped LightPayloadDTO to Light entity: {}", light);
+
+            repository.save(light);
+            log.info("🟢 Light entity saved successfully from topic '{}'", topic);
+        } catch (JsonProcessingException e) {
+            log.error("🔴 Error converting JSON from topic '{}': {}", topic, e.getMessage());
+        } catch (Exception e) {
+            log.error("🔴 Unexpected error processing light data from topic '{}': {}", topic, e.getMessage());
+        }
+
     }
 }
