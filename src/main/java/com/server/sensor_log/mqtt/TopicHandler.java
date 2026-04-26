@@ -1,8 +1,5 @@
 package com.server.sensor_log.mqtt;
 
-import org.springframework.stereotype.Component;
-
-@Component
 public interface TopicHandler {
 
     String getTopic();
