@@ -14,9 +14,9 @@ import lombok.EqualsAndHashCode;
 @Document(collection = "fans")
 public class Fan extends Sensor {
     private DeviceController speed;     // %
-    private Double voltage;   // W
-    private Timer timer;     // h
-    private Integer rpm;
+    private Double voltage = 0.0;             // W
+    private Timer timer;                // h
+    private Integer rpm = 0;
 
     public Fan() {
         this.name = "Fan";

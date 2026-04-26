@@ -12,19 +12,9 @@ import lombok.EqualsAndHashCode;
 @Document(collection = "temperatures")
 public class Temperature extends Sensor {
 
-    private Integer temperature;     // °C
-    private Integer humidity;        // %
-    private Double ph;               // pH
-
-    public Temperature() {
-        this.name = "Temperature";
-        this.location = "Unknown";
-        this.readingTimestamp = System.currentTimeMillis();
-        this.isActive = false;
-        this.temperature = 0;
-        this.humidity = 0;
-        this.ph = 0.0;
-    }
+    private Integer temperature = 0;     // °C
+    private Integer humidity = 0;        // %
+    private Double ph = 0.0;               // pH
 
     @Override
     public String toString() {
