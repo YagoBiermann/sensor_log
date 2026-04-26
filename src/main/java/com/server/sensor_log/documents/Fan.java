@@ -17,20 +17,16 @@ import lombok.Setter;
 @NoArgsConstructor
 @Document(collection = "fans")
 public class Fan extends Sensor {
+
     private DeviceController speed;     // %
     private Double voltage = 0.0;             // W
     private Timer timer;                // h
     private Integer rpm = 0;
 
-    public Fan() {
-        this.name = "Fan";
-        this.location = "Unknown";
-        this.isActive = false;
-        this.speed = new DeviceController();
-        this.timer = new Timer();
-        this.voltage = 0.0;
-        this.rpm = 0;
-        this.readingTimestamp = System.currentTimeMillis();
+    public Fan(DeviceController speed, Timer timer) {
+        this.speed = speed;
+        this.timer = timer;
+        this.setName("Fan");
     }
 
     public void setSpeed(Integer speed) {
