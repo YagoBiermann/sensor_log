@@ -4,7 +4,7 @@ import java.util.List;
 
 import org.springframework.stereotype.Component;
 
-import lombok.NoArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 
 @Component
 @Slf4j
@@ -23,7 +23,10 @@ public class MqttMessageDispatcher {
     public void dispatch(String topic, String payload) {
         handlers.stream()
                 .filter(h -> matches(h.getTopic(), topic))
-                .forEach(h -> h.handle(topic, payload));
+                .forEach(h -> {
+                    log.debug("Handling topic '{}' with handler {}", topic, h.getClass().getSimpleName());
+                    h.handle(topic, payload);
+                });
     }
 
     private boolean matches(String pattern, String topic) {
