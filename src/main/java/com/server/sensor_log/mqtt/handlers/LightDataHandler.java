@@ -37,7 +37,7 @@ public class LightDataHandler implements TopicHandler {
     public void handle(String topic, String payload) {
         log.info("Light data received from topic '{}': {}", topic, payload);
         try {
-            log.trace("🟡 Attempting to deserialize payload from topic '{}'", topic);
+            log.trace("🟡 Attempting to deserialize payload {} from topic '{}'", payload, topic);
             LightPayloadDTO dto = objectMapper.readValue(payload, LightPayloadDTO.class);
             log.trace("🔵 Payload deserialized successfully: {}", dto);
 
