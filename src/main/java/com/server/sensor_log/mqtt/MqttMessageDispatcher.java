@@ -7,13 +7,13 @@ import org.springframework.stereotype.Component;
 import lombok.NoArgsConstructor;
 
 @Component
-@NoArgsConstructor
+@Slf4j
 public class MqttMessageDispatcher {
 
-    private  List<TopicHandler> handlers;
+    private final List<TopicHandler> handlers;
 
-    public MqttMessageDispatcher(List<TopicHandler> topicHandlers) {
-        this.handlers = topicHandlers;
+    public MqttMessageDispatcher(List<TopicHandler> handlers) {
+        this.handlers = handlers;
     }
 
     public void register(TopicHandler handler) {
