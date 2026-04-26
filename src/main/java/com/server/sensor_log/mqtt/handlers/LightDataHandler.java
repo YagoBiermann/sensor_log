@@ -11,8 +11,8 @@ import com.server.sensor_log.mqtt.TopicHandler;
 import com.server.sensor_log.repository.SensorRepository;
 
 import lombok.AllArgsConstructor;
-import lombok.NoArgsConstructor;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 
@@ -46,8 +46,15 @@ public class LightDataHandler implements TopicHandler {
 
             repository.save(light);
             log.info("🟢 Light entity saved successfully from topic '{}'", topic);
+        } catch (com.fasterxml.jackson.databind.exc.MismatchedInputException e) {
+            log.error("🔴 Deserialization error (invalid structure) on topic '{}': {}", topic, e.getMessage());
+
+        } catch (com.fasterxml.jackson.databind.JsonMappingException e) {
+            log.error("🔴 Mapping error during deserialization on topic '{}': {}", topic, e.getMessage());
+
         } catch (JsonProcessingException e) {
-            log.error("🔴 Error converting JSON from topic '{}': {}", topic, e.getMessage());
+            log.error("🔴 Generic JSON processing error on topic '{}': {}", topic, e.getMessage());
+
         } catch (Exception e) {
             log.error("🔴 Unexpected error processing light data from topic '{}': {}", topic, e.getMessage());
         }
