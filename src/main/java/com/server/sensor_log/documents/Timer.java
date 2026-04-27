@@ -1,5 +1,7 @@
 package com.server.sensor_log.documents;
 
+import jakarta.validation.Valid;
+import jakarta.validation.constraints.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -7,37 +9,21 @@ import lombok.NoArgsConstructor;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
+@Valid
 public final class Timer {
 
+    @NotBlank(message = "Timer name must not be blank")
     private String name = "Timer";
+    @NotNull
+    @Min(value = 0, message = "Hours must be >= 0")
+    @Max(value = 23, message = "Hours must be <= 23")
     private Integer hours = 0;
+    @NotNull
+    @Min(value = 0, message = "Minutes must be >= 0")
+    @Max(value = 59, message = "Minutes must be <= 59")
     private Integer minutes = 0;
+    @NotNull
     private Boolean isActive = false;
-
-    public Timer(String name, Integer hours, Integer minutes) {
-        this.name = name;
-        setTimer(hours, minutes);
-    }
-
-    public void setTimer(Integer hours, Integer minutes) {
-        if (hours == 24 && minutes == 0) {
-            this.hours = hours;
-            this.minutes = minutes;
-            return;
-        }
-
-        if (hours == null || minutes == null) {
-            throw new IllegalArgumentException("Hours and minutes cannot be null");
-        }
-        if (hours < 0 || hours > 24) {
-            throw new IllegalArgumentException("Hours value cannot be negative or exceed 24");
-        }
-        if (minutes < 0 || minutes > 59) {
-            throw new IllegalArgumentException("Minutes value cannot be negative or exceed 59");
-        }
-        this.hours = hours;
-        this.minutes = minutes;
-    }
 
     public String getTimerStatus() {
         if (hours == 0 && minutes == 0) {
