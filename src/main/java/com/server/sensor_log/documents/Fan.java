@@ -34,7 +34,8 @@ public class Fan extends Sensor {
     }
 
     public void setTimer(Integer hours, Integer minutes) {
-        this.timer.setTimer(hours, minutes);
+        this.timer.setHours(hours);
+        this.timer.setMinutes(minutes);
     }
 
     @Override

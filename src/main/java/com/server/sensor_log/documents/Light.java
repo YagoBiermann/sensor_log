@@ -23,10 +23,8 @@ public class Light extends Sensor {
     private Double voltage = 0.0;
 
     public void setTimer(Integer hours, Integer minutes) {
-        if (this.timer == null) {
-            throw new IllegalStateException("Timer not set");
-        }
-        this.timer.setTimer(hours, minutes);
+        this.timer.setHours(hours);
+        this.timer.setMinutes(minutes);
     }
 
     @Override
