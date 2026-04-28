@@ -12,12 +12,14 @@ public class MqttMessageDispatcher {
 
     public MqttMessageDispatcher(List<TopicHandler> handlers) {
         this.handlers = handlers;
+        log.info("Registered {} handler(s): {}", handlers.size(),
+                handlers.stream().map(h -> h.getClass().getSimpleName()).toList());
     }
 
     public void register(TopicHandler handler) {
         handlers.add(handler);
     }
-
+    
     public void dispatch(String topic, String payload) {
         handlers.stream()
                 .filter(h -> {
