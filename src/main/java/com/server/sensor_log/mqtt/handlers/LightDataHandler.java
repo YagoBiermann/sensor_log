@@ -1,6 +1,8 @@
 package com.server.sensor_log.mqtt.handlers;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
+
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.server.sensor_log.documents.Light;
@@ -10,25 +12,20 @@ import com.server.sensor_log.mqtt.TopicHandler;
 import com.server.sensor_log.repository.SensorRepository;
 import com.server.sensor_log.validations.PayloadValidator;
 
-import lombok.AllArgsConstructor;
+import lombok.RequiredArgsConstructor;
 import lombok.Getter;
-import lombok.NoArgsConstructor;
-
-import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 
 @Getter
-@Setter
-@AllArgsConstructor
-@NoArgsConstructor
+@RequiredArgsConstructor
 @Slf4j
 @Component
 public class LightDataHandler implements TopicHandler {
 
-    private SensorRepository repository;
-    private LightMapper lightMapper;
-    private ObjectMapper objectMapper;
-    private PayloadValidator validator;
+    private final SensorRepository repository;
+    private final LightMapper lightMapper;
+    private final ObjectMapper objectMapper;
+    private final PayloadValidator validator;
 
     @Override
     public String getTopic() {
