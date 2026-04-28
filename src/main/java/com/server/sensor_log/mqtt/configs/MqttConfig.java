@@ -16,7 +16,6 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 @RequiredArgsConstructor
 @EnableConfigurationProperties(MqttProperties.class)
-@Profile("!test")
 public class MqttConfig {
 
     private final MqttProperties props;
