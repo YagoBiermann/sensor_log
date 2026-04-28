@@ -41,7 +41,7 @@ public class MqttConfig {
             builder = builder.sslWithDefaultConfig();
 
         }
-        log.info("MQTT Config → host: {}, port: {}, clientId: {}, user: {}, ssl: {}",
+        log.info("🔵 MQTT Config → host: {}, port: {}, clientId: {}, user: {}, ssl: {}",
                 props.getHost(),
                 props.getPort(),
                 props.getClientId(),
