@@ -2,7 +2,10 @@ package com.server.sensor_log.documents;
 
 import org.springframework.data.annotation.TypeAlias;
 import org.springframework.data.mongodb.core.mapping.Document;
+import org.springframework.validation.annotation.Validated;
 
+import jakarta.validation.constraints.Max;
+import jakarta.validation.constraints.Min;
 import lombok.AllArgsConstructor;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
@@ -16,22 +19,15 @@ import lombok.Setter;
 @AllArgsConstructor
 @NoArgsConstructor
 @Document(collection = "fans")
+@Validated
 public class Fan extends Sensor {
 
-    private DeviceController speed;     // %
+    @Min(value = 0, message = "speed must be >= 0")
+    @Max(value = 100, message = "speed must be <= 100")
+    private Integer speed = 0;     // %
     private Double voltage = 0.0;             // W
     private Timer timer;                // h
     private Integer rpm = 0;
-
-    public Fan(DeviceController speed, Timer timer) {
-        this.speed = speed;
-        this.timer = timer;
-        this.setName("Fan");
-    }
-
-    public void setSpeed(Integer speed) {
-        this.speed.setValue(speed);
-    }
 
     public void setTimer(Integer hours, Integer minutes) {
         this.timer.setHours(hours);

@@ -2,6 +2,7 @@ package com.server.sensor_log.documents;
 
 import org.springframework.data.annotation.TypeAlias;
 import org.springframework.data.mongodb.core.mapping.Document;
+import org.springframework.validation.annotation.Validated;
 
 import lombok.AllArgsConstructor;
 import lombok.EqualsAndHashCode;
@@ -16,6 +17,7 @@ import lombok.Setter;
 @EqualsAndHashCode(callSuper = true)
 @TypeAlias("temperature")
 @Document(collection = "temperatures")
+@Validated
 public class Temperature extends Sensor {
 
     private Integer temperature = 0;     // °C

@@ -6,11 +6,13 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.Getter;
 import org.springframework.data.annotation.Id;
+import org.springframework.validation.annotation.Validated;
 
 @Getter
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
+@Validated
 public abstract class Sensor {
 
     @Id
