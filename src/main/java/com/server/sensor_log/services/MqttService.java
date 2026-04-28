@@ -1,14 +1,16 @@
 package com.server.sensor_log.services;
 
+import java.util.Objects;
+
 import org.springframework.stereotype.Service;
 
-import com.hivemq.client.mqtt.datatypes.MqttQos;
-import com.hivemq.client.mqtt.mqtt5.Mqtt5AsyncClient;
 import com.hivemq.client.mqtt.mqtt5.message.publish.Mqtt5Publish;
+import com.server.sensor_log.mqtt.MqttClientPort;
 import com.server.sensor_log.mqtt.MqttMessageDispatcher;
 
 import jakarta.annotation.PostConstruct;
 import jakarta.annotation.PreDestroy;
+import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
@@ -17,63 +19,60 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 public class MqttService {
 
-    private final Mqtt5AsyncClient mqttClient;
+    private final MqttClientPort mqttClient;
     private final MqttMessageDispatcher dispatcher;
+    @Getter
+    private String topic = "iot/#";
 
     @PostConstruct
-    public void connect() {
+    public void start() {
         log.info("🔵 Connecting to MQTT broker...");
-        mqttClient.connect()
-                .whenComplete((ack, throwable) -> {
-                    if (throwable != null) {
-                        log.error("🔴 Failed to connect to MQTT broker", throwable);
-                    } else {
-                        log.info("🟢 Successfully connected to MQTT broker");
-                        subscribeToTopics();
-                    }
-                });
+        mqttClient.connect();
+        log.info("🟢 Successfully connected to MQTT broker");
+
+        log.info("🔵 Subscribing to topics...");
+        mqttClient.subscribe(topic, this::handleMessage);
+        log.info("🟢 Successfully subscribed to topic: {}", topic);
     }
 
     public void publish(String topic, String payload) {
-        mqttClient.publishWith()
-                .topic(topic)
-                .payload(payload.getBytes())
-                .qos(MqttQos.AT_LEAST_ONCE)
-                .retain(false)
-                .send()
-                .whenComplete((result, throwable) -> {
-                    if (throwable != null) {
-                        log.error("Failed to publish to topic {}", topic, throwable);
-                    } else {
-                        log.info("Published to {}: {}", topic, payload);
-                    }
+        log.info("🔵 Publishing message to topic: {}", topic);
+        mqttClient.publish(topic, payload)
+                .thenRun(() -> log.info("🟢 Message successfully published to topic: {}", topic))
+                .exceptionally(throwable -> {
+                    log.error("🔴 Failed to publish message to topic: {}", topic, throwable);
+                    return null;
                 });
-    }
-
-    private void subscribeToTopics() {
-        mqttClient.subscribeWith()
-                .topicFilter("iot/#")
-                .qos(MqttQos.AT_LEAST_ONCE)
-                .callback(this::handleMessage)
-                .send()
-                .whenComplete((subAck, throwable) -> {
-                    if (throwable != null) {
-                        log.error("🔴 Error during subscription setup", throwable);
-                    } else {
-                        log.info("🟢 Subscribed successfully to topic: iot/#");
-                    }
-                });
-    }
-
-    private void handleMessage(Mqtt5Publish mqttMessage) {
-        String topic = mqttMessage.getTopic().toString();
-        String payload = new String(mqttMessage.getPayloadAsBytes());
-        dispatcher.dispatch(topic, payload);
     }
 
     @PreDestroy
-    public void disconnect() {
-        mqttClient.disconnect()
-                .whenComplete((v, t) -> log.info("🟡 Disconnected from MQTT broker"));
+    public void stop() {
+        log.info("🔵 Disconnecting from MQTT broker...");
+        mqttClient.disconnect();
+        log.info("🟢 Successfully disconnected from MQTT broker");
+    }
+
+    public void subscribeToNewTopic(String newTopic) {
+        this.topic = newTopic;
+        mqttClient.subscribe(newTopic, this::handleMessage);
+    }
+
+    protected void handleMessage(Mqtt5Publish mqttMessage) {
+        String pubTopic = mqttMessage.getTopic().toString();
+        byte[] payloadBytes = mqttMessage.getPayloadAsBytes();
+        String payload = payloadBytes == null ? "" : new String(payloadBytes);
+
+        if (pubTopic.isBlank() || payload.isBlank()) {
+            log.error("🔴 MQTT message rejected: blank fields [topicBlank={}, payloadBlank={}] | topic='{}' payload='{}'",
+                    pubTopic.isBlank(), payload.isBlank(), pubTopic, payload);
+            return;
+        }
+        log.info("🔵 Message received on topic: {} | payload: {}", pubTopic, payload);
+        try {
+            dispatcher.dispatch(pubTopic, payload);
+            log.trace("🔵 Message dispatched for topic: {}", pubTopic);
+        } catch (Exception e) {
+            log.error("🔴 Failed to dispatch message for topic: {} | payload: {}", pubTopic, payload, e);
+        }
     }
 }
