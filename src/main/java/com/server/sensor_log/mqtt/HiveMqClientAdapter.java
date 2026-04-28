@@ -26,7 +26,6 @@ public class HiveMqClientAdapter implements MqttClientPort {
     public void connect() {
         try {
             client.connect().get(10, TimeUnit.SECONDS);
-            log.info("🟢 Successfully connected to MQTT broker");
         } catch (TimeoutException e) {
             log.error("🔴 Connection timed out", e);
             throw new RuntimeException("MQTT connection timed out", e);
@@ -65,7 +64,7 @@ public class HiveMqClientAdapter implements MqttClientPort {
                 .payload(payload.getBytes())
                 .qos(MqttQos.AT_LEAST_ONCE)
                 .send()
-                .thenAccept(result -> log.info("📤 Message published to topic: {}", topic))
+                .thenAccept(result -> log.info("🔵 Message published to topic: {}", topic))
                 .exceptionally(throwable -> {
                     log.error("🔴 Failed to publish to topic: {}", topic, throwable);
                     throw new RuntimeException("MQTT publish failed", throwable);
@@ -81,7 +80,7 @@ public class HiveMqClientAdapter implements MqttClientPort {
                     .callback(callback)
                     .send()
                     .get(10, TimeUnit.SECONDS);
-            log.info("📥 Subscribed to topic: {}", topic);
+            log.info("🔵 Subscribed to topic: {}", topic);
         } catch (TimeoutException e) {
             log.error("🔴 Subscribe timed out on topic: {}", topic, e);
             throw new RuntimeException("MQTT subscribe timed out", e);
