@@ -1,15 +1,11 @@
 package com.server.sensor_log.services;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import com.hivemq.client.mqtt.datatypes.MqttQos;
 import com.hivemq.client.mqtt.mqtt5.Mqtt5AsyncClient;
 import com.hivemq.client.mqtt.mqtt5.message.publish.Mqtt5Publish;
 import com.server.sensor_log.mqtt.MqttMessageDispatcher;
-import com.server.sensor_log.mqtt.handlers.FanDataHandler;
-import com.server.sensor_log.mqtt.handlers.LightDataHandler;
-import com.server.sensor_log.mqtt.handlers.SensorDataHandler;
 
 import jakarta.annotation.PostConstruct;
 import jakarta.annotation.PreDestroy;
@@ -23,18 +19,10 @@ public class MqttService {
 
     private final Mqtt5AsyncClient mqttClient;
     private final MqttMessageDispatcher dispatcher;
-    private final SensorDataHandler sensorDataHandler;
-    private final FanDataHandler fanDataHandler;
-    private final LightDataHandler lightDataHandler;
 
     @PostConstruct
-    public void init() {
-        registerHandlers();
-        connect();
-    }
-
     public void connect() {
-        log.info("Connecting to MQTT broker...");
+        log.info("🔵 Connecting to MQTT broker...");
         mqttClient.connect()
                 .whenComplete((ack, throwable) -> {
                     if (throwable != null) {
@@ -44,13 +32,6 @@ public class MqttService {
                         subscribeToTopics();
                     }
                 });
-    }
-
-    public void registerHandlers() {
-        log.info("Registering MQTT topic handlers...");
-        dispatcher.register(sensorDataHandler);
-        dispatcher.register(fanDataHandler);
-        dispatcher.register(lightDataHandler);
     }
 
     public void publish(String topic, String payload) {
