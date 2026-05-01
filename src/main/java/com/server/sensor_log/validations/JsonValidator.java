@@ -18,7 +18,7 @@ public class JsonValidator implements ConstraintValidator<ValidJson, String> {
     @Override
     public boolean isValid(String value, ConstraintValidatorContext context) {
         if (value == null || value.isBlank()) {
-            return true;
+            return false;
         }
         try {
             objectMapper.readTree(value);
