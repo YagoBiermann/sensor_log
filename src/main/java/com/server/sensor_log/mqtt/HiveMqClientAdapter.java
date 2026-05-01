@@ -25,6 +25,7 @@ public class HiveMqClientAdapter implements MqttClientPort {
     @Override
     public void connect() {
         try {
+            log.info("🟢 Connected successfully to MQTT broker");
             client.connect().get(10, TimeUnit.SECONDS);
         } catch (TimeoutException e) {
             log.error("🔴 Connection timed out", e);
@@ -43,7 +44,7 @@ public class HiveMqClientAdapter implements MqttClientPort {
     public void disconnect() {
         try {
             client.disconnect().get(10, TimeUnit.SECONDS);
-            log.info("🔌 Disconnected from MQTT broker");
+            log.info("🔵 Disconnected from MQTT broker");
         } catch (TimeoutException e) {
             log.error("🔴 Disconnection timed out", e);
             throw new RuntimeException("MQTT disconnection timed out", e);
@@ -80,7 +81,7 @@ public class HiveMqClientAdapter implements MqttClientPort {
                     .callback(callback)
                     .send()
                     .get(10, TimeUnit.SECONDS);
-            log.info("🔵 Subscribed to topic: {}", topic);
+            log.info("🟢 Successfully subscribed to topic: {}", topic);
         } catch (TimeoutException e) {
             log.error("🔴 Subscribe timed out on topic: {}", topic, e);
             throw new RuntimeException("MQTT subscribe timed out", e);

@@ -1,7 +1,5 @@
 package com.server.sensor_log.services;
 
-import java.util.Objects;
-
 import org.springframework.stereotype.Service;
 
 import com.hivemq.client.mqtt.mqtt5.message.publish.Mqtt5Publish;
@@ -28,11 +26,7 @@ public class MqttService {
     public void start() {
         log.info("🔵 Connecting to MQTT broker...");
         mqttClient.connect();
-        log.info("🟢 Successfully connected to MQTT broker");
-
-        log.info("🔵 Subscribing to topics...");
         mqttClient.subscribe(topic, this::handleMessage);
-        log.info("🟢 Successfully subscribed to topic: {}", topic);
     }
 
     public void publish(String topic, String payload) {
@@ -49,7 +43,6 @@ public class MqttService {
     public void stop() {
         log.info("🔵 Disconnecting from MQTT broker...");
         mqttClient.disconnect();
-        log.info("🟢 Successfully disconnected from MQTT broker");
     }
 
     public void subscribeToNewTopic(String newTopic) {
@@ -66,7 +59,7 @@ public class MqttService {
             log.error("🔴 MQTT message rejected: blank fields [topicBlank={}, payloadBlank={}] | topic='{}' payload='{}'",
                     pubTopic.isBlank(), payload.isBlank(), pubTopic, payload);
             return;
-        }
+        } 
         log.info("🔵 Message received on topic: {} | payload: {}", pubTopic, payload);
         try {
             dispatcher.dispatch(pubTopic, payload);
