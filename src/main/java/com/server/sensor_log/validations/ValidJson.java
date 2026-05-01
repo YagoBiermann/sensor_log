@@ -10,7 +10,7 @@ import java.lang.annotation.*;
 @Documented
 public @interface ValidJson {
 
-    String message() default "Invalid JSON Format";
+    String message() default "🔴 Error: Invalid JSON Format";
 
     Class<?>[] groups() default {};
 
