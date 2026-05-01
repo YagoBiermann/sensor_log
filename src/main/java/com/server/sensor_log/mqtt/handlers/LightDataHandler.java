@@ -36,14 +36,14 @@ public class LightDataHandler implements TopicHandler {
     public void handle(String topic, String payload) {
         log.info("🔵 Light data received from topic '{}': {}", topic, payload);
         try {
-            log.trace("🟡 Attempting to deserialize payload {} from topic '{}'", payload, topic);
+            log.debug("🟡 Attempting to deserialize payload {} from topic '{}'", payload, topic);
             LightPayloadDTO dto = objectMapper.readValue(payload, LightPayloadDTO.class);
-            log.trace("🔵 Payload deserialized successfully: {}", dto);
-            log.trace("🟡 Validating payload structure: {}", payload);
+            log.debug("🔵 Payload deserialized successfully: {}", dto);
+            log.debug("🟡 Validating payload structure: {}", payload);
             validator.validateOrThrow(dto);
-            log.trace("🔵 Payload was successfully validated");
+            log.debug("🔵 Payload was successfully validated");
             Light light = lightMapper.toEntity(dto);
-            log.trace("🔵 Mapped LightPayloadDTO to Light entity: {}", light);
+            log.debug("🔵 Mapped LightPayloadDTO to Light entity: {}", light);
 
             repository.save(light);
             log.info("🟢 Light entity saved successfully from topic '{}'", topic);
