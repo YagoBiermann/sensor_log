@@ -6,6 +6,7 @@ import java.util.function.Consumer;
 import com.hivemq.client.mqtt.mqtt5.message.publish.Mqtt5Publish;
 
 public interface MqttClientPort {
+    Boolean isConnected();
     void connect();
     void disconnect();
     CompletableFuture<Void> publish(String topic, String payload);

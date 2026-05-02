@@ -27,6 +27,8 @@ public class MqttService {
         log.info("🔵 Connecting to MQTT broker...");
         mqttClient.connect();
         mqttClient.subscribe(topic, this::handleMessage);
+    public Boolean isConnected() {
+        return mqttClient.isConnected();
     }
 
     public void publish(String topic, String payload) {

@@ -23,6 +23,11 @@ public class HiveMqClientAdapter implements MqttClientPort {
     private final Mqtt5AsyncClient client;
 
     @Override
+    public Boolean isConnected() {
+        return client.getState().isConnected();
+    }
+
+    @Override
     public void connect() {
         try {
             log.info("🟢 Connected successfully to MQTT broker");
