@@ -1,35 +1,44 @@
 package com.server.sensor_log.services;
 
-import com.hivemq.client.mqtt.datatypes.MqttTopic;
-import com.hivemq.client.mqtt.mqtt5.message.publish.Mqtt5Publish;
-import com.server.sensor_log.mqtt.MqttClientPort;
-import com.server.sensor_log.mqtt.MqttMessageDispatcher;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
-import org.mockito.ArgumentCaptor;
-
 import java.util.concurrent.CompletableFuture;
 import java.util.function.Consumer;
 
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.ArgumentCaptor;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
-import static org.mockito.Mockito.*;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import static org.mockito.Mockito.doThrow;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyNoInteractions;
+import static org.mockito.Mockito.when;
+import org.mockito.junit.jupiter.MockitoExtension;
 
+import com.hivemq.client.mqtt.datatypes.MqttTopic;
+import com.hivemq.client.mqtt.mqtt5.message.publish.Mqtt5Publish;
+import com.server.sensor_log.mqtt.MqttClientPort;
+import com.server.sensor_log.mqtt.MqttMessageDispatcher;
+import com.server.sensor_log.workers.ReconnectionWorker;
+
+@ExtendWith(MockitoExtension.class)
 class MqttServiceTest {
 
+    @Mock
     private MqttClientPort mqttClient;
+    @Mock
     private MqttMessageDispatcher dispatcher;
+    @Mock
+    private ReconnectionWorker reconnectionWorker;
+    @InjectMocks
     private MqttService mqttService;
-
-    @BeforeEach
-    void setup() {
-        mqttClient = mock(MqttClientPort.class);
-        dispatcher = mock(MqttMessageDispatcher.class);
-        mqttService = new MqttService(mqttClient, dispatcher);
-    }
 
     // =========================
     // Helpers
@@ -72,6 +81,26 @@ class MqttServiceTest {
     }
 
     @Test
+    void shouldReturnConnectionStatus() {
+        when(mqttClient.isConnected()).thenReturn(true);
+        assert mqttService.isConnected();
+
+        when(mqttClient.isConnected()).thenReturn(false);
+        assert !mqttService.isConnected();
+    }
+
+    @Test
+    void shouldHandleReconnection() {
+        doThrow(new RuntimeException("broker unavailable"))
+                .when(mqttClient).connect();
+
+        mqttService.start();
+
+        verify(reconnectionWorker, times(1)).scheduleReconnect(any(Runnable.class));
+        verify(mqttClient, never()).subscribe(any(), any());
+    }
+
+    @Test
     void shouldDisconnectOnStop() {
         mqttService.stop();
 
@@ -96,6 +125,15 @@ class MqttServiceTest {
         mqttService.publish("iot/test", "payload");
 
         verify(mqttClient).publish("iot/test", "payload");
+    }
+
+    @Test
+    void shouldSubscribeWhenConnectionSucceeds() {
+
+        mqttService.start();
+
+        verify(mqttClient).subscribe(eq("iot/#"), any());
+        verifyNoInteractions(reconnectionWorker);
     }
 
     @Test
