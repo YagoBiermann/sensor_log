@@ -5,6 +5,7 @@ import org.springframework.stereotype.Service;
 import com.hivemq.client.mqtt.mqtt5.message.publish.Mqtt5Publish;
 import com.server.sensor_log.mqtt.MqttClientPort;
 import com.server.sensor_log.mqtt.MqttMessageDispatcher;
+import com.server.sensor_log.workers.ReconnectionWorker;
 
 import jakarta.annotation.PostConstruct;
 import jakarta.annotation.PreDestroy;
@@ -19,14 +20,23 @@ public class MqttService {
 
     private final MqttClientPort mqttClient;
     private final MqttMessageDispatcher dispatcher;
+    private final ReconnectionWorker reconnectionWorker;
+
     @Getter
     private String topic = "iot/#";
 
     @PostConstruct
     public void start() {
         log.info("🔵 Connecting to MQTT broker...");
-        mqttClient.connect();
-        mqttClient.subscribe(topic, this::handleMessage);
+        try {
+            mqttClient.connect();
+            mqttClient.subscribe(topic, this::handleMessage);
+        } catch (Exception e) {
+            log.warn("🟡 MQTT connection failed: {}. Service will run without MQTT.", e.getMessage());
+            reconnectionWorker.scheduleReconnect(this::tryReconnect);
+        }
+    }
+
     public Boolean isConnected() {
         return mqttClient.isConnected();
     }
@@ -52,6 +62,17 @@ public class MqttService {
         mqttClient.subscribe(newTopic, this::handleMessage);
     }
 
+    private void tryReconnect() {
+        try {
+            mqttClient.connect();
+            mqttClient.subscribe(topic, this::handleMessage);
+            reconnectionWorker.cancelReconnect();
+            log.info("🟢 MQTT reconnected successfully!");
+        } catch (Exception e) {
+            log.warn("🟡 Reconnect attempt failed: {}", e.getMessage());
+        }
+    }
+
     protected void handleMessage(Mqtt5Publish mqttMessage) {
         String pubTopic = mqttMessage.getTopic().toString();
         byte[] payloadBytes = mqttMessage.getPayloadAsBytes();
@@ -61,7 +82,7 @@ public class MqttService {
             log.error("🔴 MQTT message rejected: blank fields [topicBlank={}, payloadBlank={}] | topic='{}' payload='{}'",
                     pubTopic.isBlank(), payload.isBlank(), pubTopic, payload);
             return;
-        } 
+        }
         log.info("🔵 Message received on topic: {} | payload: {}", pubTopic, payload);
         try {
             dispatcher.dispatch(pubTopic, payload);
@@ -69,5 +90,6 @@ public class MqttService {
         } catch (Exception e) {
             log.error("🔴 Failed to dispatch message for topic: {} | payload: {}", pubTopic, payload, e);
         }
+
     }
 }
