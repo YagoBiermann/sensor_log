@@ -20,21 +20,25 @@ public class ReconnectionWorker {
     private final TaskScheduler scheduler;
 
     public void scheduleReconnect(Runnable callback) {
-
         if (reconnectTask.get() != null) {
-            log.debug("Reconnect already scheduled, skipping.");
+            log.debug("⚪ Reconnect already scheduled, skipping.");
+            return;
         }
 
-        log.debug("🔵 Scheduling reconnection task...");
         ScheduledFuture<?> future = scheduler.scheduleWithFixedDelay(
-                callback::run,
+                callback,
                 Instant.now().plusSeconds(5),
-                Duration.ofSeconds(5)
+                Duration.ofSeconds(10)
         );
 
         if (!reconnectTask.compareAndSet(null, future)) {
             future.cancel(false);
+            log.debug("⚪ Reconnect already scheduled, skipping.");
+            return;
         }
+
+        log.debug("🔵 Reconnection task scheduled.");
+
     }
 
     public void cancelReconnect() {

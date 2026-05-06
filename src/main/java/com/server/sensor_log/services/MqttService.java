@@ -1,5 +1,11 @@
 package com.server.sensor_log.services;
 
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.CompletionException;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
+import java.util.concurrent.atomic.AtomicBoolean;
+
 import org.springframework.stereotype.Service;
 
 import com.hivemq.client.mqtt.mqtt5.message.publish.Mqtt5Publish;
@@ -28,17 +34,16 @@ public class MqttService {
     @PostConstruct
     public void start() {
         log.info("🔵 Connecting to MQTT broker...");
-        try {
-            mqttClient.connect();
-            mqttClient.subscribe(topic, this::handleMessage);
-        } catch (Exception e) {
-            log.warn("🟡 MQTT connection failed: {}. Service will run without MQTT.", e.getMessage());
-            reconnectionWorker.scheduleReconnect(this::tryReconnect);
-        }
-    }
-
-    public Boolean isConnected() {
-        return mqttClient.isConnected();
+        mqttClient.connect()
+                .thenCompose(connAck -> {
+                    log.info("🟢 Connected successfully to MQTT broker");
+                    return mqttClient.subscribe(topic, this::handleMessage);
+                })
+                .exceptionally(ex -> {
+                    log.warn("🟡 MQTT connection failed, scheduling reconnection...");
+                    reconnectionWorker.scheduleReconnect(this::tryReconnect);
+                    return null;
+                });
     }
 
     public void publish(String topic, String payload) {
@@ -57,19 +62,28 @@ public class MqttService {
         mqttClient.disconnect();
     }
 
-    public void subscribeToNewTopic(String newTopic) {
-        this.topic = newTopic;
-        mqttClient.subscribe(newTopic, this::handleMessage);
+    public void subscribe(String topic) {
+        this.topic = topic;
+        mqttClient.subscribe(topic, this::handleMessage);
     }
 
     private void tryReconnect() {
         try {
-            mqttClient.connect();
-            mqttClient.subscribe(topic, this::handleMessage);
+            mqttClient.reconnect(topic, this::handleMessage).orTimeout(5, TimeUnit.SECONDS).join();
             reconnectionWorker.cancelReconnect();
             log.info("🟢 MQTT reconnected successfully!");
-        } catch (Exception e) {
-            log.warn("🟡 Reconnect attempt failed: {}", e.getMessage());
+
+        } catch (CompletionException e) {
+            handleReconnectError(e.getCause());
+        }
+    }
+
+    private void handleReconnectError(Throwable cause) {
+        switch (cause) {
+            case TimeoutException e ->
+                log.warn("🟡 Reconnect timed out. Retrying...");
+            default ->
+                log.error("🔴 Error while reconnecting", cause);
         }
     }
 
