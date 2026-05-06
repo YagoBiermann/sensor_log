@@ -5,6 +5,7 @@ import java.util.function.Consumer;
 
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
@@ -14,6 +15,7 @@ import static org.mockito.ArgumentMatchers.eq;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import static org.mockito.Mockito.doThrow;
+import static org.mockito.Mockito.lenient;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
@@ -69,6 +71,18 @@ class MqttServiceTest {
         return future;
     }
 
+    @BeforeEach
+    void setUp() {
+        lenient().when(mqttClient.connect())
+                .thenReturn(CompletableFuture.completedFuture(null));
+        lenient().when(mqttClient.disconnect())
+                .thenReturn(CompletableFuture.completedFuture(null));
+        lenient().when(mqttClient.reconnect(any(), any()))
+                .thenReturn(CompletableFuture.completedFuture(null));
+        lenient().when(mqttClient.subscribe(any(), any()))
+                .thenReturn(CompletableFuture.completedFuture(null));
+    }
+
     // =========================
     // Tests
     // =========================
@@ -78,21 +92,14 @@ class MqttServiceTest {
 
         verify(mqttClient).connect();
         verify(mqttClient).subscribe(eq("iot/#"), any());
-    }
-
-    @Test
-    void shouldReturnConnectionStatus() {
-        when(mqttClient.isConnected()).thenReturn(true);
-        assert mqttService.isConnected();
-
-        when(mqttClient.isConnected()).thenReturn(false);
-        assert !mqttService.isConnected();
+        verifyNoInteractions(reconnectionWorker);
     }
 
     @Test
     void shouldHandleReconnection() {
-        doThrow(new RuntimeException("broker unavailable"))
-                .when(mqttClient).connect();
+        when(mqttClient.connect())
+                .thenReturn(CompletableFuture.failedFuture(
+                        new RuntimeException("broker unavailable")));
 
         mqttService.start();
 
@@ -128,17 +135,8 @@ class MqttServiceTest {
     }
 
     @Test
-    void shouldSubscribeWhenConnectionSucceeds() {
-
-        mqttService.start();
-
-        verify(mqttClient).subscribe(eq("iot/#"), any());
-        verifyNoInteractions(reconnectionWorker);
-    }
-
-    @Test
     void shouldSubscribeToNewTopic() {
-        mqttService.subscribeToNewTopic("new/topic");
+        mqttService.subscribe("new/topic");
 
         verify(mqttClient).subscribe(eq("new/topic"), any());
     }
@@ -186,7 +184,7 @@ class MqttServiceTest {
     void shouldUpdateTopicAndSubscribe() {
         String topic = "iot/test";
 
-        mqttService.subscribeToNewTopic(topic);
+        mqttService.subscribe(topic);
 
         assertEquals(topic, mqttService.getTopic());
 
@@ -197,5 +195,70 @@ class MqttServiceTest {
 
         Consumer<Mqtt5Publish> callback = captor.getValue();
         assert callback != null;
+    }
+
+    @Test
+    void shouldRejectBlankPayload() {
+        var msg = message("iot/temp", new byte[0]); // or "   ".getBytes()
+        assertDoesNotThrow(() -> mqttService.handleMessage(msg));
+        verify(dispatcher, never()).dispatch(any(), any());
+    }
+
+    @Test
+    void shouldCallReconnectOnScheduledRunnable() {
+        when(mqttClient.connect())
+                .thenReturn(CompletableFuture.failedFuture(new RuntimeException("down")));
+
+        mqttService.start();
+
+        var captor = ArgumentCaptor.forClass(Runnable.class);
+        verify(reconnectionWorker).scheduleReconnect(captor.capture());
+
+        captor.getValue().run();
+
+        verify(mqttClient).reconnect(any(), any());
+    }
+
+    @Test
+    void shouldCancelReconnectWorkerOnSuccessfulReconnect() {
+        when(mqttClient.connect())
+                .thenReturn(CompletableFuture.failedFuture(new RuntimeException("down")));
+
+        mqttService.start();
+
+        var captor = ArgumentCaptor.forClass(Runnable.class);
+        verify(reconnectionWorker).scheduleReconnect(captor.capture());
+        captor.getValue().run();
+
+        verify(reconnectionWorker).cancelReconnect();
+    }
+
+    @Test
+    void shouldNotCancelReconnectWorkerOnFailedReconnect() {
+        when(mqttClient.connect())
+                .thenReturn(CompletableFuture.failedFuture(new RuntimeException("down")));
+        when(mqttClient.reconnect(any(), any()))
+                .thenReturn(CompletableFuture.failedFuture(new RuntimeException("still down")));
+
+        mqttService.start();
+
+        var captor = ArgumentCaptor.forClass(Runnable.class);
+        verify(reconnectionWorker).scheduleReconnect(captor.capture());
+        captor.getValue().run();
+
+        verify(reconnectionWorker, never()).cancelReconnect();
+    }
+
+    @Test
+    void shouldHandleDisconnectFailureGracefully() {
+        when(mqttClient.disconnect())
+                .thenReturn(CompletableFuture.failedFuture(new RuntimeException("disconnect failed")));
+
+        assertDoesNotThrow(() -> mqttService.stop());
+    }
+
+    @Test
+    void shouldHaveDefaultTopic() {
+        assertEquals("iot/#", mqttService.getTopic());
     }
 }
