@@ -26,8 +26,7 @@ public class MqttConfig {
                 .useMqttVersion5()
                 .identifier(props.getClientId())
                 .serverHost(props.getHost())
-                .serverPort(props.getPort())
-                .automaticReconnectWithDefaultConfig();
+                .serverPort(props.getPort());
 
         if (props.getUsername() != null) {
             builder = builder.simpleAuth()
