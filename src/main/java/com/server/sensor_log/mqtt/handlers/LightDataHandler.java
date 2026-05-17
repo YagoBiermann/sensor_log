@@ -10,7 +10,6 @@ import com.server.sensor_log.dto.LightMapper;
 import com.server.sensor_log.dto.LightPayloadDTO;
 import com.server.sensor_log.mqtt.TopicHandler;
 import com.server.sensor_log.repository.SensorRepository;
-import com.server.sensor_log.validations.PayloadValidator;
 
 import lombok.RequiredArgsConstructor;
 import lombok.Getter;
@@ -25,7 +24,6 @@ public class LightDataHandler implements TopicHandler {
     private final SensorRepository repository;
     private final LightMapper lightMapper;
     private final ObjectMapper objectMapper;
-    private final PayloadValidator validator;
 
     @Override
     public String getTopic() {
