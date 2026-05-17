@@ -1,30 +1,34 @@
 package com.server.sensor_log.documents;
 
+import jakarta.validation.Valid;
+import lombok.*;
+import lombok.experimental.SuperBuilder;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.annotation.TypeAlias;
 import org.springframework.data.mongodb.core.mapping.Document;
 import org.springframework.stereotype.Component;
 import org.springframework.validation.annotation.Validated;
 
 import jakarta.validation.constraints.*;
-import lombok.EqualsAndHashCode;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.RequiredArgsConstructor;
-import lombok.Setter;
 
-@Getter
-@Setter
+import java.time.Duration;
+import java.time.Period;
+
+@Data
 @EqualsAndHashCode(callSuper = true)
 @TypeAlias("light")
 @Document(collection = "lights")
-@RequiredArgsConstructor
-@Component
+@NoArgsConstructor
+@AllArgsConstructor
+@SuperBuilder
+@Slf4j
 @Validated
+@Component
 public class Light extends Sensor {
-
     @Min(value = 0, message = "Intensity must be >= 0")
     @Max(value = 100, message = "Intensity must be <= 100")
     private Integer intensity = 0;
+    @Valid
     private Timer timer;
     @Positive
     private Double voltage = 0.0;

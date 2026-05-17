@@ -1,15 +1,13 @@
 package com.server.sensor_log.documents;
 
-import lombok.AllArgsConstructor;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
-import lombok.Setter;
-import lombok.Getter;
+import lombok.experimental.SuperBuilder;
 import org.springframework.data.annotation.Id;
 import org.springframework.validation.annotation.Validated;
 
-@Getter
-@Setter
+@Data
+@SuperBuilder
 @NoArgsConstructor
 @AllArgsConstructor
 @Validated
