@@ -1,0 +1,20 @@
+FROM eclipse-temurin:21-jdk AS builder
+
+WORKDIR /app
+
+COPY gradle/ gradle/
+COPY gradlew .
+COPY build.gradle settings.gradle ./
+COPY src/ src/
+
+RUN chmod +x gradlew
+RUN ./gradlew bootJar --no-daemon
+
+
+FROM eclipse-temurin:21-jre AS runtime
+WORKDIR /app
+COPY --from=builder /app/build/libs/*.jar /app.jar
+RUN chmod 755 /app.jar
+
+EXPOSE 8080 5005
+ENTRYPOINT ["java", "-agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=*:5005", "-jar", "/app.jar"]
