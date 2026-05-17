@@ -1,6 +1,6 @@
 package com.server.sensor_log.mqtt.handlers;
 
-import org.springframework.beans.factory.annotation.Autowired;
+import com.fasterxml.jackson.databind.RuntimeJsonMappingException;
 import org.springframework.stereotype.Component;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -12,10 +12,8 @@ import com.server.sensor_log.mqtt.TopicHandler;
 import com.server.sensor_log.repository.SensorRepository;
 
 import lombok.RequiredArgsConstructor;
-import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 
-@Getter
 @RequiredArgsConstructor
 @Slf4j
 @Component
@@ -37,10 +35,10 @@ public class LightDataHandler implements TopicHandler {
             log.debug("🟡 Attempting to deserialize payload {} from topic '{}'", payload, topic);
             LightPayloadDTO dto = objectMapper.readValue(payload, LightPayloadDTO.class);
             log.debug("🔵 Payload deserialized successfully: {}", dto);
-            log.debug("🟡 Validating payload structure: {}", payload);
-            validator.validateOrThrow(dto);
-            log.debug("🔵 Payload was successfully validated");
             Light light = lightMapper.toEntity(dto);
+            if (light == null || light.getId() == null) {
+                throw new RuntimeJsonMappingException("Failed to map payload to Light entity");
+            }
             log.debug("🔵 Mapped LightPayloadDTO to Light entity: {}", light);
 
             repository.save(light);
