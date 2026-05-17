@@ -1,11 +1,11 @@
 package com.server.sensor_log.services;
 
-import java.util.concurrent.CompletableFuture;
+import java.nio.charset.StandardCharsets;
 import java.util.concurrent.CompletionException;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
-import java.util.concurrent.atomic.AtomicBoolean;
 
+import org.jspecify.annotations.NonNull;
 import org.springframework.stereotype.Service;
 
 import com.hivemq.client.mqtt.mqtt5.message.publish.Mqtt5Publish;
@@ -87,10 +87,10 @@ public class MqttService {
         }
     }
 
-    protected void handleMessage(Mqtt5Publish mqttMessage) {
+    protected void handleMessage(@NonNull Mqtt5Publish mqttMessage) {
         String pubTopic = mqttMessage.getTopic().toString();
         byte[] payloadBytes = mqttMessage.getPayloadAsBytes();
-        String payload = payloadBytes == null ? "" : new String(payloadBytes);
+        String payload = new String(payloadBytes);
 
         if (pubTopic.isBlank() || payload.isBlank()) {
             log.error("🔴 MQTT message rejected: blank fields [topicBlank={}, payloadBlank={}] | topic='{}' payload='{}'",
