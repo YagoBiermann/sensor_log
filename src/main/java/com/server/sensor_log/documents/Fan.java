@@ -29,9 +29,24 @@ public class Fan extends Sensor {
     private Timer timer;                // h
     private Integer rpm = 0;
 
-    public void setTimer(Integer hours, Integer minutes) {
-        this.timer.setHours(hours);
-        this.timer.setMinutes(minutes);
+    public Fan(String id, String name, Long readingTimestamp, Boolean active, String location, Timer timer, Integer rpm, Double voltage, Integer speed) {
+        super(id, name, readingTimestamp, active, location);
+        this.timer = timer;
+        this.rpm = rpm;
+        this.voltage = voltage;
+        this.speed = speed;
+    }
+
+    public void setTimer(String duration, String daysActive) {
+        if (this.timer == null) {
+            this.timer = new Timer();
+            log.info("Creating new timer for device: {}", this.getName());
+        }
+        this.timer.setTimer(Duration.parse(duration), Period.parse(daysActive));
+    }
+
+    public Boolean isActive() {
+        return this.rpm > 0;
     }
 
     @Override
