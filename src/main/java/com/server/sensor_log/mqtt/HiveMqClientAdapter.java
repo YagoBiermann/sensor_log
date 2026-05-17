@@ -9,6 +9,7 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 import java.util.function.Consumer;
 
+import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Service;
 
 import static com.hivemq.client.mqtt.MqttClientState.CONNECTING;
@@ -48,7 +49,7 @@ public class HiveMqClientAdapter implements MqttClientPort {
             return client.toAsync().connect().thenRun(() -> subscribe(topic, callback));
         }
 
-        return client.toAsync().connect().thenRun(() -> resubscribeAll());
+        return client.toAsync().connect().thenRun(this::resubscribeAll);
     }
 
     @Override
@@ -85,7 +86,7 @@ public class HiveMqClientAdapter implements MqttClientPort {
         }
 
         // Register topic and callback
-        Boolean alreadySubscribed = subscriptions.containsKey(topic);
+        boolean alreadySubscribed = subscriptions.containsKey(topic);
         if (alreadySubscribed) {
             log.debug("⚪ Already subscribed to topic: {}, skipping.", topic);
             return CompletableFuture.completedFuture(null);
@@ -109,8 +110,7 @@ public class HiveMqClientAdapter implements MqttClientPort {
     }
 
     private Boolean isConnected() {
-        Boolean result = client.getState().isConnected();
-        return result;
+        return client.getState().isConnected();
     }
 
     private void resubscribeAll() {

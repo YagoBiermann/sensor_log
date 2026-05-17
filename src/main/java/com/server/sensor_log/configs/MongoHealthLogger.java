@@ -5,7 +5,6 @@ import org.springframework.stereotype.Component;
 
 import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
-
 import lombok.extern.slf4j.Slf4j;
 
 @RequiredArgsConstructor
@@ -22,7 +21,6 @@ public class MongoHealthLogger {
             log.info("✅ MongoDB connection is healthy");
         } catch (Exception e) {
             log.error("❌ MongoDB failed to respond", e);
-
         }
     }
 }
