@@ -3,20 +3,40 @@ package com.server.sensor_log.documents;
 import lombok.*;
 
 import lombok.experimental.SuperBuilder;
-import org.springframework.data.annotation.Id;
-import org.springframework.validation.annotation.Validated;
-
 @Data
+@NoArgsConstructor()
 @SuperBuilder
-@NoArgsConstructor
-@AllArgsConstructor
-@Validated
 public abstract class Sensor {
+    protected String id;
+    protected String name;
+    protected Long readingTimestamp;
+    protected Boolean active;
+    protected String location;
 
-    @Id
-    private String id = null;
-    private String name = "Generic Device";
-    private Long readingTimestamp = System.currentTimeMillis();
-    private Boolean active = false;
-    private String location = "Unknown";
+    protected Sensor(String id, String name, Long readingTimestamp, Boolean active, String location) {
+        validate(id, name, readingTimestamp, active, location);
+        this.id = id;
+        this.name = name;
+        this.readingTimestamp = readingTimestamp;
+        this.active = active;
+        this.location = location;
+    }
+
+    private void validate(String id, String name, Long readingTimestamp, Boolean active, String location) {
+        if (name == null || name.isBlank()) {
+            throw new IllegalArgumentException("Name cannot be null or blank");
+        }
+        if (readingTimestamp == null || readingTimestamp < 0) {
+            throw new IllegalArgumentException("Invalid timestamp");
+        }
+        if (id == null || id.isBlank()) {
+            throw new IllegalArgumentException("Id cannot be null or blank");
+        }
+        if (location == null || location.isBlank()) {
+            throw new IllegalArgumentException("Location cannot be null or blank");
+        }
+        if (active == null) {
+            throw new IllegalArgumentException("Active cannot be null");
+        }
+    }
 }

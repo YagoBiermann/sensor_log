@@ -19,19 +19,15 @@ import java.time.Period;
 @EqualsAndHashCode(callSuper = true)
 @TypeAlias("fan")
 @Document(collection = "fans")
-@NoArgsConstructor
-@AllArgsConstructor
 @SuperBuilder
-@Component
 @Slf4j
-@Validated
 public class Fan extends Sensor {
-
-    @Min(value = 0, message = "speed must be >= 0")
-    @Max(value = 100, message = "speed must be <= 100")
+    @Builder.Default
     private Integer speed = 0;     // %
+    @Builder.Default
     private Double voltage = 0.0;  // W
     private Timer timer;           // h
+    @Builder.Default
     private Integer rpm = 0;
 
     public Fan(String id, String name, Long readingTimestamp, Boolean active, String location, Timer timer, Integer rpm, Double voltage, Integer speed) {

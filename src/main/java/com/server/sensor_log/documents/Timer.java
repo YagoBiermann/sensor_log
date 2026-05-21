@@ -22,36 +22,28 @@ import java.time.Period;
 
 @Data
 @NoArgsConstructor
-@AllArgsConstructor
-@Valid
 public class Timer {
-
-    @NotBlank(message = "Timer name must not be blank")
     private String name = "Timer";
-    @NotNull
     private Boolean enabled = false;
-    @NotNull
     private Duration duration = Duration.ZERO;
-    @NotNull
     private final LocalDateTime currentTime = LocalDateTime.now();
-    @NotNull
     private Period daysActive = Period.ofDays(0);
 
-    @AssertTrue(message = "Days should be between 0 and 7")
-    public boolean isPeriodValid() {
-        return daysActive != null && !daysActive.isNegative() && !(daysActive.getDays() > 7);
+    public Timer(String name, Boolean enabled, Duration duration, Period daysActive) {
+        setTimer(duration, daysActive);
+        this.name = name;
+        this.enabled = enabled;
     }
-
-    @AssertTrue(message = "Duration must be between 0 and 24 hours")
-    public boolean isDurationValid() {
-        return duration != null && !duration.isNegative() && duration.compareTo(Duration.ofHours(24)) <= 0;
-    }
-
     public String getStatus() {
         return enabled ? "ON" : "OFF";
     }
-
-    public void setTimer(@Valid Duration duration, @Valid Period daysActive) {
+    public void setTimer(Duration duration, Period daysActive) {
+        if(!isDurationValid(duration)) {
+            throw new IllegalArgumentException("Duration cannot be negative or greater than 24 hours");
+        }
+        if(!isPeriodValid(daysActive)) {
+            throw new IllegalArgumentException("Period cannot be negative or greater than 7 days");
+        }
         this.duration = duration;
         this.daysActive = daysActive;
         if (duration.isPositive() && daysActive.getDays() >= 1) {
@@ -88,5 +80,13 @@ public class Timer {
         long offHours = 24 - onHours;
 
         return onHours + "/" + offHours;
+    }
+
+    private boolean isPeriodValid(Period period) {
+        return period != null && !period.isNegative() && !(period.getDays() > 7);
+    }
+
+    private boolean isDurationValid(Duration duration) {
+        return duration != null && !duration.isNegative() && duration.compareTo(Duration.ofHours(24)) <= 0;
     }
 }

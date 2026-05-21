@@ -1,13 +1,10 @@
 package com.server.sensor_log.documents;
 
-import jakarta.validation.Valid;
 import lombok.*;
 import lombok.experimental.SuperBuilder;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.annotation.TypeAlias;
 import org.springframework.data.mongodb.core.mapping.Document;
-import org.springframework.stereotype.Component;
-import org.springframework.validation.annotation.Validated;
 
 import jakarta.validation.constraints.*;
 
@@ -17,27 +14,24 @@ import java.time.Period;
 @Data
 @EqualsAndHashCode(callSuper = true)
 @TypeAlias("light")
-@Document(collection = "lights")
 @NoArgsConstructor
-@AllArgsConstructor
+@Document(collection = "lights")
 @SuperBuilder
 @Slf4j
-@Validated
-@Component
 public class Light extends Sensor {
-    @Min(value = 0, message = "Intensity must be >= 0")
-    @Max(value = 100, message = "Intensity must be <= 100")
+    @Builder.Default
     private Integer intensity = 0;
-    @Valid
+
     private Timer timer;
-    @Positive
+    @Builder.Default
     private Double voltage = 0.0;
 
     public Light(String id, String name, Long readingTimestamp, Boolean active, String location, Timer timer, Double voltage, Integer intensity) {
         super(id, name, readingTimestamp, active, location);
+        validate(voltage, intensity);
         this.timer = timer;
-        this.intensity = intensity;
         this.voltage = voltage;
+        this.intensity = intensity;
     }
 
     public void setTimer(String duration, String daysActive) {
@@ -66,5 +60,24 @@ public class Light extends Sensor {
                 "Light(%s){ status=%s, intensity=%d%%, voltage=%sw, timer={ %s } }",
                 getName(), status, intensity, voltage, timerInfo
         );
+    }
+
+    private void validate(Double voltage, Integer intensity) {
+        if (intensity == null) {
+            throw new IllegalArgumentException("Intensity cannot be null");
+        }
+        if (voltage == null) {
+            throw new IllegalArgumentException("Intensity cannot be null");
+        }
+        if (intensity < 0 || intensity > 100) {
+            throw new IllegalArgumentException(
+                    "Intensity must be between 0 and 100"
+            );
+        }
+        if (voltage < 0) {
+            throw new IllegalArgumentException(
+                    "Voltage must be positive"
+            );
+        }
     }
 }
