@@ -1,6 +1,5 @@
 package com.server.sensor_log.mqtt.handlers;
 
-import com.fasterxml.jackson.databind.RuntimeJsonMappingException;
 import org.springframework.stereotype.Component;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -36,9 +35,6 @@ public class LightDataHandler implements TopicHandler {
             LightPayloadDTO dto = objectMapper.readValue(payload, LightPayloadDTO.class);
             log.debug("🔵 Payload deserialized successfully: {}", dto);
             Light light = lightMapper.toEntity(dto);
-            if (light == null || light.getId() == null) {
-                throw new RuntimeJsonMappingException("Failed to map payload to Light entity");
-            }
             log.debug("🔵 Mapped LightPayloadDTO to Light entity: {}", light);
 
             repository.save(light);
@@ -55,6 +51,5 @@ public class LightDataHandler implements TopicHandler {
         } catch (Exception e) {
             log.error("🔴 Unexpected error processing light data from topic '{}': {}", topic, e.getMessage());
         }
-
     }
 }
