@@ -3,9 +3,6 @@ package com.server.sensor_log.dto;
 import lombok.*;
 import lombok.extern.jackson.Jacksonized;
 import org.springframework.data.annotation.Id;
-import org.springframework.stereotype.Component;
-
-import com.fasterxml.jackson.annotation.JsonProperty;
 import com.server.sensor_log.documents.Timer;
 
 import jakarta.validation.Valid;
@@ -44,6 +41,5 @@ public class LightPayloadDTO {
     @DecimalMax(value = "240.0", message = "Voltage must not exceed 240V")
     private Double voltage;
 
-    @Valid
     private Timer timer;
 }
