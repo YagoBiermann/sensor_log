@@ -1,16 +1,12 @@
-package com.server.sensor_log.documents;
+package com.server.sensor_log.documents.device_readings;
 
-import jakarta.validation.Valid;
+import com.server.sensor_log.documents.device.Sensor;
+import com.server.sensor_log.documents.Timer;
 import lombok.*;
 import lombok.experimental.SuperBuilder;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.annotation.TypeAlias;
 import org.springframework.data.mongodb.core.mapping.Document;
-import org.springframework.stereotype.Component;
-import org.springframework.validation.annotation.Validated;
-
-import jakarta.validation.constraints.Max;
-import jakarta.validation.constraints.Min;
 
 import java.time.Duration;
 import java.time.Period;
@@ -32,12 +28,13 @@ public class Fan extends Sensor {
     @Builder.Default
     public String type = "FAN";
 
-    public Fan(String id, String name, Long readingTimestamp, Boolean active, String location, Timer timer, Integer rpm, Double voltage, Integer speed) {
-        super(id, name, readingTimestamp, active, location);
+    public Fan(String id, String name, Long readingTimestamp, String location, Timer timer, Integer rpm, Double voltage, Integer speed) {
+        super(id, name, readingTimestamp, location);
         this.timer = timer;
         this.rpm = rpm;
         this.voltage = voltage;
         this.speed = speed;
+        this.active = isActive();
     }
 
     public void setTimer(String duration, String daysActive) {
@@ -48,8 +45,8 @@ public class Fan extends Sensor {
         this.timer.setTimer(Duration.parse(duration), Period.parse(daysActive));
     }
 
-    public Boolean isActive() {
-        return this.rpm > 0;
+    public Boolean isActive(){
+        return rpm > 0 && voltage > 0.5;
     }
 
     @Override

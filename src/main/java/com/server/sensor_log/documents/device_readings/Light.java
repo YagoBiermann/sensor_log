@@ -1,12 +1,12 @@
-package com.server.sensor_log.documents;
+package com.server.sensor_log.documents.device_readings;
 
+import com.server.sensor_log.documents.device.Sensor;
+import com.server.sensor_log.documents.Timer;
 import lombok.*;
 import lombok.experimental.SuperBuilder;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.annotation.TypeAlias;
 import org.springframework.data.mongodb.core.mapping.Document;
-
-import jakarta.validation.constraints.*;
 
 import java.time.Duration;
 import java.time.Period;
@@ -28,12 +28,17 @@ public class Light extends Sensor {
     @Builder.Default
     public String type = "LIGHT";
 
-    public Light(String id, String name, Long readingTimestamp, Boolean active, String location, Timer timer, Double voltage, Integer intensity) {
-        super(id, name, readingTimestamp, active, location);
+    public Light(String id, String name, Long readingTimestamp, String location, Timer timer, Double voltage, Integer intensity) {
+        super(id, name, readingTimestamp, location);
         validate(voltage, intensity);
         this.timer = timer;
         this.voltage = voltage;
         this.intensity = intensity;
+        this.active = isActive();
+    }
+
+    public Boolean isActive() {
+        return voltage > 0.5 && intensity > 0;
     }
 
     public void setTimer(String duration, String daysActive) {

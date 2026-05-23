@@ -1,11 +1,11 @@
-package com.server.sensor_log.documents;
+package com.server.sensor_log.documents.device_readings;
 
+import com.server.sensor_log.documents.device.Sensor;
 import lombok.*;
 import lombok.experimental.SuperBuilder;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.annotation.TypeAlias;
 import org.springframework.data.mongodb.core.mapping.Document;
-import org.springframework.validation.annotation.Validated;
 
 @Getter
 @Setter
@@ -27,6 +27,12 @@ public class Temperature extends Sensor {
     private Double ph = 0.0;             // pH
     @Builder.Default
     public String type = "TEMPERATURE";
+    @Builder.Default
+    public Boolean active = isActive();
+
+    public Boolean isActive(){
+        return temperature != 0 && humidity != 0 && ph != 0;
+    }
 
     @Override
     public String toString() {
