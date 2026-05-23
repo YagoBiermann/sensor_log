@@ -3,7 +3,7 @@ package com.server.sensor_log.dto;
 import lombok.*;
 import lombok.extern.jackson.Jacksonized;
 import org.springframework.data.annotation.Id;
-import com.server.sensor_log.documents.Timer;
+import com.server.sensor_log.domain.model.device.Timer;
 
 import jakarta.validation.constraints.*;
 

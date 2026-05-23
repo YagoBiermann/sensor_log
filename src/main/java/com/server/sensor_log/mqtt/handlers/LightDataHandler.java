@@ -4,7 +4,7 @@ import org.springframework.stereotype.Component;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.server.sensor_log.documents.device.device_readings.LightReading;
+import com.server.sensor_log.domain.model.device.device_readings.LightReading;
 import com.server.sensor_log.dto.LightMapper;
 import com.server.sensor_log.dto.LightReadingDTO;
 import com.server.sensor_log.mqtt.TopicHandler;

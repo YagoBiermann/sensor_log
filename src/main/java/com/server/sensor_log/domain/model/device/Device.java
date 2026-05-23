@@ -1,4 +1,4 @@
-package com.server.sensor_log.documents.device;
+package com.server.sensor_log.domain.model.device;
 
 import lombok.*;
 

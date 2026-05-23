@@ -1,7 +1,7 @@
-package com.server.sensor_log.documents.device.device_readings;
+package com.server.sensor_log.domain.model.device.device_readings;
 
-import com.server.sensor_log.documents.device.Device;
-import com.server.sensor_log.documents.Timer;
+import com.server.sensor_log.domain.model.device.Device;
+import com.server.sensor_log.domain.model.device.Timer;
 import lombok.*;
 import lombok.experimental.SuperBuilder;
 import lombok.extern.slf4j.Slf4j;
