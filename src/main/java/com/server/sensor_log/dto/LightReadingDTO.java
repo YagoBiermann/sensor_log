@@ -10,15 +10,11 @@ import jakarta.validation.constraints.*;
 @Getter
 @Builder
 @Jacksonized
-public class LightPayloadDTO {
+public class LightReadingDTO {
 
     @Id
     @NotBlank(message = "Id must not be null or blank")
     private String id;
-
-    @NotNull(message = "Reading timestamp is required")
-    @Positive(message = "Reading timestamp must be a positive number")
-    private Long readingTimestamp;
 
     @Size(max = 255, message = "Location must be at most 255 characters")
     private String location;
