@@ -3,28 +3,28 @@ package com.server.sensor_log.documents.device;
 import lombok.*;
 
 import lombok.experimental.SuperBuilder;
+
+import java.time.Instant;
+
 @Data
 @NoArgsConstructor()
 @SuperBuilder
 public abstract class Device {
     protected String id;
     protected String readingId;
-    protected Long readingTimestamp;
+    protected Instant readingTimestamp;
     protected Boolean active;
     protected String location;
 
-    protected Device(String id, Long readingTimestamp, String location) {
-        validate(id, readingTimestamp, location);
+    protected Device(String id, String location) {
+        validate(id, location);
         this.id = id;
         this.readingId = id + "_" + readingTimestamp;
-        this.readingTimestamp = readingTimestamp;
+        this.readingTimestamp = Instant.now();
         this.location = location;
     }
 
-    private void validate(String id, Long readingTimestamp, String location) {
-        if (readingTimestamp == null || readingTimestamp < 0) {
-            throw new IllegalArgumentException("Invalid timestamp");
-        }
+    private void validate(String id, String location) {
         if (id == null || id.isBlank()) {
             throw new IllegalArgumentException("Id cannot be null or blank");
         }
