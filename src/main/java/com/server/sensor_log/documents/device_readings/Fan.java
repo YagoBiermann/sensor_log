@@ -28,8 +28,8 @@ public class Fan extends Sensor {
     @Builder.Default
     public String type = "FAN";
 
-    public Fan(String id, String name, Long readingTimestamp, String location, Timer timer, Integer rpm, Double voltage, Integer speed) {
-        super(id, name, readingTimestamp, location);
+    public Fan(String id, Long readingTimestamp, String location, Timer timer, Integer rpm, Double voltage, Integer speed) {
+        super(id, readingTimestamp, location);
         this.timer = timer;
         this.rpm = rpm;
         this.voltage = voltage;
@@ -40,7 +40,7 @@ public class Fan extends Sensor {
     public void setTimer(String duration, String daysActive) {
         if (this.timer == null) {
             this.timer = new Timer();
-            log.info("Creating new timer for device: {}", this.getName());
+            log.info("Creating new timer for device: {}", this.getId());
         }
         this.timer.setTimer(Duration.parse(duration), Period.parse(daysActive));
     }
@@ -52,9 +52,8 @@ public class Fan extends Sensor {
     @Override
     public String toString() {
         String timerInfo = timer != null ? "{ status=%s }".formatted(timer.getStatus()) : "N/A";
-        return "Fan{name='%s', status=%s, speed=%d%%, voltage=%.2fW, timer=%s, rpm=%d}"
+        return "Fan{status=%s, speed=%d%%, voltage=%.2fW, timer=%s, rpm=%d}"
                 .formatted(
-                        getName(),
                         isActive() ? "ON" : "OFF",
                         speed,
                         voltage,

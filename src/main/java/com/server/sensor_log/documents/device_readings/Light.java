@@ -28,8 +28,8 @@ public class Light extends Sensor {
     @Builder.Default
     public String type = "LIGHT";
 
-    public Light(String id, String name, Long readingTimestamp, String location, Timer timer, Double voltage, Integer intensity) {
-        super(id, name, readingTimestamp, location);
+    public Light(String id, Long readingTimestamp, String location, Timer timer, Double voltage, Integer intensity) {
+        super(id, readingTimestamp, location);
         validate(voltage, intensity);
         this.timer = timer;
         this.voltage = voltage;
