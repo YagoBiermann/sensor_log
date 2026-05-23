@@ -1,4 +1,4 @@
-package com.server.sensor_log.dto;
+package com.server.sensor_log.application.dto;
 
 import lombok.*;
 import lombok.extern.jackson.Jacksonized;
