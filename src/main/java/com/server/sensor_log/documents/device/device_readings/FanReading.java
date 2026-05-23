@@ -28,8 +28,8 @@ public class FanReading extends Device {
     @Builder.Default
     public String type = "FAN";
 
-    public FanReading(String id, Long readingTimestamp, String location, Timer timer, Integer rpm, Double voltage, Integer speed) {
-        super(id, readingTimestamp, location);
+    public FanReading(String id, String location, Timer timer, Integer rpm, Double voltage, Integer speed) {
+        super(id, location);
         this.timer = timer;
         this.rpm = rpm;
         this.voltage = voltage;

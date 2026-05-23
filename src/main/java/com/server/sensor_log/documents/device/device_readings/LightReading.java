@@ -28,8 +28,8 @@ public class LightReading extends Device {
     @Builder.Default
     public String type = "LIGHT";
 
-    public LightReading(String id, Long readingTimestamp, String location, Timer timer, Double voltage, Integer intensity) {
-        super(id, readingTimestamp, location);
+    public LightReading(String id, String location, Timer timer, Double voltage, Integer intensity) {
+        super(id, location);
         validate(voltage, intensity);
         this.timer = timer;
         this.voltage = voltage;
