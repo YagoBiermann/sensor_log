@@ -1,6 +1,6 @@
-package com.server.sensor_log.documents.device_readings;
+package com.server.sensor_log.documents.device.device_readings;
 
-import com.server.sensor_log.documents.device.Sensor;
+import com.server.sensor_log.documents.device.Device;
 import lombok.*;
 import lombok.experimental.SuperBuilder;
 import lombok.extern.slf4j.Slf4j;
@@ -15,7 +15,7 @@ import org.springframework.data.mongodb.core.mapping.Document;
 @TypeAlias("temperature")
 @Document(collection = "temperatures")
 @Slf4j
-public class Temperature extends Sensor {
+public class TempReading extends Device {
     @Builder.Default
     @NonNull
     private Integer temperature = 0;     // °C

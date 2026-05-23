@@ -1,6 +1,6 @@
-package com.server.sensor_log.documents.device_readings;
+package com.server.sensor_log.documents.device.device_readings;
 
-import com.server.sensor_log.documents.device.Sensor;
+import com.server.sensor_log.documents.device.Device;
 import com.server.sensor_log.documents.Timer;
 import lombok.*;
 import lombok.experimental.SuperBuilder;
@@ -17,7 +17,7 @@ import java.time.Period;
 @Document(collection = "fans")
 @SuperBuilder
 @Slf4j
-public class Fan extends Sensor {
+public class FanReading extends Device {
     @Builder.Default
     private Integer speed = 0;     // %
     @Builder.Default
@@ -28,7 +28,7 @@ public class Fan extends Sensor {
     @Builder.Default
     public String type = "FAN";
 
-    public Fan(String id, Long readingTimestamp, String location, Timer timer, Integer rpm, Double voltage, Integer speed) {
+    public FanReading(String id, Long readingTimestamp, String location, Timer timer, Integer rpm, Double voltage, Integer speed) {
         super(id, readingTimestamp, location);
         this.timer = timer;
         this.rpm = rpm;

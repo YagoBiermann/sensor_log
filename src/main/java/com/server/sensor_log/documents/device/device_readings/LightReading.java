@@ -1,6 +1,6 @@
-package com.server.sensor_log.documents.device_readings;
+package com.server.sensor_log.documents.device.device_readings;
 
-import com.server.sensor_log.documents.device.Sensor;
+import com.server.sensor_log.documents.device.Device;
 import com.server.sensor_log.documents.Timer;
 import lombok.*;
 import lombok.experimental.SuperBuilder;
@@ -18,7 +18,7 @@ import java.time.Period;
 @Document(collection = "lights")
 @SuperBuilder
 @Slf4j
-public class Light extends Sensor {
+public class LightReading extends Device {
     @Builder.Default
     private Integer intensity = 0;
 
@@ -28,7 +28,7 @@ public class Light extends Sensor {
     @Builder.Default
     public String type = "LIGHT";
 
-    public Light(String id, Long readingTimestamp, String location, Timer timer, Double voltage, Integer intensity) {
+    public LightReading(String id, Long readingTimestamp, String location, Timer timer, Double voltage, Integer intensity) {
         super(id, readingTimestamp, location);
         validate(voltage, intensity);
         this.timer = timer;

@@ -6,14 +6,14 @@ import lombok.experimental.SuperBuilder;
 @Data
 @NoArgsConstructor()
 @SuperBuilder
-public abstract class Sensor {
+public abstract class Device {
     protected String id;
     protected String readingId;
     protected Long readingTimestamp;
     protected Boolean active;
     protected String location;
 
-    protected Sensor(String id, Long readingTimestamp, String location) {
+    protected Device(String id, Long readingTimestamp, String location) {
         validate(id, readingTimestamp, location);
         this.id = id;
         this.readingId = id + "_" + readingTimestamp;

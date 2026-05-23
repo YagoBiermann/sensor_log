@@ -1,15 +1,15 @@
 package com.server.sensor_log.dto;
 
+import com.server.sensor_log.documents.device.device_readings.LightReading;
 import org.mapstruct.Builder;
 import org.mapstruct.Mapper;
 
-import com.server.sensor_log.documents.device_readings.Light;
 import org.mapstruct.ReportingPolicy;
 
 @Mapper(componentModel = "spring", builder = @Builder(disableBuilder = false), unmappedTargetPolicy = ReportingPolicy.WARN)
 public interface LightMapper {
 
-    LightPayloadDTO toDTO(Light light);
+    LightPayloadDTO toDTO(LightReading lightReading);
 
-    Light toEntity(LightPayloadDTO dto);
+    LightReading toEntity(LightPayloadDTO dto);
 }

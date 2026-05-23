@@ -20,7 +20,7 @@ import com.server.sensor_log.mqtt.configs.MqttConfig;
 @SpringBootTest
 @ImportAutoConfiguration(exclude = MqttConfig.class)
 @ActiveProfiles("test")
-class SensorLogApplicationTests {
+class DeviceLogApplicationTests {
 
     @TestConfiguration
     public class MqttTestConfig {

@@ -4,7 +4,7 @@ import org.springframework.stereotype.Component;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.server.sensor_log.documents.device_readings.Light;
+import com.server.sensor_log.documents.device.device_readings.LightReading;
 import com.server.sensor_log.dto.LightMapper;
 import com.server.sensor_log.dto.LightPayloadDTO;
 import com.server.sensor_log.mqtt.TopicHandler;
@@ -20,6 +20,7 @@ public class LightDataHandler implements TopicHandler {
 
     private final SensorRepository repository;
     private final LightMapper lightMapper;
+
     private final ObjectMapper objectMapper;
 
     @Override
@@ -34,10 +35,10 @@ public class LightDataHandler implements TopicHandler {
             log.debug("🟡 Attempting to deserialize payload {} from topic '{}'", payload, topic);
             LightPayloadDTO dto = objectMapper.readValue(payload, LightPayloadDTO.class);
             log.debug("🔵 Payload deserialized successfully: {}", dto);
-            Light light = lightMapper.toEntity(dto);
-            log.debug("🔵 Mapped LightPayloadDTO to Light entity: {}", light);
+            LightReading lightReading = lightMapper.toEntity(dto);
+            log.debug("🔵 Mapped LightPayloadDTO to Light entity: {}", lightReading);
 
-            repository.save(light);
+            repository.save(lightReading);
             log.info("🟢 Light entity saved successfully from topic '{}'", topic);
         } catch (com.fasterxml.jackson.databind.exc.MismatchedInputException e) {
             log.error("🔴 Deserialization error (invalid structure) on topic '{}': {}", topic, e.getMessage());
