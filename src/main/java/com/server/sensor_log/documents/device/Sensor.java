@@ -1,4 +1,4 @@
-package com.server.sensor_log.documents;
+package com.server.sensor_log.documents.device;
 
 import lombok.*;
 
@@ -11,7 +11,6 @@ public abstract class Sensor {
     protected String readingId;
     protected Long readingTimestamp;
     protected String name;
-    protected Long readingTimestamp;
     protected Boolean active;
     protected String location;
 
@@ -21,7 +20,6 @@ public abstract class Sensor {
         this.readingId = id + "_" + readingTimestamp;
         this.name = name;
         this.readingTimestamp = readingTimestamp;
-        this.active = active;
         this.location = location;
     }
 
