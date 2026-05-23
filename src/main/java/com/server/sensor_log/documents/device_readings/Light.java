@@ -44,7 +44,7 @@ public class Light extends Sensor {
     public void setTimer(String duration, String daysActive) {
         if (this.timer == null) {
             this.timer = new Timer();
-            log.info("Creating new timer for device: {}", this.getName());
+            log.info("Creating new timer for device: {}", this.getId());
         }
 
         this.timer.setTimer(Duration.parse(duration), Period.parse(daysActive));
@@ -52,7 +52,7 @@ public class Light extends Sensor {
 
     public Timer getTimer() {
         if (this.timer == null) {
-            log.info("🟠 Timer not set to device: {}", this.getName());
+            log.info("🟠 Timer not set to device: {}", this.getId());
         }
 
         return this.timer;
@@ -65,7 +65,7 @@ public class Light extends Sensor {
 
         return String.format(
                 "Light(%s){ status=%s, intensity=%d%%, voltage=%sw, timer={ %s } }",
-                getName(), status, intensity, voltage, timerInfo
+                getId(), status, intensity, voltage, timerInfo
         );
     }
 
