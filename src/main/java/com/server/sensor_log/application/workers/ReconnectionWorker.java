@@ -1,4 +1,4 @@
-package com.server.sensor_log.workers;
+package com.server.sensor_log.application.workers;
 
 import java.time.Duration;
 import java.time.Instant;

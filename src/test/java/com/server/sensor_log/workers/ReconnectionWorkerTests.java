@@ -5,6 +5,8 @@ import java.time.Instant;
 import java.util.concurrent.ScheduledFuture;
 
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
+
+import com.server.sensor_log.application.workers.ReconnectionWorker;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import static org.mockito.ArgumentMatchers.any;

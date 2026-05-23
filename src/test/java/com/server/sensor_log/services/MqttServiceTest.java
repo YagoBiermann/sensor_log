@@ -28,7 +28,7 @@ import com.hivemq.client.mqtt.datatypes.MqttTopic;
 import com.hivemq.client.mqtt.mqtt5.message.publish.Mqtt5Publish;
 import com.server.sensor_log.mqtt.MqttClientPort;
 import com.server.sensor_log.mqtt.MqttMessageDispatcher;
-import com.server.sensor_log.workers.ReconnectionWorker;
+import com.server.sensor_log.application.workers.ReconnectionWorker;
 
 @ExtendWith(MockitoExtension.class)
 class MqttServiceTest {
