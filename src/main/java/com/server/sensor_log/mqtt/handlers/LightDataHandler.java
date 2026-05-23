@@ -6,7 +6,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.server.sensor_log.documents.device.device_readings.LightReading;
 import com.server.sensor_log.dto.LightMapper;
-import com.server.sensor_log.dto.LightPayloadDTO;
+import com.server.sensor_log.dto.LightReadingDTO;
 import com.server.sensor_log.mqtt.TopicHandler;
 import com.server.sensor_log.repository.SensorRepository;
 
@@ -33,7 +33,7 @@ public class LightDataHandler implements TopicHandler {
         log.info("🔵 Light data received from topic '{}': {}", topic, payload);
         try {
             log.debug("🟡 Attempting to deserialize payload {} from topic '{}'", payload, topic);
-            LightPayloadDTO dto = objectMapper.readValue(payload, LightPayloadDTO.class);
+            LightReadingDTO dto = objectMapper.readValue(payload, LightReadingDTO.class);
             log.debug("🔵 Payload deserialized successfully: {}", dto);
             LightReading lightReading = lightMapper.toEntity(dto);
             log.debug("🔵 Mapped LightPayloadDTO to Light entity: {}", lightReading);

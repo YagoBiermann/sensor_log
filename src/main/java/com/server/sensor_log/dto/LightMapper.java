@@ -9,7 +9,7 @@ import org.mapstruct.ReportingPolicy;
 @Mapper(componentModel = "spring", builder = @Builder(disableBuilder = false), unmappedTargetPolicy = ReportingPolicy.WARN)
 public interface LightMapper {
 
-    LightPayloadDTO toDTO(LightReading lightReading);
+    LightReadingDTO toDTO(LightReading lightReading);
 
-    LightReading toEntity(LightPayloadDTO dto);
+    LightReading toEntity(LightReadingDTO dto);
 }
