@@ -29,6 +29,8 @@ public class Fan extends Sensor {
     private Timer timer;           // h
     @Builder.Default
     private Integer rpm = 0;
+    @Builder.Default
+    public String type = "FAN";
 
     public Fan(String id, String name, Long readingTimestamp, Boolean active, String location, Timer timer, Integer rpm, Double voltage, Integer speed) {
         super(id, name, readingTimestamp, active, location);

@@ -25,6 +25,8 @@ public class Light extends Sensor {
     private Timer timer;
     @Builder.Default
     private Double voltage = 0.0;
+    @Builder.Default
+    public String type = "LIGHT";
 
     public Light(String id, String name, Long readingTimestamp, Boolean active, String location, Timer timer, Double voltage, Integer intensity) {
         super(id, name, readingTimestamp, active, location);

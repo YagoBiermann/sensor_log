@@ -28,6 +28,7 @@ public class Timer {
     private Duration duration = Duration.ZERO;
     private final LocalDateTime currentTime = LocalDateTime.now();
     private Period daysActive = Period.ofDays(0);
+    public String type = "TIMER";
 
     public Timer(String name, Boolean enabled, Duration duration, Period daysActive) {
         setTimer(duration, daysActive);

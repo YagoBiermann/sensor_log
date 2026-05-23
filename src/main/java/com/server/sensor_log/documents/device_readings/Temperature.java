@@ -25,6 +25,8 @@ public class Temperature extends Sensor {
     @Builder.Default
     @NonNull
     private Double ph = 0.0;             // pH
+    @Builder.Default
+    public String type = "TEMPERATURE";
 
     @Override
     public String toString() {
