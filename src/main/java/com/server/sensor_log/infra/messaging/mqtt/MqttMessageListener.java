@@ -7,7 +7,7 @@ import jakarta.validation.constraints.NotBlank;
 
 @Component
 @Validated
-public interface TopicHandler {
+public interface MqttMessageListener {
 
     String getTopic();
 

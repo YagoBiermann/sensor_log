@@ -8,15 +8,15 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 public class MqttMessageDispatcher {
 
-    private final List<TopicHandler> handlers;
+    private final List<MqttMessageListener> handlers;
 
-    public MqttMessageDispatcher(List<TopicHandler> handlers) {
+    public MqttMessageDispatcher(List<MqttMessageListener> handlers) {
         this.handlers = handlers;
         log.info("Registered {} handler(s): {}", handlers.size(),
                 handlers.stream().map(h -> h.getClass().getSimpleName()).toList());
     }
 
-    public void register(TopicHandler handler) {
+    public void register(MqttMessageListener handler) {
         handlers.add(handler);
     }
 

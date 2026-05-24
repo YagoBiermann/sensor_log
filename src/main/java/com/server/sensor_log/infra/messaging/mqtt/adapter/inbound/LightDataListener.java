@@ -7,7 +7,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.server.sensor_log.domain.model.device.device_readings.LightReading;
 import com.server.sensor_log.application.dto.LightMapper;
 import com.server.sensor_log.application.dto.LightReadingDTO;
-import com.server.sensor_log.infra.messaging.mqtt.TopicHandler;
+import com.server.sensor_log.infra.messaging.mqtt.MqttMessageListener;
 import com.server.sensor_log.infra.repository.SensorRepository;
 
 import lombok.RequiredArgsConstructor;
@@ -16,7 +16,7 @@ import lombok.extern.slf4j.Slf4j;
 @RequiredArgsConstructor
 @Slf4j
 @Component
-public class LightDataHandler implements TopicHandler {
+public class LightDataListener implements MqttMessageListener {
 
     private final SensorRepository repository;
     private final LightMapper lightMapper;
