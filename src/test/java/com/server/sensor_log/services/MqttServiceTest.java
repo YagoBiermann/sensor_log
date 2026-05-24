@@ -5,6 +5,8 @@ import java.util.function.Consumer;
 
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+
+import com.server.sensor_log.infra.messaging.mqtt.services.MqttService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -26,8 +28,8 @@ import org.mockito.junit.jupiter.MockitoExtension;
 
 import com.hivemq.client.mqtt.datatypes.MqttTopic;
 import com.hivemq.client.mqtt.mqtt5.message.publish.Mqtt5Publish;
-import com.server.sensor_log.mqtt.MqttClientPort;
-import com.server.sensor_log.mqtt.MqttMessageDispatcher;
+import com.server.sensor_log.infra.messaging.mqtt.MqttClientPort;
+import com.server.sensor_log.infra.messaging.mqtt.MqttMessageDispatcher;
 import com.server.sensor_log.application.workers.ReconnectionWorker;
 
 @ExtendWith(MockitoExtension.class)

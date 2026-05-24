@@ -1,4 +1,4 @@
-package com.server.sensor_log.mqtt.handlers;
+package com.server.sensor_log.infra.messaging.mqtt.handlers;
 
 import org.springframework.stereotype.Component;
 
@@ -7,8 +7,8 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.server.sensor_log.domain.model.device.device_readings.LightReading;
 import com.server.sensor_log.application.dto.LightMapper;
 import com.server.sensor_log.application.dto.LightReadingDTO;
-import com.server.sensor_log.mqtt.TopicHandler;
-import com.server.sensor_log.repository.SensorRepository;
+import com.server.sensor_log.infra.messaging.mqtt.TopicHandler;
+import com.server.sensor_log.infra.repository.SensorRepository;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;

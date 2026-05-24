@@ -1,7 +1,7 @@
-package com.server.sensor_log.mqtt.handlers;
+package com.server.sensor_log.infra.messaging.mqtt.handlers;
 
 import org.springframework.stereotype.Component;
-import com.server.sensor_log.mqtt.TopicHandler;
+import com.server.sensor_log.infra.messaging.mqtt.TopicHandler;
 import lombok.extern.slf4j.Slf4j;
 
 @Component

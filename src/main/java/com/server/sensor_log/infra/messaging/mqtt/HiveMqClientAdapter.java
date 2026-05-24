@@ -1,4 +1,4 @@
-package com.server.sensor_log.mqtt;
+package com.server.sensor_log.infra.messaging.mqtt;
 
 import java.util.Map;
 import java.util.Set;
@@ -9,7 +9,6 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 import java.util.function.Consumer;
 
-import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Service;
 
 import static com.hivemq.client.mqtt.MqttClientState.CONNECTING;

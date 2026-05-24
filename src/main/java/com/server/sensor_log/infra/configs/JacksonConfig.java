@@ -1,4 +1,4 @@
-package com.server.sensor_log.configs;
+package com.server.sensor_log.infra.configs;
 
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.databind.ObjectMapper;

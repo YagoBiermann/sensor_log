@@ -15,7 +15,7 @@ import org.springframework.test.context.ActiveProfiles;
 
 import com.hivemq.client.mqtt.mqtt5.Mqtt5AsyncClient;
 import com.hivemq.client.mqtt.mqtt5.message.connect.connack.Mqtt5ConnAck;
-import com.server.sensor_log.mqtt.configs.MqttConfig;
+import com.server.sensor_log.infra.messaging.mqtt.configs.MqttConfig;
 
 @SpringBootTest
 @ImportAutoConfiguration(exclude = MqttConfig.class)

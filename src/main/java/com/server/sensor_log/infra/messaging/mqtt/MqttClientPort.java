@@ -1,4 +1,4 @@
-package com.server.sensor_log.mqtt;
+package com.server.sensor_log.infra.messaging.mqtt;
 
 import java.util.concurrent.CompletableFuture;
 import java.util.function.Consumer;

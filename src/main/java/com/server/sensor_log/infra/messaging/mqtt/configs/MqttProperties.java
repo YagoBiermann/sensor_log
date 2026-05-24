@@ -1,4 +1,4 @@
-package com.server.sensor_log.mqtt.configs;
+package com.server.sensor_log.infra.messaging.mqtt.configs;
 
 import jakarta.validation.constraints.Max;
 import jakarta.validation.constraints.Min;

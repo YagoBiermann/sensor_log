@@ -1,4 +1,4 @@
-package com.server.sensor_log.configs;
+package com.server.sensor_log.infra.configs;
 
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.stereotype.Component;

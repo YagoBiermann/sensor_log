@@ -1,4 +1,4 @@
-package com.server.sensor_log.mqtt;
+package com.server.sensor_log.infra.messaging.mqtt;
 
 import org.springframework.stereotype.Component;
 import org.springframework.validation.annotation.Validated;
