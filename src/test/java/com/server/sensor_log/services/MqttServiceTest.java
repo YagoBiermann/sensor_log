@@ -6,7 +6,7 @@ import java.util.function.Consumer;
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
-import com.server.sensor_log.infra.messaging.mqtt.services.MqttService;
+import com.server.sensor_log.infra.messaging.mqtt.MqttConnectionManager;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -42,7 +42,7 @@ class MqttServiceTest {
     @Mock
     private ReconnectionWorker reconnectionWorker;
     @InjectMocks
-    private MqttService mqttService;
+    private MqttConnectionManager mqttConnectionManager;
 
     // =========================
     // Helpers
@@ -90,7 +90,7 @@ class MqttServiceTest {
     // =========================
     @Test
     void shouldConnectAndSubscribeOnStart() {
-        mqttService.start();
+        mqttConnectionManager.start();
 
         verify(mqttClient).connect();
         verify(mqttClient).subscribe(eq("iot/#"), any());
@@ -103,7 +103,7 @@ class MqttServiceTest {
                 .thenReturn(CompletableFuture.failedFuture(
                         new RuntimeException("broker unavailable")));
 
-        mqttService.start();
+        mqttConnectionManager.start();
 
         verify(reconnectionWorker, times(1)).scheduleReconnect(any(Runnable.class));
         verify(mqttClient, never()).subscribe(any(), any());
@@ -111,7 +111,7 @@ class MqttServiceTest {
 
     @Test
     void shouldDisconnectOnStop() {
-        mqttService.stop();
+        mqttConnectionManager.stop();
 
         verify(mqttClient).disconnect();
     }
@@ -121,7 +121,7 @@ class MqttServiceTest {
         when(mqttClient.publish(anyString(), anyString()))
                 .thenReturn(successFuture());
 
-        mqttService.publish("iot/test", "payload");
+        mqttConnectionManager.publish("iot/test", "payload");
 
         verify(mqttClient).publish("iot/test", "payload");
     }
@@ -131,14 +131,14 @@ class MqttServiceTest {
         when(mqttClient.publish(anyString(), anyString()))
                 .thenReturn(failedFuture());
 
-        mqttService.publish("iot/test", "payload");
+        mqttConnectionManager.publish("iot/test", "payload");
 
         verify(mqttClient).publish("iot/test", "payload");
     }
 
     @Test
     void shouldSubscribeToNewTopic() {
-        mqttService.subscribe("new/topic");
+        mqttConnectionManager.subscribe("new/topic");
 
         verify(mqttClient).subscribe(eq("new/topic"), any());
     }
@@ -147,7 +147,7 @@ class MqttServiceTest {
     void shouldHandleMessageAndDispatchCorrectly() {
         var msg = message("iot/temp", "25C".getBytes());
 
-        mqttService.handleMessage(msg);
+        mqttConnectionManager.handleMessage(msg);
 
         verify(dispatcher).dispatch("iot/temp", "25C");
     }
@@ -159,7 +159,7 @@ class MqttServiceTest {
         doThrow(new RuntimeException())
                 .when(dispatcher).dispatch(anyString(), anyString());
 
-        assertDoesNotThrow(() -> mqttService.handleMessage(msg));
+        assertDoesNotThrow(() -> mqttConnectionManager.handleMessage(msg));
 
         verify(dispatcher).dispatch("iot/temp", "error");
     }
@@ -168,7 +168,7 @@ class MqttServiceTest {
     void shouldHandleInvalidTopic() {
         var msg = message("", "25".getBytes());
 
-        assertDoesNotThrow(() -> mqttService.handleMessage(msg));
+        assertDoesNotThrow(() -> mqttConnectionManager.handleMessage(msg));
 
         verify(dispatcher, never()).dispatch(any(), any());
     }
@@ -177,7 +177,7 @@ class MqttServiceTest {
     void shouldHandleInvalidPayload() {
         var msg = message("iot/temp", new byte[]{(byte) 0xFF});
 
-        assertDoesNotThrow(() -> mqttService.handleMessage(msg));
+        assertDoesNotThrow(() -> mqttConnectionManager.handleMessage(msg));
 
         verify(dispatcher).dispatch(eq("iot/temp"), anyString());
     }
@@ -186,9 +186,9 @@ class MqttServiceTest {
     void shouldUpdateTopicAndSubscribe() {
         String topic = "iot/test";
 
-        mqttService.subscribe(topic);
+        mqttConnectionManager.subscribe(topic);
 
-        assertEquals(topic, mqttService.getTopic());
+        assertEquals(topic, mqttConnectionManager.getTopic());
 
         @SuppressWarnings("unchecked")
         var captor = ArgumentCaptor.forClass(Consumer.class);
@@ -202,7 +202,7 @@ class MqttServiceTest {
     @Test
     void shouldRejectBlankPayload() {
         var msg = message("iot/temp", new byte[0]); // or "   ".getBytes()
-        assertDoesNotThrow(() -> mqttService.handleMessage(msg));
+        assertDoesNotThrow(() -> mqttConnectionManager.handleMessage(msg));
         verify(dispatcher, never()).dispatch(any(), any());
     }
 
@@ -211,7 +211,7 @@ class MqttServiceTest {
         when(mqttClient.connect())
                 .thenReturn(CompletableFuture.failedFuture(new RuntimeException("down")));
 
-        mqttService.start();
+        mqttConnectionManager.start();
 
         var captor = ArgumentCaptor.forClass(Runnable.class);
         verify(reconnectionWorker).scheduleReconnect(captor.capture());
@@ -226,7 +226,7 @@ class MqttServiceTest {
         when(mqttClient.connect())
                 .thenReturn(CompletableFuture.failedFuture(new RuntimeException("down")));
 
-        mqttService.start();
+        mqttConnectionManager.start();
 
         var captor = ArgumentCaptor.forClass(Runnable.class);
         verify(reconnectionWorker).scheduleReconnect(captor.capture());
@@ -242,7 +242,7 @@ class MqttServiceTest {
         when(mqttClient.reconnect(any(), any()))
                 .thenReturn(CompletableFuture.failedFuture(new RuntimeException("still down")));
 
-        mqttService.start();
+        mqttConnectionManager.start();
 
         var captor = ArgumentCaptor.forClass(Runnable.class);
         verify(reconnectionWorker).scheduleReconnect(captor.capture());
@@ -256,11 +256,11 @@ class MqttServiceTest {
         when(mqttClient.disconnect())
                 .thenReturn(CompletableFuture.failedFuture(new RuntimeException("disconnect failed")));
 
-        assertDoesNotThrow(() -> mqttService.stop());
+        assertDoesNotThrow(() -> mqttConnectionManager.stop());
     }
 
     @Test
     void shouldHaveDefaultTopic() {
-        assertEquals("iot/#", mqttService.getTopic());
+        assertEquals("iot/#", mqttConnectionManager.getTopic());
     }
 }

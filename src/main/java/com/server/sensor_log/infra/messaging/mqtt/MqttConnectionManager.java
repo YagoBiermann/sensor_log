@@ -1,4 +1,4 @@
-package com.server.sensor_log.infra.messaging.mqtt.services;
+package com.server.sensor_log.infra.messaging.mqtt;
 
 import java.util.concurrent.CompletionException;
 import java.util.concurrent.TimeUnit;
@@ -8,8 +8,6 @@ import org.jspecify.annotations.NonNull;
 import org.springframework.stereotype.Service;
 
 import com.hivemq.client.mqtt.mqtt5.message.publish.Mqtt5Publish;
-import com.server.sensor_log.infra.messaging.mqtt.MqttClientPort;
-import com.server.sensor_log.infra.messaging.mqtt.MqttMessageDispatcher;
 import com.server.sensor_log.application.workers.ReconnectionWorker;
 
 import jakarta.annotation.PostConstruct;
@@ -21,7 +19,7 @@ import lombok.extern.slf4j.Slf4j;
 @Service
 @RequiredArgsConstructor
 @Slf4j
-public class MqttService {
+public class MqttConnectionManager {
 
     private final MqttClientPort mqttClient;
     private final MqttMessageDispatcher dispatcher;
