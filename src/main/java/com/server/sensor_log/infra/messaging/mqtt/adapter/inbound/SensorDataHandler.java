@@ -1,4 +1,4 @@
-package com.server.sensor_log.infra.messaging.mqtt.handlers;
+package com.server.sensor_log.infra.messaging.mqtt.adapter.inbound;
 
 import org.springframework.stereotype.Component;
 import com.server.sensor_log.infra.messaging.mqtt.TopicHandler;
