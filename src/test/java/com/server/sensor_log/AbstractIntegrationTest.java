@@ -2,7 +2,7 @@ package com.server.sensor_log;
 
 import com.hivemq.client.mqtt.MqttClient;
 import com.hivemq.client.mqtt.mqtt5.Mqtt5BlockingClient;
-import com.server.sensor_log.repository.SensorRepository;
+import com.server.sensor_log.infra.repository.SensorRepository;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
@@ -19,8 +19,6 @@ import org.testcontainers.containers.wait.strategy.Wait;
 import org.testcontainers.junit.jupiter.Container;
 import org.testcontainers.junit.jupiter.Testcontainers;
 import org.testcontainers.mongodb.MongoDBContainer;
-
-import java.time.Duration;
 
 @Testcontainers
 @SpringBootTest
