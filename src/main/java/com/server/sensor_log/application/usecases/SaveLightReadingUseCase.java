@@ -19,9 +19,10 @@ public class SaveLightReadingUseCase {
     }
 
     public void execute(LightReadingDTO reading) {
-        boolean foundLightDevice = lightRepositoryPort.findById(reading.getId()).isPresent();
+        boolean foundLightDevice = lightRepositoryPort.findById(reading.getDeviceId()).isPresent();
         if(!foundLightDevice) {
-            throw new RuntimeException("Could not find Light device: %s".formatted(reading.getId()));
+            log.warn("🟠 Could not find Light device: {}", reading.getDeviceId());
+            return;
         }
         log.debug("🔵 Saving light readings: {}", reading);
         LightReading lightReading = lightMapper.toEntity(reading);
