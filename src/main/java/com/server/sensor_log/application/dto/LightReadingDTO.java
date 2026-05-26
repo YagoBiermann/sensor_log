@@ -11,13 +11,9 @@ import jakarta.validation.constraints.*;
 @Builder
 @Jacksonized
 public class LightReadingDTO {
-
     @Id
     @NotBlank(message = "Id must not be null or blank")
-    private String id;
-
-    @Size(max = 255, message = "Location must be at most 255 characters")
-    private String location;
+    private String deviceId;
 
     @NotNull(message = "Intensity is required")
     @Min(value = 0, message = "Intensity must be >= 0")
