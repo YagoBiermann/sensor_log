@@ -5,11 +5,8 @@ import org.springframework.stereotype.Component;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.server.sensor_log.domain.model.device.device_readings.LightReading;
-import com.server.sensor_log.application.dto.LightMapper;
 import com.server.sensor_log.application.dto.LightReadingDTO;
 import com.server.sensor_log.infra.messaging.mqtt.MqttMessageListener;
-import com.server.sensor_log.infra.repository.DeviceRepository;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -18,9 +15,6 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 @Component
 public class LightDataListener implements MqttMessageListener {
-
-    private final DeviceRepository repository;
-    private final LightMapper lightMapper;
     private final SaveLightReadingUseCase saveLightReadingUseCase;
     private final ObjectMapper objectMapper;
 
