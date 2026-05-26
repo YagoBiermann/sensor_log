@@ -1,7 +1,5 @@
 package com.server.sensor_log.domain.model.device.device_readings;
 
-import com.server.sensor_log.domain.model.device.Device;
-import com.server.sensor_log.domain.model.device.DeviceType;
 import com.server.sensor_log.domain.model.device.Timer;
 import lombok.*;
 import lombok.experimental.SuperBuilder;
@@ -12,28 +10,25 @@ import org.springframework.data.mongodb.core.mapping.Document;
 import java.time.Duration;
 import java.time.Period;
 
-@Data
-@EqualsAndHashCode(callSuper = true)
+@Getter
+@Setter
 @TypeAlias("light")
-@NoArgsConstructor
 @Document(collection = "lights")
 @SuperBuilder
 @Slf4j
-public class LightReading extends Device {
+public class LightReading extends DataReading{
     @Builder.Default
     private Integer intensity = 0;
-
     private Timer timer;
     @Builder.Default
     private Double voltage = 0.0;
 
-    public LightReading(String id, String location, String topic, Timer timer, Double voltage, Integer intensity) {
-        super(id, location, DeviceType.LIGHT, topic);
+    public LightReading(String deviceId, Timer timer, Double voltage, Integer intensity) {
+        super(deviceId);
         validate(voltage, intensity);
         this.timer = timer;
         this.voltage = voltage;
         this.intensity = intensity;
-        this.active = isActive();
     }
 
     public Boolean isActive() {
@@ -43,7 +38,7 @@ public class LightReading extends Device {
     public void setTimer(String duration, String daysActive) {
         if (this.timer == null) {
             this.timer = new Timer();
-            log.info("Creating new timer for device: {}", this.getId());
+            log.info("Creating new timer for device");
         }
 
         this.timer.setTimer(Duration.parse(duration), Period.parse(daysActive));
@@ -51,7 +46,7 @@ public class LightReading extends Device {
 
     public Timer getTimer() {
         if (this.timer == null) {
-            log.info("🟠 Timer not set to device: {}", this.getId());
+            log.info("🟠 Timer not set to device: {}", getDeviceId());
         }
 
         return this.timer;
@@ -64,7 +59,7 @@ public class LightReading extends Device {
 
         return String.format(
                 "Light(%s){ status=%s, intensity=%d%%, voltage=%sw, timer={ %s } }",
-                getId(), status, intensity, voltage, timerInfo
+                getDeviceId(), status, intensity, voltage, timerInfo
         );
     }
 

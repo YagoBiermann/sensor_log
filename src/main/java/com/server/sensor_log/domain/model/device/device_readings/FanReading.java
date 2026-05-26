@@ -1,7 +1,5 @@
 package com.server.sensor_log.domain.model.device.device_readings;
 
-import com.server.sensor_log.domain.model.device.Device;
-import com.server.sensor_log.domain.model.device.DeviceType;
 import com.server.sensor_log.domain.model.device.Timer;
 import lombok.*;
 import lombok.experimental.SuperBuilder;
@@ -12,13 +10,13 @@ import org.springframework.data.mongodb.core.mapping.Document;
 import java.time.Duration;
 import java.time.Period;
 
-@Data
-@EqualsAndHashCode(callSuper = true)
+@Getter
+@Setter
 @TypeAlias("fan")
 @Document(collection = "fans")
 @SuperBuilder
 @Slf4j
-public class FanReading extends Device {
+public class FanReading extends DataReading {
     @Builder.Default
     private Integer speed = 0;     // %
     @Builder.Default
@@ -27,19 +25,18 @@ public class FanReading extends Device {
     @Builder.Default
     private Integer rpm = 0;
 
-    public FanReading(String id, String location, String topic, Timer timer, Integer rpm, Double voltage, Integer speed) {
-        super(id, location, DeviceType.FAN, topic);
+    public FanReading(String deviceId, Timer timer, Integer rpm, Double voltage, Integer speed) {
+        super(deviceId);
         this.timer = timer;
         this.rpm = rpm;
         this.voltage = voltage;
         this.speed = speed;
-        this.active = isActive();
     }
 
     public void setTimer(String duration, String daysActive) {
         if (this.timer == null) {
             this.timer = new Timer();
-            log.info("Creating new timer for device: {}", this.getId());
+            log.info("Creating new timer for device: {}", this.getDeviceId());
         }
         this.timer.setTimer(Duration.parse(duration), Period.parse(daysActive));
     }
