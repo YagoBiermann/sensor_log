@@ -1,6 +1,7 @@
 package com.server.sensor_log.domain.model.device.device_readings;
 
 import com.server.sensor_log.domain.model.device.Device;
+import com.server.sensor_log.domain.model.device.DeviceType;
 import com.server.sensor_log.domain.model.device.Timer;
 import lombok.*;
 import lombok.experimental.SuperBuilder;
@@ -25,11 +26,9 @@ public class FanReading extends Device {
     private Timer timer;           // h
     @Builder.Default
     private Integer rpm = 0;
-    @Builder.Default
-    public String type = "FAN";
 
-    public FanReading(String id, String location, Timer timer, Integer rpm, Double voltage, Integer speed) {
-        super(id, location);
+    public FanReading(String id, String location, String topic, Timer timer, Integer rpm, Double voltage, Integer speed) {
+        super(id, location, DeviceType.FAN, topic);
         this.timer = timer;
         this.rpm = rpm;
         this.voltage = voltage;

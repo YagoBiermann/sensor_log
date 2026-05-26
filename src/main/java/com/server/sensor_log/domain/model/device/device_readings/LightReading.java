@@ -1,6 +1,7 @@
 package com.server.sensor_log.domain.model.device.device_readings;
 
 import com.server.sensor_log.domain.model.device.Device;
+import com.server.sensor_log.domain.model.device.DeviceType;
 import com.server.sensor_log.domain.model.device.Timer;
 import lombok.*;
 import lombok.experimental.SuperBuilder;
@@ -25,11 +26,9 @@ public class LightReading extends Device {
     private Timer timer;
     @Builder.Default
     private Double voltage = 0.0;
-    @Builder.Default
-    public String type = "LIGHT";
 
-    public LightReading(String id, String location, Timer timer, Double voltage, Integer intensity) {
-        super(id, location);
+    public LightReading(String id, String location, String topic, Timer timer, Double voltage, Integer intensity) {
+        super(id, location, DeviceType.LIGHT, topic);
         validate(voltage, intensity);
         this.timer = timer;
         this.voltage = voltage;
