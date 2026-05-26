@@ -1,5 +1,6 @@
-package com.server.sensor_log.application.dto;
+package com.server.sensor_log.application.mappers;
 
+import com.server.sensor_log.application.dto.LightReadingDTO;
 import com.server.sensor_log.domain.model.device.device_readings.LightReading;
 import org.mapstruct.Builder;
 import org.mapstruct.Mapper;

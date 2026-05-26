@@ -1,6 +1,6 @@
 package com.server.sensor_log.application.usecases;
 
-import com.server.sensor_log.application.dto.LightMapper;
+import com.server.sensor_log.application.mappers.LightMapper;
 import com.server.sensor_log.application.dto.LightReadingDTO;
 import com.server.sensor_log.application.ports.LightRepositoryPort;
 import com.server.sensor_log.domain.model.device.device_readings.LightReading;

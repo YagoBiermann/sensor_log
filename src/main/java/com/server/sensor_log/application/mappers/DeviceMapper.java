@@ -1,5 +1,6 @@
-package com.server.sensor_log.application.dto;
+package com.server.sensor_log.application.mappers;
 
+import com.server.sensor_log.application.dto.DeviceDTO;
 import com.server.sensor_log.domain.model.device.Device;
 import org.mapstruct.Builder;
 import org.mapstruct.Mapper;
