@@ -21,24 +21,14 @@ public class FanReading extends DataReading {
     private Integer speed = 0;     // %
     @Builder.Default
     private Double voltage = 0.0;  // W
-    private Timer timer;           // h
     @Builder.Default
     private Integer rpm = 0;
 
-    public FanReading(String deviceId, Timer timer, Integer rpm, Double voltage, Integer speed) {
+    public FanReading(String deviceId, Integer rpm, Double voltage, Integer speed) {
         super(deviceId);
-        this.timer = timer;
         this.rpm = rpm;
         this.voltage = voltage;
         this.speed = speed;
-    }
-
-    public void setTimer(String duration, String daysActive) {
-        if (this.timer == null) {
-            this.timer = new Timer();
-            log.info("Creating new timer for device: {}", this.getDeviceId());
-        }
-        this.timer.setTimer(Duration.parse(duration), Period.parse(daysActive));
     }
 
     public Boolean isActive(){
@@ -47,13 +37,11 @@ public class FanReading extends DataReading {
 
     @Override
     public String toString() {
-        String timerInfo = timer != null ? "{ status=%s }".formatted(timer.getStatus()) : "N/A";
-        return "Fan{status=%s, speed=%d%%, voltage=%.2fW, timer=%s, rpm=%d}"
+        return "Fan{status=%s, speed=%d%%, voltage=%.2fW, rpm=%d}"
                 .formatted(
                         isActive() ? "ON" : "OFF",
                         speed,
                         voltage,
-                        timer,
                         rpm
                 );
     }

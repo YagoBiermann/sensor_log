@@ -13,11 +13,10 @@ import org.springframework.data.mongodb.core.mapping.Document;
 @Setter
 @SuperBuilder
 @EqualsAndHashCode(callSuper = true)
-@AllArgsConstructor
 @TypeAlias("temperature")
 @Document(collection = "temperatures")
 @Slf4j
-public class TempReading extends Device {
+public class TempReading extends DataReading {
     @Builder.Default
     private Integer temperature = 0;     // °C
     @Builder.Default
@@ -27,8 +26,8 @@ public class TempReading extends Device {
     @Builder.Default
     public Boolean active = isActive();
 
-    public TempReading(String id, String location, String topic, Integer temp, Double ph, Integer humidity) {
-        super(id, location, DeviceType.TEMP, topic);
+    public TempReading(String deviceId, Integer temp, Double ph, Integer humidity) {
+        super(deviceId);
         validate(temp, humidity, ph);
         temperature = temp;
         this.ph = ph;
@@ -42,7 +41,7 @@ public class TempReading extends Device {
 
     @Override
     public String toString() {
-        return "Temperature(" + this.getId() + "){"
+        return "Temperature(" + this.getDeviceId() + "){"
                 + "status=" + (this.getActive() ? "ON" : "OFF")
                 + ", temperature=" + this.getTemperature() + "°C"
                 + ", humidity=" + this.getHumidity() + "%"

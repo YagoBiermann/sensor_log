@@ -3,8 +3,6 @@ package com.server.sensor_log.application.dto;
 import lombok.*;
 import lombok.extern.jackson.Jacksonized;
 import org.springframework.data.annotation.Id;
-import com.server.sensor_log.domain.model.device.Timer;
-
 import jakarta.validation.constraints.*;
 
 @Getter
@@ -24,6 +22,4 @@ public class LightReadingDTO {
     @DecimalMin(value = "0.0", inclusive = false, message = "Voltage must be greater than 0")
     @DecimalMax(value = "240.0", message = "Voltage must not exceed 240V")
     private Double voltage;
-
-    private Timer timer;
 }

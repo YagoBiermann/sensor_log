@@ -1,14 +1,10 @@
 package com.server.sensor_log.domain.model.device.device_readings;
 
-import com.server.sensor_log.domain.model.device.Timer;
 import lombok.*;
 import lombok.experimental.SuperBuilder;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.annotation.TypeAlias;
 import org.springframework.data.mongodb.core.mapping.Document;
-
-import java.time.Duration;
-import java.time.Period;
 
 @Getter
 @Setter
@@ -19,14 +15,12 @@ import java.time.Period;
 public class LightReading extends DataReading{
     @Builder.Default
     private Integer intensity = 0;
-    private Timer timer;
     @Builder.Default
     private Double voltage = 0.0;
 
-    public LightReading(String deviceId, Timer timer, Double voltage, Integer intensity) {
+    public LightReading(String deviceId, Double voltage, Integer intensity) {
         super(deviceId);
         validate(voltage, intensity);
-        this.timer = timer;
         this.voltage = voltage;
         this.intensity = intensity;
     }
@@ -35,31 +29,13 @@ public class LightReading extends DataReading{
         return voltage > 0.5 && intensity > 0;
     }
 
-    public void setTimer(String duration, String daysActive) {
-        if (this.timer == null) {
-            this.timer = new Timer();
-            log.info("Creating new timer for device");
-        }
-
-        this.timer.setTimer(Duration.parse(duration), Period.parse(daysActive));
-    }
-
-    public Timer getTimer() {
-        if (this.timer == null) {
-            log.info("🟠 Timer not set to device: {}", getDeviceId());
-        }
-
-        return this.timer;
-    }
-
     @Override
     public String toString() {
-        String timerInfo = timer != null ? "status=" + timer.getStatus() : "N/A";
         String status = this.voltage > 0 ? "ON" : "OFF";
 
         return String.format(
-                "Light(%s){ status=%s, intensity=%d%%, voltage=%sw, timer={ %s } }",
-                getDeviceId(), status, intensity, voltage, timerInfo
+                "Light(%s){ status=%s, intensity=%d%%, voltage=%sw }",
+                getDeviceId(), status, intensity, voltage
         );
     }
 
