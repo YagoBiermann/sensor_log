@@ -1,5 +1,6 @@
 package com.server.sensor_log.infra.messaging.mqtt.adapter.inbound;
 
+import com.server.sensor_log.application.usecases.SaveLightReadingUseCase;
 import org.springframework.stereotype.Component;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -8,7 +9,7 @@ import com.server.sensor_log.domain.model.device.device_readings.LightReading;
 import com.server.sensor_log.application.dto.LightMapper;
 import com.server.sensor_log.application.dto.LightReadingDTO;
 import com.server.sensor_log.infra.messaging.mqtt.MqttMessageListener;
-import com.server.sensor_log.infra.repository.SensorRepository;
+import com.server.sensor_log.infra.repository.DeviceRepository;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -18,9 +19,9 @@ import lombok.extern.slf4j.Slf4j;
 @Component
 public class LightDataListener implements MqttMessageListener {
 
-    private final SensorRepository repository;
+    private final DeviceRepository repository;
     private final LightMapper lightMapper;
-
+    private final SaveLightReadingUseCase saveLightReadingUseCase;
     private final ObjectMapper objectMapper;
 
     @Override
@@ -35,10 +36,7 @@ public class LightDataListener implements MqttMessageListener {
             log.debug("🟡 Attempting to deserialize payload {} from topic '{}'", payload, topic);
             LightReadingDTO dto = objectMapper.readValue(payload, LightReadingDTO.class);
             log.debug("🔵 Payload deserialized successfully: {}", dto);
-            LightReading lightReading = lightMapper.toEntity(dto);
-            log.debug("🔵 Mapped LightPayloadDTO to Light entity: {}", lightReading);
-
-            repository.save(lightReading);
+            saveLightReadingUseCase.execute(dto);
             log.info("🟢 Light entity saved successfully from topic '{}'", topic);
         } catch (com.fasterxml.jackson.databind.exc.MismatchedInputException e) {
             log.error("🔴 Deserialization error (invalid structure) on topic '{}': {}", topic, e.getMessage());
