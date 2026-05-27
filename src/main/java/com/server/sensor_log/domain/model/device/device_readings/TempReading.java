@@ -1,8 +1,5 @@
 package com.server.sensor_log.domain.model.device.device_readings;
 
-import com.server.sensor_log.domain.model.device.Device;
-import com.server.sensor_log.domain.model.device.DeviceType;
-import com.server.sensor_log.domain.model.device.Timer;
 import lombok.*;
 import lombok.experimental.SuperBuilder;
 import lombok.extern.slf4j.Slf4j;
@@ -24,12 +21,12 @@ public class TempReading extends DataReading {
     @Builder.Default
     private Double ph = 0.0;             // pH
     @Builder.Default
-    public Boolean active = isActive();
+    public Boolean active = false;
 
     public TempReading(String deviceId, Integer temp, Double ph, Integer humidity) {
         super(deviceId);
         validate(temp, humidity, ph);
-        temperature = temp;
+        this.temperature = temp;
         this.ph = ph;
         this.humidity = humidity;
         this.active = isActive();
