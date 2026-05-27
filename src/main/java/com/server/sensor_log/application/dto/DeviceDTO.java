@@ -1,26 +1,23 @@
 package com.server.sensor_log.application.dto;
 
-import com.server.sensor_log.domain.model.device.DeviceType;
+import com.server.sensor_log.domain.model.device.Timer;
 import jakarta.validation.constraints.NotBlank;
-import lombok.AllArgsConstructor;
+import jakarta.validation.constraints.NotNull;
 import lombok.Builder;
-import lombok.Getter;
 import lombok.extern.jackson.Jacksonized;
-import org.springframework.data.annotation.Id;
 
 import java.util.List;
 
-@Getter
 @Builder
-@AllArgsConstructor
 @Jacksonized
-public class DeviceDTO {
-    @Id
-    @NotBlank(message = "Id must not be null or blank")
-    private String id;
-    private List<String> readingId;
-    private Boolean active;
-    private String location;
-    private DeviceType type;
-    private String topic;
+public record DeviceDTO(
+        @NotBlank(message = "Id must not be null or blank")
+        String deviceId,
+        List<String> readingIds,
+        @NotNull
+        Boolean active,
+        @NotBlank(message = "topic must not be null or blank")
+        String topic,
+        Timer timer
+) {
 }
