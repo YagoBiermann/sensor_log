@@ -9,7 +9,6 @@ import jakarta.validation.constraints.*;
 @Builder
 @Jacksonized
 public class LightReadingDTO {
-    @Id
     @NotBlank(message = "Id must not be null or blank")
     private String deviceId;
 
