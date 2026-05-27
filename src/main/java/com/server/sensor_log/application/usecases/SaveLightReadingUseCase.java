@@ -24,9 +24,10 @@ public class SaveLightReadingUseCase {
             log.warn("🟠 Could not find Light device: {}", reading.getDeviceId());
             return;
         }
-        log.debug("🔵 Saving light readings: {}", reading);
+        log.info("🔵 Saving light readings: {}", reading);
         LightReading lightReading = lightMapper.toEntity(reading);
-        log.debug("🔵 Mapped LightPayloadDTO to Light entity: {}", lightReading);
+        log.debug("🔵 Mapped LightReadingDTO to Light entity: {}", lightReading);
         lightRepositoryPort.save(lightReading);
+        log.info("🟢 saved light readings successfully: {}", lightReading);
     }
 }
