@@ -14,25 +14,28 @@ import java.util.List;
 @NoArgsConstructor()
 @SuperBuilder
 @Slf4j
-public abstract class Device {
-    protected String id;
-    protected List<String> readingId;
-    protected Instant readingTimestamp;
-    protected Boolean active;
-    protected String location;
-    protected DeviceType type = DeviceType.GENERIC;
-    protected String topic;
+public class Device {
+    private String deviceId;
+    private List<String> readingIds;
+    private Instant readingTimestamp;
+    private Boolean active;
+    private String location;
+    private String subLocation;
+    private DeviceType type = DeviceType.GENERIC;
     public Timer timer;
 
-    protected Device(String id, List<String> readingIds, String location, DeviceType type, String topic, Timer timer) {
-        validate(id, location, topic);
-        this.id = id;
-        this.readingId = readingIds;
+    public Device(String deviceId, List<String> readingIds, String location, String subLocation, Boolean active, DeviceType type, Timer timer) {
+        validate(deviceId, location, subLocation);
+        this.deviceId = deviceId;
+        this.readingIds = readingIds;
         this.readingTimestamp = Instant.now();
         this.location = location;
         this.type = type;
         this.topic = topic;
         this.timer = timer;
+        this.active = active;
+        this.location = location;
+        this.subLocation = subLocation;
     }
 
     public void setTimer(String duration, String daysActive) {
@@ -51,7 +54,7 @@ public abstract class Device {
         if (location == null || location.isBlank()) {
             throw new IllegalArgumentException("Location cannot be null or blank");
         }
-        if (topic == null || topic.isBlank()) {
+        if (subLocation == null || subLocation.isBlank()) {
             throw new IllegalArgumentException("Topic cannot be null or blank");
         }
     }
