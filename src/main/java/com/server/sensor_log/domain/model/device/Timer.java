@@ -9,16 +9,14 @@ import java.time.Period;
 @Data
 @NoArgsConstructor
 public class Timer {
-    private String name = "Timer";
     private Boolean enabled = false;
     private Duration duration = Duration.ZERO;
     private final LocalDateTime currentTime = LocalDateTime.now();
     private Period daysActive = Period.ofDays(0);
-    public String type = "TIMER";
+    public DeviceType type = DeviceType.TIMER;
 
-    public Timer(String name, Boolean enabled, Duration duration, Period daysActive) {
+    public Timer(Boolean enabled, Duration duration, Period daysActive) {
         setTimer(duration, daysActive);
-        this.name = name;
         this.enabled = enabled;
     }
     public String getStatus() {
@@ -48,7 +46,7 @@ public class Timer {
 
         return """
                 =========================
-                TIMER: %s
+                TIMER:
                 =========================
                 Status: %s
                 
@@ -59,7 +57,7 @@ public class Timer {
                 Timer ON for %d hours and %d days a week
                 
                 =========================
-                """.formatted(name, getStatus(), now.toLocalTime().withSecond(0).withNano(0), now.getDayOfWeek(), getCycle(), duration.toHours(), daysActive.getDays());
+                """.formatted(getStatus(), now.toLocalTime().withSecond(0).withNano(0), now.getDayOfWeek(), getCycle(), duration.toHours(), daysActive.getDays());
     }
 
     private String getCycle() {
