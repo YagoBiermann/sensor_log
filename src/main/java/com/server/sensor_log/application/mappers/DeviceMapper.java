@@ -1,16 +1,26 @@
 package com.server.sensor_log.application.mappers;
 
 import com.server.sensor_log.application.dto.DeviceDTO;
+import com.server.sensor_log.application.dto.TopicDTO;
+import com.server.sensor_log.application.mappers.utils.TopicParser;
 import com.server.sensor_log.domain.model.device.Device;
-import org.mapstruct.Builder;
-import org.mapstruct.Mapper;
+import org.mapstruct.*;
 
-import org.mapstruct.ReportingPolicy;
+@Mapper(componentModel = "spring", unmappedTargetPolicy = ReportingPolicy.WARN)
+public abstract class DeviceMapper {
 
-@Mapper(componentModel = "spring", builder = @Builder(disableBuilder = false), unmappedTargetPolicy = ReportingPolicy.WARN)
-public interface DeviceMapper {
+    public abstract DeviceDTO toDTO(Device device);
 
-    DeviceDTO toDTO(Device device);
+    public Device toEntity(DeviceDTO dto) {
+        if (dto == null) return null;
 
-    Device toEntity(DeviceDTO dto);
+        TopicDTO topic = TopicParser.parse(dto.topic());
+
+        return mapToEntity(dto, topic);
+    }
+
+    @Mapping(target = "subLocation", source = "topic.subLocation")
+    @Mapping(target = "type", source = "topic.deviceType")
+    protected abstract Device mapToEntity(DeviceDTO dto, TopicDTO topic);
+
 }
