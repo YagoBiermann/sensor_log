@@ -2,7 +2,6 @@ package com.server.sensor_log.domain.model.device;
 
 import lombok.*;
 
-import lombok.experimental.SuperBuilder;
 import lombok.extern.slf4j.Slf4j;
 
 import java.time.Duration;
@@ -10,9 +9,7 @@ import java.time.Instant;
 import java.time.Period;
 import java.util.List;
 
-@Data
-@NoArgsConstructor()
-@SuperBuilder
+@Getter
 @Slf4j
 public class Device {
     private String deviceId;
@@ -29,9 +26,7 @@ public class Device {
         this.deviceId = deviceId;
         this.readingIds = readingIds;
         this.readingTimestamp = Instant.now();
-        this.location = location;
         this.type = type;
-        this.topic = topic;
         this.timer = timer;
         this.active = active;
         this.location = location;
@@ -47,7 +42,7 @@ public class Device {
         this.timer.setTimer(Duration.parse(duration), Period.parse(daysActive));
     }
 
-    private void validate(String id, String location, String topic) {
+    private void validate(String id, String location, String subLocation) {
         if (id == null || id.isBlank()) {
             throw new IllegalArgumentException("Id cannot be null or blank");
         }
