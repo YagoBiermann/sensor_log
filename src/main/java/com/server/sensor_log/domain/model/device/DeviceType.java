@@ -5,4 +5,5 @@ public enum DeviceType {
     TEMP,
     FAN,
     LIGHT,
+    TIMER
 }
