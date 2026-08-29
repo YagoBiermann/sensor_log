@@ -179,7 +179,7 @@ class MqttServiceTest {
 
         assertDoesNotThrow(() -> mqttConnectionManager.handleMessage(msg));
 
-        verify(dispatcher).dispatch(eq("iot/temp"), anyString());
+        verify(dispatcher, never()).dispatch(eq("iot/temp"), anyString());
     }
 
     @Test
