@@ -2,7 +2,10 @@ package com.server.sensor_log;
 
 import com.hivemq.client.mqtt.MqttClient;
 import com.hivemq.client.mqtt.mqtt5.Mqtt5BlockingClient;
-import com.server.sensor_log.infra.repository.SensorRepository;
+import com.server.sensor_log.application.ports.DeviceRepositoryPort;
+import com.server.sensor_log.application.ports.LightRepositoryPort;
+import com.server.sensor_log.infra.repository.DeviceRepository;
+import com.server.sensor_log.infra.repository.LightDataReadingRepository;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
@@ -51,7 +54,9 @@ public abstract class AbstractIntegrationTest {
 
     protected static Mqtt5BlockingClient publisher;
     @Autowired
-    protected SensorRepository repository;
+    protected DeviceRepository deviceRepository;
+    @Autowired
+    protected LightDataReadingRepository lighReadingRepository;
 
     @DynamicPropertySource
     static void overrideProperties(DynamicPropertyRegistry registry) {
@@ -64,7 +69,8 @@ public abstract class AbstractIntegrationTest {
 
     @BeforeEach
     void cleanupDatabase() {
-        repository.deleteAll();
+        deviceRepository.deleteAll();
+        lighReadingRepository.deleteAll();
     }
 
     @BeforeAll
