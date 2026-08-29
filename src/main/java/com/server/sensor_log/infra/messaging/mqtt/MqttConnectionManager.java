@@ -84,7 +84,7 @@ public class MqttConnectionManager {
         }
     }
 
-    protected void handleMessage(@NonNull Mqtt5Publish mqttMessage) {
+    public void handleMessage(@NonNull Mqtt5Publish mqttMessage) {
         String pubTopic = mqttMessage.getTopic().toString();
         byte[] payloadBytes = mqttMessage.getPayloadAsBytes();
         String payload = new String(payloadBytes);
