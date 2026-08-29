@@ -36,10 +36,10 @@ dependencies {
     testImplementation "org.testcontainers:testcontainers-mongodb:2.0.5"
     testImplementation "org.testcontainers:testcontainers-junit-jupiter:2.0.5"
     testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
-    annotationProcessor 'org.mapstruct:mapstruct-processor:1.5.5.Final'
     annotationProcessor 'org.springframework.boot:spring-boot-configuration-processor'
     annotationProcessor 'org.projectlombok:lombok'
     annotationProcessor 'org.projectlombok:lombok-mapstruct-binding:0.2.0'
+    annotationProcessor 'org.mapstruct:mapstruct-processor:1.5.5.Final'
 }
 
 test {
