@@ -11,6 +11,10 @@ public class TopicParser {
     private static final Pattern TOPIC_PATTERN = Pattern.compile(
             "^iot/([a-z-]+)/([a-z-]+)/([a-z]+-\\d+)/(data|command)$"
     );
+    
+    public static String buildTopic(String location, String subLocation, DeviceType deviceType) {
+        return String.format("iot/%s/%s/%s-01/data", location, subLocation, deviceType.name().toLowerCase());
+    }
 
     public static TopicDTO parse(String topic) {
         Matcher matcher = TOPIC_PATTERN.matcher(topic);
@@ -34,12 +38,12 @@ public class TopicParser {
                 action.toUpperCase()
         );
 
-        return new TopicDTO(
-                device,
-                deviceType,
-                location,
-                subLocation,
-                actionType
-        );
+        return TopicDTO.builder()
+                .deviceId(device)
+                .deviceType(deviceType)
+                .location(location)
+                .subLocation(subLocation)
+                .action(actionType)
+                .build();
     }
 }

@@ -9,6 +9,8 @@ import java.time.Instant;
 import java.time.Period;
 import java.util.List;
 
+import com.server.sensor_log.application.mappers.utils.TopicParser;
+
 @Getter
 @Slf4j
 public class Device {
@@ -31,6 +33,10 @@ public class Device {
         this.active = active;
         this.location = location;
         this.subLocation = subLocation;
+    }
+
+    public String getTopic() {
+        return TopicParser.buildTopic(location, subLocation, type);
     }
 
     public void setTimer(String duration, String daysActive) {

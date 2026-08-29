@@ -1,11 +1,13 @@
 package com.server.sensor_log.application.usecases;
 
-import com.server.sensor_log.application.mappers.LightMapper;
+import org.springframework.stereotype.Component;
+
 import com.server.sensor_log.application.dto.LightReadingDTO;
+import com.server.sensor_log.application.mappers.LightMapper;
 import com.server.sensor_log.application.ports.LightRepositoryPort;
 import com.server.sensor_log.domain.model.device.device_readings.LightReading;
+
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.stereotype.Component;
 
 @Slf4j
 @Component

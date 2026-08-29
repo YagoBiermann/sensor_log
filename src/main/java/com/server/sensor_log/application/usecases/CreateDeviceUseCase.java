@@ -1,11 +1,13 @@
 package com.server.sensor_log.application.usecases;
 
+import org.springframework.stereotype.Component;
+
 import com.server.sensor_log.application.dto.DeviceDTO;
 import com.server.sensor_log.application.mappers.DeviceMapper;
 import com.server.sensor_log.application.ports.DeviceRepositoryPort;
 import com.server.sensor_log.domain.model.device.Device;
+
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.stereotype.Component;
 
 @Slf4j
 @Component
@@ -18,9 +20,9 @@ public class CreateDeviceUseCase {
     }
 
     public void execute(DeviceDTO deviceDTO){
-        boolean deviceExists = deviceRepositoryPort.findById(deviceDTO.deviceId()).isPresent();
+        boolean deviceExists = deviceRepositoryPort.findById(deviceDTO.getDeviceId()).isPresent();
         if(deviceExists) {
-            log.warn("🟠 Device already exists: {}", deviceDTO.deviceId());
+            log.warn("🟠 Device already exists: {}", deviceDTO.getDeviceId());
             throw new IllegalArgumentException("Device already exists");
         }
         log.info("🔵 Creating new device: {}", deviceDTO);

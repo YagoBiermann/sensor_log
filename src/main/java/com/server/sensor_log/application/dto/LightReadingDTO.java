@@ -4,7 +4,7 @@ import lombok.*;
 import lombok.extern.jackson.Jacksonized;
 import jakarta.validation.constraints.*;
 
-@Builder @Jacksonized
+@Getter @Builder @Jacksonized
 public class LightReadingDTO {
     @NotBlank(message = "Id must not be null or blank")
     private String deviceId;
