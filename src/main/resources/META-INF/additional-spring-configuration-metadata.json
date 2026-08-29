@@ -1,0 +1,27 @@
+{"properties": [
+  {
+    "name": "mqtt.ssl-enabled",
+    "type": "java.lang.String",
+    "description": "A description for 'mqtt.ssl-enabled'"
+  },
+  {
+    "name": "mqtt.host",
+    "type": "java.lang.String",
+    "description": "A description for 'mqtt.host'"
+  },
+  {
+    "name": "mqtt.port",
+    "type": "java.lang.String",
+    "description": "A description for 'mqtt.port'"
+  },
+  {
+    "name": "sslCertificateFile",
+    "type": "java.lang.String",
+    "description": "A description for 'sslCertificateFile'"
+  },
+  {
+    "name": "sslCertificateFile",
+    "type": "java.lang.String",
+    "description": "A description for 'sslCertificateFile'"
+  }
+]}
