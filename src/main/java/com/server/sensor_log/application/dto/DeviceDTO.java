@@ -8,8 +8,7 @@ import lombok.extern.jackson.Jacksonized;
 
 import java.util.List;
 
-@Builder
-@Jacksonized
+@Builder @Jacksonized
 public record DeviceDTO(
         @NotBlank(message = "Id must not be null or blank")
         String deviceId,

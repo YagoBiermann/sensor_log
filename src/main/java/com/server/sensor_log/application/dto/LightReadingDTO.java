@@ -2,12 +2,9 @@ package com.server.sensor_log.application.dto;
 
 import lombok.*;
 import lombok.extern.jackson.Jacksonized;
-import org.springframework.data.annotation.Id;
 import jakarta.validation.constraints.*;
 
-@Getter
-@Builder
-@Jacksonized
+@Builder @Jacksonized
 public class LightReadingDTO {
     @NotBlank(message = "Id must not be null or blank")
     private String deviceId;
