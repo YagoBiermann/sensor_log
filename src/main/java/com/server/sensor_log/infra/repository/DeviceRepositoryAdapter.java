@@ -1,13 +1,15 @@
 package com.server.sensor_log.infra.repository;
 
 import com.server.sensor_log.domain.model.device.Device;
+import com.server.sensor_log.application.ports.DeviceRepositoryPort;
+import com.server.sensor_log.application.ports.LightRepositoryPort;
 import com.server.sensor_log.domain.model.device.device_readings.LightReading;
 import org.springframework.stereotype.Component;
 
 import java.util.Optional;
 
 @Component
-public class DeviceRepositoryAdapter {
+public class DeviceRepositoryAdapter implements DeviceRepositoryPort, LightRepositoryPort {
 
     private final DeviceRepository deviceRepository;
     private final LightDataReadingRepository lightDataReadingRepository;
@@ -16,15 +18,16 @@ public class DeviceRepositoryAdapter {
         this.deviceRepository = deviceRepository;
         this.lightDataReadingRepository = lightDataReadingRepository;
     }
-
+    @Override
     public void save(LightReading lightReading) {
         lightDataReadingRepository.save(lightReading);
     }
 
+    @Override
     public void save(Device newDevice) {
         deviceRepository.save(newDevice);
     }
-
+    @Override
     public Optional<Device> findById(String id) {
         return deviceRepository.findById(id);
     }
