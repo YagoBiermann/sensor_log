@@ -29,13 +29,13 @@ services:
       - "8883:8883"
     env_file: .env
     volumes:
-      - ./certs:/certs
+      - ./certs:/certs:ro
       - ./mosquitto.conf:/mosquitto/config/mosquitto.conf
       - ./mosquitto.passwd:/mosquitto/config/mosquitto.passwd
       - mosquitto_data:/mosquitto/data
       - mosquitto_logs:/mosquitto/log
     healthcheck:
-      test: ["CMD", "sh", "-c", "mosquitto_pub -h ${MQTT_HOST} -p ${MQTT_PORT} --cafile /certs/ca/isrgrootx1.pem -u ${MQTT_USERNAME} -P ${MQTT_PASSWORD} -t healthcheck -m ok"]
+      test: ["CMD", "sh", "-c", "mosquitto_pub -h ${MQTT_HOST} -p ${MQTT_PORT} --tls-use-os-certs -u ${MQTT_USERNAME} -P ${MQTT_PASSWORD} -t healthcheck -m ok"]
       interval: 30s
       timeout: 3s
       retries: 5
