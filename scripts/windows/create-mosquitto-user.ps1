@@ -10,11 +10,11 @@ if ((Split-Path -Leaf $PWD) -ne "sensor_log") {
     exit 1
 }
 
-if ([string]::IsNullOrEmpty($User)) {
-    $User = Read-Host "user"
+while ([string]::IsNullOrEmpty($User)) {
+    $User = Read-Host "type a username"
 }
 
-if ([string]::IsNullOrEmpty($Pass)) {
+while ([string]::IsNullOrEmpty($Pass)) {
     $SecurePass = Read-Host "password" -AsSecureString
     $Pass = [Runtime.InteropServices.Marshal]::PtrToStringAuto(
         [Runtime.InteropServices.Marshal]::SecureStringToBSTR($SecurePass)

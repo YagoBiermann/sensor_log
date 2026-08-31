@@ -5,7 +5,7 @@
 USER=$1
 PASS=$2
 
-if [ $(pwd) != "sensor_log" ]; then
+if [[ "$(basename "$(pwd)")" != "sensor_log" ]]; then
   echo "Please run this script from the sensor_log directory."
   exit 1
 fi
