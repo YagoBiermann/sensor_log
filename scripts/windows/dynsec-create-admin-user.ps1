@@ -1,0 +1,2 @@
+docker compose run --rm --entrypoint sh mosquitto -c "mosquitto_ctrl dynsec init /mosquitto/data/dynamic-security.json admin"
+docker compose run --rm --entrypoint sh mosquitto -c "chown mosquitto:mosquitto /mosquitto/data/dynamic-security.json && chmod 600 /mosquitto/data/dynamic-security.json"
