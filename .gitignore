@@ -1,3 +1,9 @@
+secrets/
+*.key
+*.pem
+*.crt
+*.p12
+vault-init.txt
 .env
 certbot/duckdns.ini
 certs/*
