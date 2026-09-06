@@ -35,14 +35,40 @@ services:
       - mosquitto_data:/mosquitto/data
       - mosquitto_logs:/mosquitto/log
     healthcheck:
-      test: ["CMD", "sh", "-c", "mosquitto_pub -h ${MQTT_HOST} -p ${MQTT_PORT} --tls-use-os-certs -u ${MQTT_USERNAME} -P ${MQTT_PASSWORD} -t healthcheck -m ok"]
+      test: ["CMD", "sh", "-c", "mosquitto_pub -h mosquitto -p ${MQTT_PORT} --tls-use-os-certs -u ${MQTT_USERNAME} -P ${MQTT_PASSWORD} -t healthcheck -m ok"]
       interval: 30s
       timeout: 3s
       retries: 5
     networks:
       - sensor_log_network
 
+  vault:
+    image: hashicorp/vault:1.18
+    container_name: vault
+    command: vault server -config=/vault/config/vault.hcl
+    cap_add:
+      - IPC_LOCK
+    ports:
+      - "8200:8200"
+    volumes:
+    - vault_data:/vault/data
+    - ./vault/config:/vault/config
+    - ./certs/vault:/vault/tls:ro
+    - ./vault/policies:/vault/policies:ro
+    environment:
+      VAULT_ADDR: ${VAULT_ADDR}
+      VAULT_CACERT: ${VAULT_CACERT}
+    networks:
+      - sensor_log_network
+
   spring_boot_app:
+    cloud:
+      vault:
+        uri: https://vault:8200
+        authentication: APPROLE
+        app-role:
+          role-id: ${VAULT_ROLE_ID}
+          secret-id: ${VAULT_SECRET_ID}
     build:
       context: .
     env_file: .env
@@ -61,6 +87,7 @@ volumes:
   mongodb_data:
   mosquitto_data:
   mosquitto_logs:
+  vault_data:
 
 networks:
   sensor_log_network:
