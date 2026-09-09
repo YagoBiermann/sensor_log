@@ -62,13 +62,6 @@ services:
       - sensor_log_network
 
   spring_boot_app:
-    cloud:
-      vault:
-        uri: https://vault:8200
-        authentication: APPROLE
-        app-role:
-          role-id: ${VAULT_ROLE_ID}
-          secret-id: ${VAULT_SECRET_ID}
     build:
       context: .
     env_file: .env
@@ -80,6 +73,8 @@ services:
         condition: service_healthy
       mosquitto:
         condition: service_healthy
+    volumes:
+    - ./certs/docker-truststore.p12:/certs/docker-truststore.p12:ro
     networks:
       - sensor_log_network
     restart: no
