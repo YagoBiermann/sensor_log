@@ -14,12 +14,7 @@ import com.server.sensor_log.application.mappers.utils.TopicParser;
 @Getter
 @Slf4j
 public class Device {
-    private String deviceId;
-    private List<String> readingIds;
-    private Instant readingTimestamp;
-    private Boolean active;
-    private String location;
-    private String subLocation;
+    private ClaimStatus claimStatus = ClaimStatus.UNCLAIMED;
     private DeviceType type = DeviceType.GENERIC;
     public Timer timer;
 
