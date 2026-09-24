@@ -4,9 +4,13 @@ import com.server.sensor_log.domain.model.device.Device;
 import com.server.sensor_log.application.ports.DeviceRepositoryPort;
 import com.server.sensor_log.application.ports.LightRepositoryPort;
 import com.server.sensor_log.domain.model.device.device_readings.LightReading;
+
+import org.springframework.data.mongodb.core.geo.GeoJsonPoint;
 import org.springframework.stereotype.Component;
 
 import java.util.Optional;
+
+import com.server.sensor_log.domain.model.device.Location;
 
 @Component
 public class DeviceRepositoryAdapter implements DeviceRepositoryPort, LightRepositoryPort {
@@ -14,10 +18,12 @@ public class DeviceRepositoryAdapter implements DeviceRepositoryPort, LightRepos
     private final DeviceRepository deviceRepository;
     private final LightDataReadingRepository lightDataReadingRepository;
 
-    public DeviceRepositoryAdapter(DeviceRepository deviceRepository, LightDataReadingRepository lightDataReadingRepository) {
+    public DeviceRepositoryAdapter(DeviceRepository deviceRepository,
+            LightDataReadingRepository lightDataReadingRepository) {
         this.deviceRepository = deviceRepository;
         this.lightDataReadingRepository = lightDataReadingRepository;
     }
+
     @Override
     public void save(LightReading lightReading) {
         lightDataReadingRepository.save(lightReading);
@@ -27,6 +33,7 @@ public class DeviceRepositoryAdapter implements DeviceRepositoryPort, LightRepos
     public void save(Device newDevice) {
         deviceRepository.save(newDevice);
     }
+
     @Override
     public Optional<Device> findById(String id) {
         return deviceRepository.findById(id);
@@ -34,5 +41,11 @@ public class DeviceRepositoryAdapter implements DeviceRepositoryPort, LightRepos
 
     public long countById(String id) {
         return deviceRepository.countById(id);
+    }
+
+    public GeoJsonPoint toGeoJsonPoint(Location location) {
+        return new GeoJsonPoint(
+                location.longitude(),
+                location.latitude());
     }
 }
