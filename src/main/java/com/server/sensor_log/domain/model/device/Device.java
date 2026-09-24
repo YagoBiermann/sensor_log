@@ -16,6 +16,7 @@ import com.server.sensor_log.application.mappers.utils.TopicParser;
 public class Device {
     private ClaimStatus claimStatus = ClaimStatus.UNCLAIMED;
     private ConnectionStatus connectionStatus = ConnectionStatus.OFFLINE;
+    private Location location;
     private DeviceType type = DeviceType.GENERIC;
     public Timer timer;
 
