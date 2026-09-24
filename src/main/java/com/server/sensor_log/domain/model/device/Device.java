@@ -1,59 +1,23 @@
 package com.server.sensor_log.domain.model.device;
 
-import lombok.*;
+import com.server.sensor_log.domain.services.TokenGenerator;
 
+import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
-
-import java.time.Duration;
-import java.time.Instant;
-import java.time.Period;
-import java.util.List;
-
-import com.server.sensor_log.application.mappers.utils.TopicParser;
 
 @Getter
 @Slf4j
 public class Device {
+    private String serialNumber;
     private ClaimStatus claimStatus = ClaimStatus.UNCLAIMED;
     private ConnectionStatus connectionStatus = ConnectionStatus.OFFLINE;
     private Location location;
     private DeviceType type = DeviceType.GENERIC;
-    public Timer timer;
+    private final String bootstrap_token;
 
-    public Device(String deviceId, List<String> readingIds, String location, String subLocation, Boolean active, DeviceType type, Timer timer) {
-        validate(deviceId, location, subLocation);
-        this.deviceId = deviceId;
-        this.readingIds = readingIds;
-        this.readingTimestamp = Instant.now();
-        this.type = type;
-        this.timer = timer;
-        this.active = active;
+    public Device(String serialNumber, Location location, TokenGenerator tokenGenerator) {
+        this.serialNumber = serialNumber;
         this.location = location;
-        this.subLocation = subLocation;
-    }
-
-    public String getTopic() {
-        return TopicParser.buildTopic(location, subLocation, type);
-    }
-
-    public void setTimer(String duration, String daysActive) {
-        if (this.timer == null) {
-            this.timer = new Timer();
-            log.info("Creating new timer for device");
-        }
-
-        this.timer.setTimer(Duration.parse(duration), Period.parse(daysActive));
-    }
-
-    private void validate(String id, String location, String subLocation) {
-        if (id == null || id.isBlank()) {
-            throw new IllegalArgumentException("Id cannot be null or blank");
-        }
-        if (location == null || location.isBlank()) {
-            throw new IllegalArgumentException("Location cannot be null or blank");
-        }
-        if (subLocation == null || subLocation.isBlank()) {
-            throw new IllegalArgumentException("Topic cannot be null or blank");
-        }
+        this.bootstrap_token = tokenGenerator.generate();
     }
 }
