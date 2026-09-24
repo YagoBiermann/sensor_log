@@ -15,6 +15,7 @@ import com.server.sensor_log.application.mappers.utils.TopicParser;
 @Slf4j
 public class Device {
     private ClaimStatus claimStatus = ClaimStatus.UNCLAIMED;
+    private ConnectionStatus connectionStatus = ConnectionStatus.OFFLINE;
     private DeviceType type = DeviceType.GENERIC;
     public Timer timer;
 
