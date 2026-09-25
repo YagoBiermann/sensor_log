@@ -1,5 +1,6 @@
 package com.server.sensor_log.domain.model.device;
 
+import java.time.Instant;
 import java.util.Set;
 
 import com.server.sensor_log.domain.services.TokenGenerator;
@@ -10,19 +11,51 @@ import lombok.extern.slf4j.Slf4j;
 @Getter
 @Slf4j
 public class Device {
-    private String serialNumber;
-    private ClaimStatus claimStatus = ClaimStatus.UNCLAIMED;
-    private ConnectionStatus connectionStatus = ConnectionStatus.OFFLINE;
+
+    private final String serialNumber;
+    private final Instant createdAt;
+
+    private String ownerId;
+    private Instant claimedAt;
+
+    private ClaimStatus claimStatus;
+    private ConnectionStatus connectionStatus;
+
     private Location location;
-    private final String bootstrap_token;
-    private final String redeem_token;
     private Set<MetricType> metrics;
 
-    public Device(String serialNumber, Location location, Set<MetricType> metrics, TokenGenerator tokenGenerator) {
+    private final String bootstrapToken;
+    private final String redeemToken;
+
+    private Device(
+            String serialNumber,
+            Location location,
+            Set<MetricType> metrics,
+            String bootstrapToken,
+            String redeemToken,
+            Instant createdAt) {
         this.serialNumber = serialNumber;
         this.location = location;
-        this.metrics = metrics;
-        this.bootstrap_token = tokenGenerator.generate(32);
-        this.redeem_token = tokenGenerator.generate(4);
+        this.metrics = Set.copyOf(metrics);
+        this.bootstrapToken = bootstrapToken;
+        this.redeemToken = redeemToken;
+        this.createdAt = createdAt;
+
+        this.claimStatus = ClaimStatus.UNCLAIMED;
+        this.connectionStatus = ConnectionStatus.OFFLINE;
+    }
+
+    public static Device create(
+            String serialNumber,
+            Location location,
+            Set<MetricType> metrics,
+            TokenGenerator tokenGenerator) {
+        return new Device(
+                serialNumber,
+                location,
+                metrics,
+                tokenGenerator.generate(32),
+                tokenGenerator.generate(4),
+                Instant.now());
     }
 }
