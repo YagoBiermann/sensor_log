@@ -8,8 +8,5 @@ import jakarta.validation.constraints.NotBlank;
 @Component
 @Validated
 public interface MqttMessageListener {
-
-    String getTopic();
-
     void handle(@NotBlank String topic, @NotBlank String payload);
 }
