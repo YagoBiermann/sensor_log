@@ -3,8 +3,6 @@ package com.server.sensor_log.domain.model.device;
 import java.time.Instant;
 import java.util.Set;
 
-import com.server.sensor_log.domain.services.TokenGenerator;
-
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 
@@ -49,13 +47,14 @@ public class Device {
             String serialNumber,
             Location location,
             Set<MetricType> metrics,
-            TokenGenerator tokenGenerator) {
+            String redeemToken,
+            String bootstrapToken) {
         return new Device(
                 serialNumber,
                 location,
                 metrics,
-                tokenGenerator.generate(32),
-                tokenGenerator.generate(4),
+                redeemToken,
+                bootstrapToken,
                 Instant.now());
     }
 
