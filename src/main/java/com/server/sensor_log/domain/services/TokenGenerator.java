@@ -1,6 +1,6 @@
 package com.server.sensor_log.domain.services;
 
 public interface TokenGenerator {
-    String generate();
+    String generate(int length);
     String toHash(String token);
 }

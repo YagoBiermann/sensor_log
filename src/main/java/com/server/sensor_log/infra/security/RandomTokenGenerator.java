@@ -9,13 +9,13 @@ import java.util.HexFormat;
 
 import com.server.sensor_log.domain.services.TokenGenerator;
 
-public class BootstrapTokenGenerator implements TokenGenerator {
+public class RandomTokenGenerator implements TokenGenerator {
 
     private final SecureRandom random = new SecureRandom();
 
     @Override
-    public String generate() {
-        byte[] bytes = new byte[32];
+    public String generate(int length) {
+        byte[] bytes = new byte[length];
         random.nextBytes(bytes);
 
         return Base64.getUrlEncoder()
