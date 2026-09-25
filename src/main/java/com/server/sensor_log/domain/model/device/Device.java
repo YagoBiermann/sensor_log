@@ -58,4 +58,31 @@ public class Device {
                 tokenGenerator.generate(4),
                 Instant.now());
     }
+
+    public static Device restore(
+            String serialNumber,
+            Instant createdAt,
+            String ownerId,
+            Instant claimedAt,
+            ClaimStatus claimStatus,
+            ConnectionStatus connectionStatus,
+            Location location,
+            String bootstrapToken,
+            String redeemToken,
+            Set<MetricType> metrics) {
+        Device device = new Device(
+                serialNumber,
+                location,
+                metrics,
+                bootstrapToken,
+                redeemToken,
+                createdAt);
+
+        device.ownerId = ownerId;
+        device.claimedAt = claimedAt;
+        device.claimStatus = claimStatus;
+        device.connectionStatus = connectionStatus;
+
+        return device;
+    }
 }
