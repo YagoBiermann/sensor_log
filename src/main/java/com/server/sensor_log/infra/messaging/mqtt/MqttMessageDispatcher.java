@@ -1,7 +1,9 @@
 package com.server.sensor_log.infra.messaging.mqtt;
 
 import java.util.List;
+
 import org.springframework.stereotype.Component;
+
 import lombok.extern.slf4j.Slf4j;
 
 @Component
@@ -22,7 +24,7 @@ public class MqttMessageDispatcher {
 
     public void dispatch(String topic, String payload) {
         var foundHandlers = handlers.stream()
-                .filter(h -> matches(h.getTopic(), topic))
+                .filter(h -> matches(topic))
                 .toList();
 
         if (foundHandlers.isEmpty()) {
@@ -45,11 +47,12 @@ public class MqttMessageDispatcher {
         });
     }
 
-    private boolean matches(String pattern, String topic) {
-        String regex = pattern
-                .replace(".", "\\.") // escape literal dots
-                .replace("+", "[^/]+") // MQTT single-level wildcard
-                .replace("#", ".*");      // MQTT multi-level wildcard
-        return topic.matches(regex);
+    private boolean matches(String topic) {
+        String[] parts = topic.split("/");
+
+        return parts.length == 3
+                && parts[0].equals("iot")
+                && parts[1].matches("\\d{12}") // serial number(12 digits)
+                && parts[2].equals("data");
     }
 }
