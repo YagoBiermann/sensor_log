@@ -13,20 +13,12 @@ import java.util.Optional;
 import com.server.sensor_log.domain.model.device.Location;
 
 @Component
-public class DeviceRepositoryAdapter implements DeviceRepositoryPort, LightRepositoryPort {
+public class DeviceRepositoryAdapter implements DeviceRepositoryPort {
 
     private final DeviceRepository deviceRepository;
-    private final LightDataReadingRepository lightDataReadingRepository;
 
-    public DeviceRepositoryAdapter(DeviceRepository deviceRepository,
-            LightDataReadingRepository lightDataReadingRepository) {
+    public DeviceRepositoryAdapter(DeviceRepository deviceRepository) {
         this.deviceRepository = deviceRepository;
-        this.lightDataReadingRepository = lightDataReadingRepository;
-    }
-
-    @Override
-    public void save(LightReading lightReading) {
-        lightDataReadingRepository.save(lightReading);
     }
 
     @Override
