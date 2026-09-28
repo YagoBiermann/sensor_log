@@ -1,4 +1,4 @@
-package com.server.sensor_log.infra.messaging.mqtt.adapter;
+package com.server.sensor_log.application.ports;
 
 import lombok.Getter;
 
