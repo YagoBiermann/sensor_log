@@ -1,5 +1,6 @@
 package com.server.sensor_log.infra.messaging.mqtt;
 
+import java.nio.charset.StandardCharsets;
 import java.util.concurrent.CompletionException;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
@@ -22,7 +23,6 @@ import lombok.extern.slf4j.Slf4j;
 public class MqttConnectionManager {
 
     private final MqttClientPort mqttClient;
-    private final MqttMessageDispatcher dispatcher;
     private final ReconnectionWorker reconnectionWorker;
     private final MqttMessageHandler messageHandler;
 
@@ -35,7 +35,7 @@ public class MqttConnectionManager {
         mqttClient.connect()
                 .thenCompose(connAck -> {
                     log.info("🟢 Connected successfully to MQTT broker");
-                    return mqttClient.subscribe(topic, this::handleMessage);
+                    return mqttClient.subscribe(topic, this::onMessages);
                 })
                 .exceptionally(ex -> {
                     log.warn("🟡 MQTT connection failed, scheduling reconnection...");
@@ -62,12 +62,12 @@ public class MqttConnectionManager {
 
     public void subscribe(String topic) {
         this.topic = topic;
-        mqttClient.subscribe(topic, this::handleMessage);
+        mqttClient.subscribe(topic, this::onMessages);
     }
 
     private void tryReconnect() {
         try {
-            mqttClient.reconnect(topic, this::handleMessage).orTimeout(5, TimeUnit.SECONDS).join();
+            mqttClient.reconnect(topic, this::onMessages).orTimeout(5, TimeUnit.SECONDS).join();
             reconnectionWorker.cancelReconnect();
             log.info("🟢 MQTT reconnected successfully!");
 
@@ -85,23 +85,23 @@ public class MqttConnectionManager {
         }
     }
 
-    public void handleMessage(@NonNull Mqtt5Publish mqttMessage) {
+    public void onMessages(@NonNull Mqtt5Publish mqttMessage) {
         String pubTopic = mqttMessage.getTopic().toString();
         byte[] payloadBytes = mqttMessage.getPayloadAsBytes();
-        String payload = new String(payloadBytes);
+        String pubPayload = new String(payloadBytes, StandardCharsets.UTF_8);
 
-        if (pubTopic.isBlank() || payload.isBlank()) {
-            log.error("🔴 MQTT message rejected: blank fields [topicBlank={}, payloadBlank={}] | topic='{}' payload='{}'",
-                    pubTopic.isBlank(), payload.isBlank(), pubTopic, payload);
+        if (pubTopic.isBlank() || pubPayload.isBlank()) {
+            log.error(
+                    "🔴 MQTT message rejected: blank fields [topicBlank={}, payloadBlank={}] | topic='{}' payload='{}'",
+                    pubTopic.isBlank(), pubPayload.isBlank(), pubTopic, pubPayload);
             return;
         }
-        log.info("🔵 Message received on topic: {} | payload: {}", pubTopic, payload);
+        log.info("🔵 Message received on topic: {} | payload: {}", pubTopic, pubPayload);
         try {
             messageHandler.handle(pubTopic, pubPayload);
             log.trace("🔵 Message dispatched for topic: {}", pubTopic);
         } catch (Exception e) {
-            log.error("🔴 Failed to dispatch message for topic: {} | payload: {}", pubTopic, payload, e);
+            log.error("🔴 Failed to dispatch message for topic: {} | payload: {}", pubTopic, pubPayload, e);
         }
-
     }
 }
