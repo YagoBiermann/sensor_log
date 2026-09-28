@@ -1,7 +1,7 @@
 package com.server.sensor_log.domain.model.device;
 
 import java.time.Instant;
-import java.util.Set;
+import java.util.Map;
 
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
@@ -20,7 +20,7 @@ public class Device {
     private ConnectionStatus connectionStatus;
 
     private Location location;
-    private Set<MetricType> metrics;
+    private Map<Metrics, Double> metrics;
 
     private final String bootstrapToken;
     private final String redeemToken;
@@ -28,13 +28,13 @@ public class Device {
     private Device(
             String serialNumber,
             Location location,
-            Set<MetricType> metrics,
+            Map<Metrics, Double> metrics,
             String bootstrapToken,
             String redeemToken,
             Instant createdAt) {
         this.serialNumber = serialNumber;
         this.location = location;
-        this.metrics = Set.copyOf(metrics);
+        this.metrics = Map.copyOf(metrics);
         this.bootstrapToken = bootstrapToken;
         this.redeemToken = redeemToken;
         this.createdAt = createdAt;
@@ -46,7 +46,7 @@ public class Device {
     public static Device create(
             String serialNumber,
             Location location,
-            Set<MetricType> metrics,
+            Map<Metrics, Double> metrics,
             String redeemToken,
             String bootstrapToken) {
         return new Device(
@@ -68,7 +68,7 @@ public class Device {
             Location location,
             String bootstrapToken,
             String redeemToken,
-            Set<MetricType> metrics) {
+            Map<Metrics, Double> metrics) {
         Device device = new Device(
                 serialNumber,
                 location,
