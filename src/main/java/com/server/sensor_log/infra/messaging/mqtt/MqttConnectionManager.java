@@ -27,7 +27,7 @@ public class MqttConnectionManager {
     private final MqttMessageHandler messageHandler;
 
     @Getter
-    private String topic = "iot/#";
+    private String topic = "iot/+/data";
 
     @PostConstruct
     public void start() {
