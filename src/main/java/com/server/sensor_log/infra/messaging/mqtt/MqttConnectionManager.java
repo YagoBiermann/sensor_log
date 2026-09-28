@@ -24,6 +24,7 @@ public class MqttConnectionManager {
     private final MqttClientPort mqttClient;
     private final MqttMessageDispatcher dispatcher;
     private final ReconnectionWorker reconnectionWorker;
+    private final MqttMessageHandler messageHandler;
 
     @Getter
     private String topic = "iot/#";
@@ -96,7 +97,7 @@ public class MqttConnectionManager {
         }
         log.info("🔵 Message received on topic: {} | payload: {}", pubTopic, payload);
         try {
-            dispatcher.dispatch(pubTopic, payload);
+            messageHandler.handle(pubTopic, pubPayload);
             log.trace("🔵 Message dispatched for topic: {}", pubTopic);
         } catch (Exception e) {
             log.error("🔴 Failed to dispatch message for topic: {} | payload: {}", pubTopic, payload, e);
