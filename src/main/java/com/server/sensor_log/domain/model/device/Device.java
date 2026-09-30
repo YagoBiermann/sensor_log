@@ -25,7 +25,7 @@ public class Device {
     private ConnectionStatus connectionStatus;
 
     private Location location;
-    private Map<Metrics, Double> metrics;
+    private Metrics metrics;
 
     private String bootstrapToken;
     private String redeemToken;
@@ -33,13 +33,13 @@ public class Device {
     private Device(
             String serialNumber,
             Location location,
-            Map<Metrics, Double> metrics,
+            Metrics metrics,
             String bootstrapToken,
             String redeemToken,
             Instant createdAt) {
         this.serialNumber = serialNumber;
         this.location = location;
-        this.metrics = Map.copyOf(metrics);
+        this.metrics = metrics;
         this.bootstrapToken = bootstrapToken;
         this.redeemToken = redeemToken;
         this.createdAt = createdAt;
@@ -51,7 +51,7 @@ public class Device {
     public static Device create(
             String serialNumber,
             Location location,
-            Map<Metrics, Double> metrics,
+            Metrics metrics,
             String redeemToken,
             String bootstrapToken) {
         return new Device(
@@ -73,7 +73,7 @@ public class Device {
             Location location,
             String bootstrapToken,
             String redeemToken,
-            Map<Metrics, Double> metrics) {
+            Metrics metrics) {
         Device device = new Device(
                 serialNumber,
                 location,
