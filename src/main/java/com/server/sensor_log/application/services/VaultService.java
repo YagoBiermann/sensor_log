@@ -26,15 +26,14 @@ public class VaultService {
     public X509Certificate signCertificate(SignCertificateRequest signRequest) {
         VaultPkiOperations pkiOperations = vaultTemplate.opsForPki("pki_int");
         VaultCertificateRequest certificateSignRequest = VaultCertificateRequest.builder()
-                .commonName(signRequest.serial_number())
+                .commonName(signRequest.serialNumber())
                 .ttl(Duration.ofHours(24))
-                .altNames(signRequest.allowed_domains())
                 .build();
         VaultSignCertificateRequestResponse response = pkiOperations.signCertificateRequest(roleName,
                 signRequest.csr(), certificateSignRequest);
         Certificate certificate = response.getRequiredData();
             certificate.getSerialNumber();
-            
+
         return certificate.getX509Certificate();
     }
 }
