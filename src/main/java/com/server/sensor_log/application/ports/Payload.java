@@ -7,7 +7,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.MapperFeature;
 import com.fasterxml.jackson.databind.json.JsonMapper;
-import com.server.sensor_log.domain.model.device.Metrics;
+import com.server.sensor_log.domain.model.device.MetricsType;
 
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotEmpty;
@@ -16,10 +16,10 @@ public class Payload {
         @NotBlank(message = "Serial number must be provided")
         private String serialNumber;
         @NotEmpty(message = "Metrics must be provided")
-        private Map<Metrics, Double> metrics;
+        private Map<MetricsType, Double> metrics;
         private Instant timestamp;
 
-        public Payload(String serialNumber, Map<Metrics, Double> metrics) {
+        public Payload(String serialNumber, Map<MetricsType, Double> metrics) {
                 this.serialNumber = serialNumber;
                 this.timestamp = Instant.now();
                 this.metrics = metrics;
@@ -33,7 +33,7 @@ public class Payload {
                 return timestamp;
         }
 
-        public Map<Metrics, Double> getMetrics() {
+        public Map<MetricsType, Double> getMetrics() {
                 return metrics;
         }
 

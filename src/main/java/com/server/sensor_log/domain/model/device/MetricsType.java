@@ -1,6 +1,6 @@
 package com.server.sensor_log.domain.model.device;
 
-public enum Metrics {
+public enum MetricsType {
 
     TEMPERATURE("Temperatura", "°C"),
     HUMIDITY("Umidade", "%"),
@@ -20,7 +20,7 @@ public enum Metrics {
     private final String description;
     private final String unit;
 
-    Metrics(String description, String unit) {
+    MetricsType(String description, String unit) {
         this.description = description;
         this.unit = unit;
     }
