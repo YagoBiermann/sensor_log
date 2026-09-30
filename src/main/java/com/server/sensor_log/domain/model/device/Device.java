@@ -1,6 +1,8 @@
 package com.server.sensor_log.domain.model.device;
 
 import java.time.Instant;
+import java.util.EnumMap;
+import java.util.List;
 import java.util.Map;
 
 import org.springframework.data.annotation.Id;
@@ -25,27 +27,57 @@ public class Device {
     private ConnectionStatus connectionStatus;
 
     private Location location;
-    private Metrics metrics;
+    private Map<MetricsType, Double> metrics;
 
     private String bootstrapToken;
     private String redeemToken;
 
     private Device(
             String serialNumber,
+            String ownerId,
+            ClaimStatus claimStatus,
+            Instant claimedAt,
+            ConnectionStatus connectionStatus,
             Location location,
             String description,
-            Metrics metrics,
+            Map<MetricsType, Double> metrics,
+            String bootstrapToken,
+            String redeemToken,
+            Instant createdAt) {
+        this.serialNumber = serialNumber;
+        this.ownerId = ownerId;
+        this.claimStatus = claimStatus;
+        this.claimedAt = claimedAt;
+        this.connectionStatus = connectionStatus;
+        this.location = location;
+        this.description = description;
+        this.bootstrapToken = bootstrapToken;
+        this.redeemToken = redeemToken;
+        this.createdAt = createdAt;
+        this.metrics = new EnumMap<>(MetricsType.class);
+        metrics.forEach((key, value) -> {
+            this.metrics.put(key, value);
+        });
+    }
+
+    private Device(
+            String serialNumber,
+            Location location,
+            String description,
+            List<MetricsType> metrics,
             String bootstrapToken,
             String redeemToken,
             Instant createdAt) {
         this.serialNumber = serialNumber;
         this.location = location;
         this.description = description;
-        this.metrics = metrics;
         this.bootstrapToken = bootstrapToken;
         this.redeemToken = redeemToken;
         this.createdAt = createdAt;
-
+        this.metrics = new EnumMap<>(MetricsType.class);
+        metrics.forEach(mt -> {
+            this.metrics.put(mt, 0.0);
+        });
         this.claimStatus = ClaimStatus.UNCLAIMED;
         this.connectionStatus = ConnectionStatus.OFFLINE;
     }
@@ -54,7 +86,7 @@ public class Device {
             RandomGenerator randomGenerator,
             Location location,
             String description,
-            Metrics metrics) {
+            List<MetricsType> metrics) {
 
         String serialNumber = randomGenerator.generate(8);
         String redeemToken = randomGenerator.generate(6);
@@ -72,29 +104,28 @@ public class Device {
 
     public static Device restore(
             String serialNumber,
-            Instant createdAt,
             String ownerId,
             Instant claimedAt,
             ClaimStatus claimStatus,
             ConnectionStatus connectionStatus,
             Location location,
             String description,
+            Map<MetricsType, Double> metrics,
             String bootstrapToken,
             String redeemToken,
-            Metrics metrics) {
+            Instant createdAt) {
         Device device = new Device(
                 serialNumber,
+                ownerId,
+                claimStatus,
+                claimedAt,
+                connectionStatus,
                 location,
                 description,
                 metrics,
                 bootstrapToken,
                 redeemToken,
                 createdAt);
-
-        device.ownerId = ownerId;
-        device.claimedAt = claimedAt;
-        device.claimStatus = claimStatus;
-        device.connectionStatus = connectionStatus;
 
         return device;
     }
