@@ -16,6 +16,7 @@ public class Device {
     @Id
     private final String serialNumber;
     private final Instant createdAt;
+    private String description;
 
     private String ownerId;
     private Instant claimedAt;
@@ -103,5 +104,9 @@ public class Device {
 
     public void setLocation(Location newLocation) {
         this.location = newLocation;
+    }
+
+    public void changeDescription(String newDescription) {
+        this.description = newDescription;
     }
 }
