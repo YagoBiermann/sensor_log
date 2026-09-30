@@ -33,12 +33,14 @@ public class Device {
     private Device(
             String serialNumber,
             Location location,
+            String description,
             Metrics metrics,
             String bootstrapToken,
             String redeemToken,
             Instant createdAt) {
         this.serialNumber = serialNumber;
         this.location = location;
+        this.description = description;
         this.metrics = metrics;
         this.bootstrapToken = bootstrapToken;
         this.redeemToken = redeemToken;
@@ -49,17 +51,22 @@ public class Device {
     }
 
     public static Device create(
-            String serialNumber,
+            RandomGenerator randomGenerator,
             Location location,
-            Metrics metrics,
-            String redeemToken,
-            String bootstrapToken) {
+            String description,
+            Metrics metrics) {
+
+        String serialNumber = randomGenerator.generate(8);
+        String redeemToken = randomGenerator.generate(6);
+        String bootstrapToken = randomGenerator.generate(12);
+
         return new Device(
                 serialNumber,
                 location,
+                description,
                 metrics,
-                redeemToken,
                 bootstrapToken,
+                redeemToken,
                 Instant.now());
     }
 
@@ -71,12 +78,14 @@ public class Device {
             ClaimStatus claimStatus,
             ConnectionStatus connectionStatus,
             Location location,
+            String description,
             String bootstrapToken,
             String redeemToken,
             Metrics metrics) {
         Device device = new Device(
                 serialNumber,
                 location,
+                description,
                 metrics,
                 bootstrapToken,
                 redeemToken,
