@@ -3,13 +3,17 @@ package com.server.sensor_log.domain.model.device;
 import java.time.Instant;
 import java.util.Map;
 
+import org.springframework.data.annotation.Id;
+import org.springframework.data.mongodb.core.mapping.Document;
+
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 
 @Getter
 @Slf4j
+@Document(collection = "devices")
 public class Device {
-
+    @Id
     private final String serialNumber;
     private final Instant createdAt;
 
@@ -22,8 +26,8 @@ public class Device {
     private Location location;
     private Map<Metrics, Double> metrics;
 
-    private final String bootstrapToken;
-    private final String redeemToken;
+    private String bootstrapToken;
+    private String redeemToken;
 
     private Device(
             String serialNumber,
@@ -83,5 +87,21 @@ public class Device {
         device.connectionStatus = connectionStatus;
 
         return device;
+    }
+
+    public void claim(String ownerId, String bootstrapToken, String redeemToken) {
+        if (this.claimStatus != ClaimStatus.UNCLAIMED) {
+            throw new SecurityException("Device was already claimed.");
+        }
+
+        this.ownerId = ownerId;
+        this.bootstrapToken = null;
+        this.redeemToken = null;
+
+        this.claimedAt = Instant.now();
+    }
+
+    public void setLocation(Location newLocation) {
+        this.location = newLocation;
     }
 }
