@@ -17,8 +17,7 @@ public class SchedulerConfig {
         scheduler.setThreadNamePrefix("ScheduledTask-");
         scheduler.initialize();
 
-        return scheduler; 
-        
+        return scheduler;
+
     }
 }
-        

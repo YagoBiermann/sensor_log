@@ -26,7 +26,7 @@ public class IdentityGenerator implements RandomGenerator {
     }
 
     public String generateUserId() {
-        return UUID.randomUUID().ToString();
+        return UUID.randomUUID().toString();
     }
 
     public String generateBootstrapToken() {

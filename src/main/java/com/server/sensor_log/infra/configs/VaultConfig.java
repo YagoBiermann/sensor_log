@@ -42,7 +42,7 @@ public class VaultConfig extends AbstractVaultConfiguration {
                 .roleId(RoleId.provided(roleId))
                 .secretId(SecretId.wrapped(VaultToken.of(secretId)))
                 .build();
-                
+
         return new AppRoleAuthentication(options, VaultClient.create(vaultEndpoint()));
     }
 }
