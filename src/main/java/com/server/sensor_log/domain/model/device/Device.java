@@ -130,7 +130,7 @@ public class Device {
         return device;
     }
 
-    public void claim(String ownerId, String bootstrapToken, String redeemToken) {
+    public void claim(String ownerId, String bootstrapToken, String redeemToken) throws SecurityException {
         if (this.claimStatus != ClaimStatus.UNCLAIMED) {
             throw new SecurityException("Device was already claimed.");
         }
