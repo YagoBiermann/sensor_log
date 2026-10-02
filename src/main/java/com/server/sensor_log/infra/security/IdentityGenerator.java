@@ -6,17 +6,40 @@ import java.security.NoSuchAlgorithmException;
 import java.security.SecureRandom;
 import java.util.Base64;
 import java.util.HexFormat;
+import java.util.UUID;
 
 import com.server.sensor_log.domain.model.device.RandomGenerator;
 
-public class TokenGenerator implements RandomGenerator {
+public class IdentityGenerator implements RandomGenerator {
+    private final SecureRandom RANDOM = new SecureRandom();
 
-    private final SecureRandom random = new SecureRandom();
+    public String generateSerialNumber() {
+        Integer length = 12;
+        StringBuilder serial = new StringBuilder(length);
 
-    @Override
-    public String generate(int length) {
+        serial.append(RANDOM.nextInt(1, 10));
+        for (int i = 1; i < length; i++) {
+            serial.append(RANDOM.nextInt(10));
+        }
+
+        return serial.toString();
+    }
+
+    public String generateUserId() {
+        return UUID.randomUUID().ToString();
+    }
+
+    public String generateBootstrapToken() {
+        return generateToken(8);
+    }
+
+    public String generateRedeemToken() {
+        return generateToken(6);
+    }
+
+    private String generateToken(int length) {
         byte[] bytes = new byte[length];
-        random.nextBytes(bytes);
+        RANDOM.nextBytes(bytes);
         return Base64.getUrlEncoder()
                 .withoutPadding()
                 .encodeToString(bytes);
