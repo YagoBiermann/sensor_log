@@ -88,9 +88,9 @@ public class Device {
             String description,
             List<MetricsType> metrics) {
 
-        String serialNumber = randomGenerator.generate(8);
-        String redeemToken = randomGenerator.generate(6);
-        String bootstrapToken = randomGenerator.generate(12);
+        String serialNumber = randomGenerator.generateSerialNumber();
+        String redeemToken = randomGenerator.generateRedeemToken();
+        String bootstrapToken = randomGenerator.generateBootstrapToken();
 
         return new Device(
                 serialNumber,
