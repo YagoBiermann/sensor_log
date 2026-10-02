@@ -1,10 +1,11 @@
 package com.server.sensor_log.application.controllers;
 
-import java.security.cert.Certificate;
+import java.net.URI;
 import java.security.cert.CertificateEncodingException;
-import java.security.cert.X509Certificate;
-import java.util.Base64;
 
+import javax.naming.NameNotFoundException;
+
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -12,60 +13,61 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.server.sensor_log.application.controllers.dto.CertificateResponse;
+import com.server.sensor_log.application.controllers.dto.LoginRequest;
+import com.server.sensor_log.application.controllers.dto.LoginResponse;
+import com.server.sensor_log.application.controllers.dto.RegisterRequest;
 import com.server.sensor_log.application.controllers.dto.SignCertificateRequest;
+import com.server.sensor_log.application.exceptions.InvalidCredentialsException;
+import com.server.sensor_log.application.exceptions.UserAlreadyExistsException;
+import com.server.sensor_log.application.services.AuthenticationService;
 import com.server.sensor_log.application.services.VaultService;
-import com.server.sensor_log.domain.model.device.Device;
 import com.server.sensor_log.infra.repository.DeviceRepository;
 
 import jakarta.validation.Valid;
 
 @RestController
-@RequestMapping("/api/device")
+@RequestMapping("/api/auth")
 public class AuthController {
-    private final VaultService vaultService;
-    private final DeviceRepository deviceRepository;
+    private final AuthenticationService authenticationService;
 
-    public AuthController(VaultService vaultService, DeviceRepository deviceRepository) {
-        this.vaultService = vaultService;
-        this.deviceRepository = deviceRepository;
+    public AuthController(VaultService vaultService, DeviceRepository deviceRepository,
+            AuthenticationService authenticationService) {
+        this.authenticationService = authenticationService;
     }
 
-    @PostMapping(value = "/sign-request", consumes = "application/json", produces = "application/json")
-    public ResponseEntity<?> signRequest(@Valid @RequestBody SignCertificateRequest signRequest)
-            throws CertificateEncodingException {
+    @PostMapping(value = "/sign-certificate", consumes = "application/json", produces = "application/json")
+    public ResponseEntity<?> signRequest(@Valid @RequestBody SignCertificateRequest signRequest) {
         try {
-            boolean deviceExists = deviceRepository.existsById(signRequest.serialNumber());
-            if (!deviceExists) {
-                return ResponseEntity.badRequest()
-                        .body("Device with serial number " + signRequest.serialNumber() + " does not exist.");
-            }
-            Device device = deviceRepository.findById(signRequest.serialNumber())
-                    .orElseThrow(() -> new RuntimeException("Device not found"));
-
-
-            device.claim(signRequest.ownerId(), signRequest.bootstrapToken(), signRequest.redeemToken());
-
-            X509Certificate signedCertificate = vaultService.signCertificate(signRequest);
-            String serialNumber = signedCertificate.getSerialNumber().toString();
-            String expiresAt = signedCertificate.getNotAfter().toInstant().toString();
-    
-            deviceRepository.save(device);
-
-            CertificateResponse response = new CertificateResponse(
-                    toPem(signedCertificate),
-                    serialNumber,
-                    expiresAt);
-    
+            CertificateResponse response = authenticationService.signCertificate(signRequest);
             return ResponseEntity.ok(response);
-        } catch (CertificateEncodingException e) {
+        } catch (CertificateEncodingException | NameNotFoundException e) {
             return ResponseEntity.badRequest().body(e.getMessage());
         }
-
     }
 
-    private String toPem(Certificate certificate) throws CertificateEncodingException {
-        Base64.Encoder encoder = Base64.getMimeEncoder(64, "\n".getBytes());
-        String encoded = encoder.encodeToString(certificate.getEncoded());
-        return "-----BEGIN CERTIFICATE-----\n" + encoded + "\n-----END CERTIFICATE-----";
+    @PostMapping(value = "/register", consumes = "application/json", produces = "application/json")
+    public ResponseEntity<?> register(@Valid @RequestBody RegisterRequest registerRequest) {
+        try {
+            authenticationService.register(registerRequest);
+
+            return ResponseEntity.created(URI.create("/api/auth/login")).build();
+        } catch (UserAlreadyExistsException e) {
+            return ResponseEntity.status(HttpStatus.CONFLICT).body(e.getMessage());
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body("Something is not working as expected. \nPlease try again later.");
+        }
+    }
+
+    public ResponseEntity<?> login(@Valid @RequestBody LoginRequest loginRequest) {
+        try {
+            LoginResponse response = authenticationService.login(loginRequest);
+
+            return ResponseEntity.ok(response);
+        } catch (InvalidCredentialsException e) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(e);
+        } catch (Exception e) {
+            return ResponseEntity.internalServerError()
+                    .body("Something is not working as expected. \nPlease try again later.");
+        }
     }
 }
