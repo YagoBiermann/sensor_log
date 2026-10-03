@@ -14,7 +14,7 @@ import com.server.sensor_log.application.controllers.dto.NewDevice;
 import com.server.sensor_log.application.services.JwtService;
 
 @RestController
-@RequestMapping("/api/device")
+@RequestMapping("/api/devices")
 public class DeviceController {
     private final JwtService jwtService;
 
@@ -38,19 +38,8 @@ public class DeviceController {
         return ResponseEntity.status(HttpStatus.NOT_IMPLEMENTED).build();
     }
 
-    @PostMapping("/metrics")
+    @GetMapping("/metrics")
     public ResponseEntity<String> GetAllMetrics(@RequestHeader("Bearer") String token) {
-        return ResponseEntity.status(HttpStatus.NOT_IMPLEMENTED).build();
-    }
-
-    @PostMapping("/{id}/claim")
-    public ResponseEntity<String> ClaimDevice(@PathVariable String id, @RequestBody String claimCode,
-            @RequestHeader("Bearer") String token) {
-        return ResponseEntity.status(HttpStatus.NOT_IMPLEMENTED).build();
-    }
-
-    @PostMapping("/{id}/revoke")
-    public ResponseEntity<String> RevokeDevice(@PathVariable String id, @RequestHeader("Bearer") String token) {
         return ResponseEntity.status(HttpStatus.NOT_IMPLEMENTED).build();
     }
 }

@@ -7,8 +7,10 @@ import javax.naming.NameNotFoundException;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -26,7 +28,7 @@ import com.server.sensor_log.infra.repository.DeviceRepository;
 import jakarta.validation.Valid;
 
 @RestController
-@RequestMapping("/api/auth")
+@RequestMapping("/api/devices/auth")
 public class AuthController {
     private final AuthenticationService authenticationService;
 
@@ -35,7 +37,7 @@ public class AuthController {
         this.authenticationService = authenticationService;
     }
 
-    @PostMapping(value = "/sign-certificate", consumes = "application/json", produces = "application/json")
+    @PostMapping(value = "/certificate/sign", consumes = "application/json", produces = "application/json")
     public ResponseEntity<?> signRequest(@Valid @RequestBody SignCertificateRequest signRequest) {
         try {
             CertificateResponse response = authenticationService.signCertificate(signRequest);
@@ -58,6 +60,7 @@ public class AuthController {
         }
     }
 
+    @PostMapping(value = "/login", consumes = "application/json", produces = "application/json")
     public ResponseEntity<?> login(@Valid @RequestBody LoginRequest loginRequest) {
         try {
             LoginResponse response = authenticationService.login(loginRequest);
@@ -69,5 +72,16 @@ public class AuthController {
             return ResponseEntity.internalServerError()
                     .body("Something is not working as expected. \nPlease try again later.");
         }
+    }
+
+    @PostMapping("/{id}/claim")
+    public ResponseEntity<String> ClaimDevice(@PathVariable String id, @RequestBody String claimCode,
+            @RequestHeader("Bearer") String token) {
+        return ResponseEntity.status(HttpStatus.NOT_IMPLEMENTED).build();
+    }
+
+    @PostMapping("/{id}/revoke")
+    public ResponseEntity<String> RevokeDevice(@PathVariable String id, @RequestHeader("Bearer") String token) {
+        return ResponseEntity.status(HttpStatus.NOT_IMPLEMENTED).build();
     }
 }
