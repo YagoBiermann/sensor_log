@@ -33,13 +33,13 @@ public class DeviceController {
         return ResponseEntity.status(HttpStatus.NOT_IMPLEMENTED).build();
     }
 
-    @PostMapping("/{id}/measurements")
-    public ResponseEntity<String> GetDeviceMeasurements(@PathVariable String id) {
+    @PostMapping("/{id}/metrics")
+    public ResponseEntity<String> GetDeviceMetrics(@PathVariable String id) {
         return ResponseEntity.status(HttpStatus.NOT_IMPLEMENTED).build();
     }
 
-    @PostMapping("/measurements")
-    public ResponseEntity<String> GetAllMeasurements(@RequestHeader("Bearer") String token) {
+    @PostMapping("/metrics")
+    public ResponseEntity<String> GetAllMetrics(@RequestHeader("Bearer") String token) {
         return ResponseEntity.status(HttpStatus.NOT_IMPLEMENTED).build();
     }
 
