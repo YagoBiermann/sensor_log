@@ -5,4 +5,5 @@ public interface RandomGenerator {
     String generateBootstrapToken();
     String generateSerialNumber();
     String generateUserId();
+    String enconde(String token);
 }

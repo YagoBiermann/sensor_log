@@ -25,16 +25,19 @@ public class IdentityGenerator implements RandomGenerator {
         return serial.toString();
     }
 
+    @Override
     public String generateUserId() {
         return UUID.randomUUID().toString();
     }
 
+    @Override
     public String generateBootstrapToken() {
         return generateToken(8);
     }
 
+    @Override
     public String generateRedeemToken() {
-        return generateToken(6);
+        return generateToken(4);
     }
 
     private String generateToken(int length) {
@@ -45,7 +48,8 @@ public class IdentityGenerator implements RandomGenerator {
                 .encodeToString(bytes);
     }
 
-    public static String toHash(String token) {
+    @Override
+    public String encode(String token) {
         try {
             byte[] hash = MessageDigest.getInstance("SHA-256")
                     .digest(token.getBytes(StandardCharsets.UTF_8));
