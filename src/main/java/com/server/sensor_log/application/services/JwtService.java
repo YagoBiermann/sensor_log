@@ -25,13 +25,13 @@ public class JwtService {
                 secret.getBytes(StandardCharsets.UTF_8));
     }
 
-    public String generateToken(User user) {
+    public String generateToken(String subject, String role) {
 
         Instant now = Instant.now();
 
         return Jwts.builder()
-                .subject(user.getUserId().toString())
-                .claim("email", user.getEmail())
+                .subject(subject)
+                .claim("role", role)
                 .issuedAt(Date.from(now))
                 .expiration(
                         Date.from(now.plusMillis(this.expiration.toMillis())))
