@@ -2,13 +2,10 @@ package com.server.sensor_log.application.usecases;
 
 import org.springframework.stereotype.Component;
 
-import com.server.sensor_log.application.exceptions.DeviceAlreadyExistsException;
-import com.server.sensor_log.application.exceptions.UserNotFoundException;
 import com.server.sensor_log.application.usecases.dto.NewDevice;
 import com.server.sensor_log.domain.model.device.Device;
 import com.server.sensor_log.domain.model.device.RandomGenerator;
 import com.server.sensor_log.infra.repository.DeviceRepository;
-import com.server.sensor_log.infra.repository.UserRepository;
 
 import lombok.extern.slf4j.Slf4j;
 
