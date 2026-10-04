@@ -30,7 +30,7 @@ public class Device {
     private Map<MetricsType, Double> metrics;
 
     private String bootstrapToken;
-    private String redeemToken;
+    private String claimToken;
 
     private Device(
             String serialNumber,
@@ -42,7 +42,7 @@ public class Device {
             String description,
             Map<MetricsType, Double> metrics,
             String bootstrapToken,
-            String redeemToken,
+            String claimToken,
             Instant createdAt) {
         this.serialNumber = serialNumber;
         this.ownerId = ownerId;
@@ -52,7 +52,7 @@ public class Device {
         this.location = location;
         this.description = description;
         this.bootstrapToken = bootstrapToken;
-        this.redeemToken = redeemToken;
+        this.claimToken = claimToken;
         this.createdAt = createdAt;
         this.metrics = new EnumMap<>(MetricsType.class);
         metrics.forEach((key, value) -> {
@@ -71,7 +71,7 @@ public class Device {
         this.location = location;
         this.description = description;
         this.bootstrapToken = bootstrapToken;
-        this.redeemToken = null;
+        this.claimToken = null;
         this.createdAt = createdAt;
         this.metrics = new EnumMap<>(MetricsType.class);
         metrics.forEach(mt -> {
@@ -107,7 +107,7 @@ public class Device {
             String description,
             Map<MetricsType, Double> metrics,
             String bootstrapToken,
-            String redeemToken,
+            String claimToken,
             Instant createdAt) {
         Device device = new Device(
                 serialNumber,
@@ -119,20 +119,20 @@ public class Device {
                 description,
                 metrics,
                 bootstrapToken,
-                redeemToken,
+                claimToken,
                 createdAt);
 
         return device;
     }
 
-    public void claim(String ownerId, String bootstrapToken, String redeemToken) throws SecurityException {
+    public void claim(String ownerId, String bootstrapToken, String claimToken) throws SecurityException {
         if (this.claimStatus != ClaimStatus.UNCLAIMED) {
             throw new SecurityException("Device was already claimed.");
         }
 
         this.ownerId = ownerId;
         this.bootstrapToken = null;
-        this.redeemToken = null;
+        this.claimToken = null;
 
         this.claimedAt = Instant.now();
     }
@@ -145,11 +145,11 @@ public class Device {
         this.description = newDescription;
     }
 
-    public void setRedeemToken(String redeemToken) {
-        if(this.claimStatus != ClaimStatus.UNCLAIMED || this.redeemToken != null) {
+    public void setClaimToken(String claimToken) {
+        if(this.claimStatus != ClaimStatus.UNCLAIMED || this.claimToken != null) {
             throw new SecurityException("Device was already claimed.");
         }
-        this.redeemToken = redeemToken;
+        this.claimToken = claimToken;
     }
 
     public void updateMetrics(Map<MetricsType, Double> newMetrics) {
