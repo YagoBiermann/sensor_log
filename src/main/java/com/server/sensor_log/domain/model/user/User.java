@@ -1,5 +1,7 @@
 package com.server.sensor_log.domain.model.user;
 import com.server.sensor_log.domain.model.device.RandomGenerator;
+import com.server.sensor_log.domain.model.device.Role;
+
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
@@ -19,6 +21,7 @@ import lombok.Getter;
 public class User {
     @Id
     private final String userId;
+    private final Role role = Role.USER;
     private final List<String> ownedDevices = new ArrayList<>();
     @Indexed(unique = true)
     private final String email;

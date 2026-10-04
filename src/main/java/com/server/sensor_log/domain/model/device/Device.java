@@ -17,6 +17,7 @@ import lombok.extern.slf4j.Slf4j;
 public class Device {
     @Id
     private final String serialNumber;
+    private final Role role = Role.DEVICE;
     private final Instant createdAt;
     private final String firmwareVersion = "1.0.0";
     private String description;
@@ -159,9 +160,5 @@ public class Device {
 
     public Map<MetricsType, Double> getMetrics() {
         return new EnumMap<>(this.metrics);
-    }
-
-    public String getFirmwareVersion() {
-        return this.firmwareVersion;
     }
 }
