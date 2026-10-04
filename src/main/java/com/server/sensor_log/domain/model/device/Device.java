@@ -62,17 +62,16 @@ public class Device {
 
     private Device(
             String serialNumber,
-            Location location,
-            String description,
-            List<MetricsType> metrics,
             String bootstrapToken,
-            Instant createdAt) {
+            String description,
+            Location location,
+            List<MetricsType> metrics) {
         this.serialNumber = serialNumber;
         this.location = location;
         this.description = description;
         this.bootstrapToken = bootstrapToken;
         this.claimToken = null;
-        this.createdAt = createdAt;
+        this.createdAt = Instant.now();
         this.metrics = new EnumMap<>(MetricsType.class);
         metrics.forEach(mt -> {
             this.metrics.put(mt, 0.0);
@@ -84,17 +83,16 @@ public class Device {
     public static Device create(
             String serialNumber,
             String bootstrapToken,
-            Location location,
             String description,
+            Location location,
             List<MetricsType> metrics) {
 
         return new Device(
                 serialNumber,
-                location,
-                description,
-                metrics,
                 bootstrapToken,
-                Instant.now());
+                description,
+                location,
+                metrics);
     }
 
     public static Device restore(
