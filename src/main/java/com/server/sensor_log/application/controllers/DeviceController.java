@@ -71,7 +71,7 @@ public class DeviceController {
         return ResponseEntity.status(HttpStatus.CREATED).body("Device created successfully.");
     }
 
-    @PostMapping(value = "/devices/certificate/sign", consumes = "application/json", produces = "application/json")
+    @PostMapping(value = "/devices/certificate", consumes = "application/json", produces = "application/json")
     public ResponseEntity<?> signRequest(@Valid @RequestBody SignCertificateRequest signRequest) {
         try {
             CertificateResponse response = authenticationService.signCertificate(signRequest);
