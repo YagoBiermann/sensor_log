@@ -18,6 +18,7 @@ public class Device {
     @Id
     private final String serialNumber;
     private final Instant createdAt;
+    private final String firmwareVersion = "1.0.0";
     private String description;
 
     private String ownerId;
@@ -158,5 +159,9 @@ public class Device {
 
     public Map<MetricsType, Double> getMetrics() {
         return new EnumMap<>(this.metrics);
+    }
+
+    public String getFirmwareVersion() {
+        return this.firmwareVersion;
     }
 }
