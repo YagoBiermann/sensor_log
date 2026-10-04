@@ -66,13 +66,12 @@ public class Device {
             String description,
             List<MetricsType> metrics,
             String bootstrapToken,
-            String redeemToken,
             Instant createdAt) {
         this.serialNumber = serialNumber;
         this.location = location;
         this.description = description;
         this.bootstrapToken = bootstrapToken;
-        this.redeemToken = redeemToken;
+        this.redeemToken = null;
         this.createdAt = createdAt;
         this.metrics = new EnumMap<>(MetricsType.class);
         metrics.forEach(mt -> {
@@ -83,14 +82,11 @@ public class Device {
     }
 
     public static Device create(
-            RandomGenerator randomGenerator,
+            String serialNumber,
+            String bootstrapToken,
             Location location,
             String description,
             List<MetricsType> metrics) {
-
-        String serialNumber = randomGenerator.generateSerialNumber();
-        String redeemToken = randomGenerator.generateRedeemToken();
-        String bootstrapToken = randomGenerator.generateBootstrapToken();
 
         return new Device(
                 serialNumber,
@@ -98,7 +94,6 @@ public class Device {
                 description,
                 metrics,
                 bootstrapToken,
-                redeemToken,
                 Instant.now());
     }
 
@@ -148,5 +143,22 @@ public class Device {
 
     public void changeDescription(String newDescription) {
         this.description = newDescription;
+    }
+
+    public void setRedeemToken(String redeemToken) {
+        if(this.claimStatus != ClaimStatus.UNCLAIMED || this.redeemToken != null) {
+            throw new SecurityException("Device was already claimed.");
+        }
+        this.redeemToken = redeemToken;
+    }
+
+    public void updateMetrics(Map<MetricsType, Double> newMetrics) {
+        newMetrics.forEach((key, value) -> {
+            this.metrics.put(key, value);
+        });
+    }
+
+    public Map<MetricsType, Double> getMetrics() {
+        return new EnumMap<>(this.metrics);
     }
 }
