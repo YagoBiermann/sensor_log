@@ -1,4 +1,4 @@
-package com.server.sensor_log.application.controllers;
+package com.server.sensor_log.application.controllers.device;
 
 import java.security.cert.CertificateEncodingException;
 
@@ -14,12 +14,12 @@ import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.server.sensor_log.application.controllers.dto.BootDeviceResponse;
-import com.server.sensor_log.application.controllers.dto.CertificateResponse;
-import com.server.sensor_log.application.controllers.dto.CreateDeviceRequest;
-import com.server.sensor_log.application.controllers.dto.CreateDeviceResponse;
-import com.server.sensor_log.application.controllers.dto.FirstBootRequest;
-import com.server.sensor_log.application.controllers.dto.SignCertificateRequest;
+import com.server.sensor_log.application.controllers.device.dto.BootDeviceResponse;
+import com.server.sensor_log.application.controllers.device.dto.CertificateResponse;
+import com.server.sensor_log.application.controllers.device.dto.CreateDeviceRequest;
+import com.server.sensor_log.application.controllers.device.dto.CreateDeviceResponse;
+import com.server.sensor_log.application.controllers.device.dto.FirstBootRequest;
+import com.server.sensor_log.application.controllers.device.dto.SignCertificateRequest;
 import com.server.sensor_log.application.exceptions.DeviceNotFoundException;
 import com.server.sensor_log.application.services.AuthenticationService;
 import com.server.sensor_log.application.services.JwtService;

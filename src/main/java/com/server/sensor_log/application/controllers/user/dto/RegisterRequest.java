@@ -1,4 +1,4 @@
-package com.server.sensor_log.application.controllers.dto;
+package com.server.sensor_log.application.controllers.user.dto;
 
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;

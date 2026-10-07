@@ -2,7 +2,7 @@ package com.server.sensor_log.application.usecases;
 
 import org.springframework.stereotype.Component;
 
-import com.server.sensor_log.application.controllers.dto.CreateDeviceResponse;
+import com.server.sensor_log.application.controllers.device.dto.CreateDeviceResponse;
 import com.server.sensor_log.application.usecases.dto.NewDevice;
 import com.server.sensor_log.domain.model.device.Device;
 import com.server.sensor_log.domain.model.device.RandomGenerator;

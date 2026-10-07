@@ -11,7 +11,7 @@ import org.springframework.vault.support.Certificate;
 import org.springframework.vault.support.VaultCertificateRequest;
 import org.springframework.vault.support.VaultSignCertificateRequestResponse;
 
-import com.server.sensor_log.application.controllers.dto.SignCertificateRequest;
+import com.server.sensor_log.application.controllers.device.dto.SignCertificateRequest;
 
 @Service
 public class VaultService {

@@ -1,4 +1,4 @@
-package com.server.sensor_log.application.controllers.dto;
+package com.server.sensor_log.application.controllers.device.dto;
 
 import java.util.List;
 

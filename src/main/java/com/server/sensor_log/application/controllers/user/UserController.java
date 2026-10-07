@@ -1,4 +1,4 @@
-package com.server.sensor_log.application.controllers;
+package com.server.sensor_log.application.controllers.user;
 
 import java.net.URI;
 
@@ -9,12 +9,11 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.server.sensor_log.application.controllers.dto.LoginRequest;
-import com.server.sensor_log.application.controllers.dto.LoginResponse;
-import com.server.sensor_log.application.controllers.dto.RegisterRequest;
 import com.server.sensor_log.application.exceptions.UserAlreadyExistsException;
 import com.server.sensor_log.application.services.AuthenticationService;
-
+import com.server.sensor_log.application.controllers.user.dto.LoginRequest;
+import com.server.sensor_log.application.controllers.user.dto.LoginResponse;
+import com.server.sensor_log.application.controllers.user.dto.RegisterRequest;
 import com.server.sensor_log.application.exceptions.InvalidCredentialsException;
 import jakarta.validation.Valid;
 

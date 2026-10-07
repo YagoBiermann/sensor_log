@@ -23,5 +23,30 @@
     "name": "sslCertificateFile",
     "type": "java.lang.String",
     "description": "A description for 'sslCertificateFile'"
+  },
+  {
+    "name": "jwt.secret",
+    "type": "java.lang.String",
+    "description": "A description for 'jwt.secret'"
+  },
+  {
+    "name": "jwt.secret",
+    "type": "java.lang.String",
+    "description": "A description for 'jwt.secret'"
+  },
+  {
+    "name": "org.gradle.configuration-cache",
+    "type": "java.lang.String",
+    "description": "A description for 'org.gradle.configuration-cache'"
+  },
+  {
+    "name": "sslCertificateFile",
+    "type": "java.lang.String",
+    "description": "A description for 'sslCertificateFile'"
+  },
+  {
+    "name": "spring.cloud.vault.pki-path",
+    "type": "java.lang.String",
+    "description": "A description for 'spring.cloud.vault.pki-path'"
   }
 ]}

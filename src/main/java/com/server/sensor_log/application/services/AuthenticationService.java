@@ -8,12 +8,14 @@ import javax.naming.NameNotFoundException;
 
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 
-import com.server.sensor_log.application.controllers.dto.CertificateResponse;
-import com.server.sensor_log.application.controllers.dto.LoginRequest;
-import com.server.sensor_log.application.controllers.dto.LoginResponse;
-import com.server.sensor_log.application.controllers.dto.RegisterRequest;
-import com.server.sensor_log.application.controllers.dto.SignCertificateRequest;
+import com.server.sensor_log.application.controllers.device.dto.CertificateResponse;
+import com.server.sensor_log.application.controllers.device.dto.SignCertificateRequest;
+import com.server.sensor_log.application.controllers.user.dto.LoginRequest;
+import com.server.sensor_log.application.controllers.user.dto.LoginResponse;
+import com.server.sensor_log.application.controllers.user.dto.RegisterRequest;
 import com.server.sensor_log.application.exceptions.InvalidCredentialsException;
 import com.server.sensor_log.application.exceptions.UserAlreadyExistsException;
 import com.server.sensor_log.domain.model.device.Device;
@@ -42,7 +44,7 @@ public class AuthenticationService {
                         throw new InvalidCredentialsException("Invalid credentials.");
                 }
 
-                return new LoginResponse(jwtService.generateToken(user));
+                return new LoginResponse(jwtService.generateToken(user.getEmail(), user.getRole().name()));
         }
 
         public void register(RegisterRequest registerRequest) throws UserAlreadyExistsException {
