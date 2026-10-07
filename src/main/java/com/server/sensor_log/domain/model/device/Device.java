@@ -125,7 +125,8 @@ public class Device {
         return device;
     }
 
-    public void boot(String serialNumber, String bootstrapToken, RandomGenerator identityGenerator) throws SecurityException {
+    public void boot(String serialNumber, String bootstrapToken, RandomGenerator identityGenerator)
+            throws SecurityException {
         if (!this.serialNumber.equals(serialNumber)) {
             throw new SecurityException("Invalid serial number.");
         }
@@ -135,7 +136,10 @@ public class Device {
         if (this.claimStatus != ClaimStatus.UNCLAIMED) {
             throw new SecurityException("Device was already booted.");
         }
-
+        if (this.redeemToken != null) {
+            this.redeemToken = identityGenerator.generateRedeemToken();
+            return;
+        }
         this.connectionStatus = ConnectionStatus.ONLINE;
         this.bootstrapToken = null;
         this.redeemToken = identityGenerator.generateRedeemToken();
@@ -163,7 +167,7 @@ public class Device {
     }
 
     public void setRedeemToken(String redeemToken) {
-        if(this.claimStatus != ClaimStatus.UNCLAIMED || this.redeemToken != null) {
+        if (this.claimStatus != ClaimStatus.UNCLAIMED || this.redeemToken != null) {
             throw new SecurityException("Device was already claimed.");
         }
         this.redeemToken = redeemToken;
