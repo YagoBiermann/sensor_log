@@ -125,15 +125,31 @@ public class Device {
         return device;
     }
 
+    public void boot(String serialNumber, String bootstrapToken) throws SecurityException {
+        if (!this.serialNumber.equals(serialNumber)) {
+            throw new SecurityException("Invalid serial number.");
+        }
+        if (!this.bootstrapToken.equals(bootstrapToken)) {
+            throw new SecurityException("Invalid token.");
+        }
+        if (this.claimStatus != ClaimStatus.UNCLAIMED) {
+            throw new SecurityException("Device was already booted.");
+        }
+
+        this.connectionStatus = ConnectionStatus.ONLINE;
+        this.bootstrapToken = null;
+        log.info("Device {} booted successfully.", this.serialNumber);
+    }
+
     public void claim(String ownerId, String bootstrapToken, String redeemToken) throws SecurityException {
         if (this.claimStatus != ClaimStatus.UNCLAIMED) {
             throw new SecurityException("Device was already claimed.");
         }
 
         this.ownerId = ownerId;
-        this.bootstrapToken = null;
         this.redeemToken = null;
-
+        this.claimStatus = ClaimStatus.CLAIMED;
+        this.connectionStatus = ConnectionStatus.ONLINE;
         this.claimedAt = Instant.now();
     }
 
