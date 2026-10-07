@@ -125,7 +125,7 @@ public class Device {
         return device;
     }
 
-    public void boot(String serialNumber, String bootstrapToken) throws SecurityException {
+    public void boot(String serialNumber, String bootstrapToken, RandomGenerator identityGenerator) throws SecurityException {
         if (!this.serialNumber.equals(serialNumber)) {
             throw new SecurityException("Invalid serial number.");
         }
@@ -138,6 +138,7 @@ public class Device {
 
         this.connectionStatus = ConnectionStatus.ONLINE;
         this.bootstrapToken = null;
+        this.redeemToken = identityGenerator.generateRedeemToken();
         log.info("Device {} booted successfully.", this.serialNumber);
     }
 
