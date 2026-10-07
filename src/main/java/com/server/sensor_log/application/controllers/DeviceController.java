@@ -14,12 +14,15 @@ import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.server.sensor_log.application.controllers.dto.BootDeviceResponse;
 import com.server.sensor_log.application.controllers.dto.CertificateResponse;
 import com.server.sensor_log.application.controllers.dto.CreateDeviceRequest;
 import com.server.sensor_log.application.controllers.dto.CreateDeviceResponse;
 import com.server.sensor_log.application.controllers.dto.SignCertificateRequest;
+import com.server.sensor_log.application.exceptions.DeviceNotFoundException;
 import com.server.sensor_log.application.services.AuthenticationService;
 import com.server.sensor_log.application.services.JwtService;
+import com.server.sensor_log.application.usecases.BootDeviceUseCase;
 import com.server.sensor_log.application.usecases.CreateDeviceUseCase;
 import com.server.sensor_log.application.usecases.dto.NewDevice;
 
@@ -30,12 +33,14 @@ import jakarta.validation.Valid;
 public class DeviceController {
     private final JwtService jwtService;
     private final CreateDeviceUseCase createDeviceUseCase;
+    private final BootDeviceUseCase bootDeviceUseCase;
     private final AuthenticationService authenticationService;
 
     public DeviceController(JwtService jwtService, CreateDeviceUseCase createDeviceUseCase,
-            AuthenticationService authenticationService) {
+            BootDeviceUseCase bootDeviceUseCase, AuthenticationService authenticationService) {
         this.jwtService = jwtService;
         this.createDeviceUseCase = createDeviceUseCase;
+        this.bootDeviceUseCase = bootDeviceUseCase;
         this.authenticationService = authenticationService;
     }
 
@@ -45,21 +50,29 @@ public class DeviceController {
         return ResponseEntity.status(HttpStatus.NOT_IMPLEMENTED).build();
     }
 
-    // TODO: Definir dispositivo como online se bootstrap token válido.
-    @PostMapping("/devices/{id}/boot")
-    public ResponseEntity<String> BootDevice(@PathVariable String id,
-            @RequestHeader("Bearer") @RequestBody String firstBootToken) {
+    @PostMapping("/devices/{serial}/boot")
+    public ResponseEntity<BootDeviceResponse> BootDevice(@PathVariable String serial,
+            @RequestBody String firstBootToken) {
+        try {
+            FirstBootRequest firstBootRequest = new FirstBootRequest(serial, firstBootToken);
+            BootDeviceResponse response = bootDeviceUseCase.execute(firstBootRequest);
+
+            return ResponseEntity.ok(response);
+        } catch (DeviceNotFoundException e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
+        } catch (SecurityException e) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+        }
+    }
+
+    @PostMapping("/devices/{serial}/revoke")
+    public ResponseEntity<String> RevokeDevice(@PathVariable String serial, @RequestHeader("Bearer") String token) {
         return ResponseEntity.status(HttpStatus.NOT_IMPLEMENTED).build();
     }
 
-    @PostMapping("/devices/{id}/revoke")
-    public ResponseEntity<String> RevokeDevice(@PathVariable String id, @RequestHeader("Bearer") String token) {
-        return ResponseEntity.status(HttpStatus.NOT_IMPLEMENTED).build();
-    }
-
-    @GetMapping("/{id}")
-    public ResponseEntity<String> GetDevice(@RequestHeader("Bearer") String token, @PathVariable String id) {
-        return ResponseEntity.ok("Device information for ID: " + id);
+    @GetMapping("/devices/{serial}")
+    public ResponseEntity<String> GetDevice(@RequestHeader("Bearer") String token, @PathVariable String serial) {
+        return ResponseEntity.ok("Device information for serial: " + serial);
     }
 
     @PostMapping
@@ -82,8 +95,8 @@ public class DeviceController {
         }
     }
 
-    @PostMapping("/{id}/metrics")
-    public ResponseEntity<String> GetDeviceMetrics(@PathVariable String id) {
+    @PostMapping("/devices/{serial}/metrics")
+    public ResponseEntity<String> GetDeviceMetrics(@PathVariable String serial) {
         return ResponseEntity.status(HttpStatus.NOT_IMPLEMENTED).build();
     }
 
