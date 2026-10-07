@@ -16,6 +16,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.server.sensor_log.application.controllers.dto.CertificateResponse;
 import com.server.sensor_log.application.controllers.dto.CreateDeviceRequest;
+import com.server.sensor_log.application.controllers.dto.CreateDeviceResponse;
 import com.server.sensor_log.application.controllers.dto.SignCertificateRequest;
 import com.server.sensor_log.application.services.AuthenticationService;
 import com.server.sensor_log.application.services.JwtService;
@@ -62,13 +63,13 @@ public class DeviceController {
     }
 
     @PostMapping
-    public ResponseEntity<String> CreateDevice(@RequestHeader("Bearer") String token,
+    public ResponseEntity<CreateDeviceResponse> CreateDevice(@RequestHeader("Bearer") String token,
             @RequestBody CreateDeviceRequest createDeviceRequest) {
         NewDevice newDevice = new NewDevice(createDeviceRequest.description(), createDeviceRequest.location(),
                 createDeviceRequest.deviceMetrics());
-        createDeviceUseCase.execute(newDevice);
+        CreateDeviceResponse response = createDeviceUseCase.execute(newDevice);
 
-        return ResponseEntity.status(HttpStatus.CREATED).body("Device created successfully.");
+        return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
 
     @PostMapping(value = "/devices/certificate", consumes = "application/json", produces = "application/json")
