@@ -3,8 +3,8 @@ package com.server.sensor_log.application.usecases;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
 
-import com.server.sensor_log.application.controllers.FirstBootRequest;
 import com.server.sensor_log.application.controllers.dto.BootDeviceResponse;
+import com.server.sensor_log.application.controllers.dto.FirstBootRequest;
 import com.server.sensor_log.application.exceptions.DeviceNotFoundException;
 import com.server.sensor_log.domain.model.device.Device;
 import com.server.sensor_log.domain.model.device.RandomGenerator;

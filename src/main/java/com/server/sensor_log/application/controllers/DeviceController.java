@@ -18,6 +18,7 @@ import com.server.sensor_log.application.controllers.dto.BootDeviceResponse;
 import com.server.sensor_log.application.controllers.dto.CertificateResponse;
 import com.server.sensor_log.application.controllers.dto.CreateDeviceRequest;
 import com.server.sensor_log.application.controllers.dto.CreateDeviceResponse;
+import com.server.sensor_log.application.controllers.dto.FirstBootRequest;
 import com.server.sensor_log.application.controllers.dto.SignCertificateRequest;
 import com.server.sensor_log.application.exceptions.DeviceNotFoundException;
 import com.server.sensor_log.application.services.AuthenticationService;
