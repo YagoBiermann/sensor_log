@@ -8,8 +8,13 @@ import java.util.Base64;
 import java.util.HexFormat;
 import java.util.UUID;
 
+import org.springframework.security.crypto.password.PasswordEncoder;
+
 import com.server.sensor_log.domain.model.device.RandomGenerator;
 
+import lombok.AllArgsConstructor;
+
+@AllArgsConstructor
 public class IdentityGenerator implements RandomGenerator {
     private final SecureRandom RANDOM = new SecureRandom();
 
@@ -46,18 +51,5 @@ public class IdentityGenerator implements RandomGenerator {
         return Base64.getUrlEncoder()
                 .withoutPadding()
                 .encodeToString(bytes);
-    }
-
-    @Override
-    public String encode(String token) {
-        try {
-            byte[] hash = MessageDigest.getInstance("SHA-256")
-                    .digest(token.getBytes(StandardCharsets.UTF_8));
-
-            return HexFormat.of().formatHex(hash);
-
-        } catch (NoSuchAlgorithmException e) {
-            throw new IllegalStateException(e);
-        }
     }
 }
