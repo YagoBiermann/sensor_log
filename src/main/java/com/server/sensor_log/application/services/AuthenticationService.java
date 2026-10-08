@@ -29,11 +29,10 @@ import lombok.RequiredArgsConstructor;
 @Service
 @RequiredArgsConstructor
 public class AuthenticationService {
-
+        private final VaultTemplate vaultTemplate;
         private final UserRepository userRepository;
         private final DeviceRepository deviceRepository;
         private final PasswordEncoder passwordEncoder;
-        private final VaultService vaultService;
         private final JwtService jwtService;
         private final RandomGenerator randomGenerator;
 
@@ -74,6 +73,20 @@ public class AuthenticationService {
                                 signedCertificate.getNotAfter()
                                                 .toInstant()
                                                 .toString());
+        }
+
+        private X509Certificate signCertificate(ClaimDeviceRequest signRequest) {
+                VaultPkiOperations pkiOperations = vaultTemplate.opsForPki("pki_int");
+                VaultCertificateRequest certificateSignRequest = VaultCertificateRequest.builder()
+                                .commonName(signRequest.serialNumber())
+                                .ttl(Duration.ofHours(24))
+                                .build();
+                VaultSignCertificateRequestResponse response = pkiOperations.signCertificateRequest(Role.DEVICE.name(),
+                                signRequest.csr(), certificateSignRequest);
+                Certificate certificate = response.getRequiredData();
+                certificate.getSerialNumber();
+
+                return certificate.getX509Certificate();
         }
 
         private String toPem(X509Certificate certificate) throws CertificateEncodingException {
