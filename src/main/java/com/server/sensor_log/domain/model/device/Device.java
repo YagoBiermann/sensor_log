@@ -72,7 +72,7 @@ public class Device {
         this.location = location;
         this.description = description;
         this.bootstrapToken = bootstrapToken;
-        this.redeemToken = null;
+        this.redeemToken = "";
         this.createdAt = Instant.now();
         this.metrics = new EnumMap<>(MetricsType.class);
         metrics.forEach(mt -> {
@@ -136,17 +136,14 @@ public class Device {
         if (this.claimStatus != ClaimStatus.UNCLAIMED) {
             throw new SecurityException("Device was already booted.");
         }
-        if (this.redeemToken != null) {
-            this.redeemToken = identityGenerator.generateRedeemToken();
-            return;
-        }
+
         this.connectionStatus = ConnectionStatus.ONLINE;
-        this.bootstrapToken = null;
+        this.bootstrapToken = "";
         this.redeemToken = identityGenerator.generateRedeemToken();
         log.info("Device {} booted successfully.", this.serialNumber);
     }
 
-    public void claim(String ownerId, String bootstrapToken, String redeemToken) throws SecurityException {
+    public void claim(String ownerId, String redeemToken) throws SecurityException {
         if (this.claimStatus != ClaimStatus.UNCLAIMED) {
             throw new SecurityException("Device was already claimed.");
         }
