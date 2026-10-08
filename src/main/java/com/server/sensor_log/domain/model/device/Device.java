@@ -7,12 +7,11 @@ import java.util.Map;
 
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
+import org.springframework.security.crypto.password.PasswordEncoder;
 
 import lombok.Getter;
-import lombok.extern.slf4j.Slf4j;
 
 @Getter
-@Slf4j
 @Document(collection = "devices")
 public class Device {
     @Id
@@ -125,12 +124,12 @@ public class Device {
         return device;
     }
 
-    public void boot(String serialNumber, String bootstrapToken, RandomGenerator identityGenerator)
+    public void boot(String serialNumber, String bootstrapToken, RandomGenerator identityGenerator, PasswordEncoder passwordEncoder)
             throws SecurityException {
         if (!this.serialNumber.equals(serialNumber)) {
             throw new SecurityException("Invalid serial number.");
         }
-        if (!this.bootstrapToken.equals(bootstrapToken)) {
+        if (!passwordEncoder.matches(bootstrapToken, this.bootstrapToken)) {
             throw new SecurityException("Invalid token.");
         }
         if (this.claimStatus != ClaimStatus.UNCLAIMED) {
@@ -140,16 +139,21 @@ public class Device {
         this.connectionStatus = ConnectionStatus.ONLINE;
         this.bootstrapToken = "";
         this.redeemToken = identityGenerator.generateRedeemToken();
-        log.info("Device {} booted successfully.", this.serialNumber);
+        this.redeemToken = passwordEncoder.encode(this.redeemToken);
     }
 
-    public void claim(String ownerId, String redeemToken) throws SecurityException {
-        if (this.claimStatus != ClaimStatus.UNCLAIMED) {
-            throw new SecurityException("Device was already claimed.");
+    public void claim(String ownerId, String redeemToken, PasswordEncoder passwordEncoder) throws SecurityException {
+        if(this.connectionStatus != ConnectionStatus.ONLINE || !this.bootstrapToken.isEmpty()) {
+            throw new SecurityException("Please, boot the device first.");
         }
-
+        if (this.claimStatus != ClaimStatus.UNCLAIMED) {
+            throw new SecurityException("Device property already confirmed.");
+        }
+        if(!passwordEncoder.matches(redeemToken, this.redeemToken)) {
+            throw new SecurityException("Invalid redeem token.");
+        }
         this.ownerId = ownerId;
-        this.redeemToken = null;
+        this.redeemToken = passwordEncoder.encode(redeemToken);
         this.claimStatus = ClaimStatus.CLAIMED;
         this.connectionStatus = ConnectionStatus.ONLINE;
         this.claimedAt = Instant.now();
@@ -164,7 +168,7 @@ public class Device {
     }
 
     public void setRedeemToken(String redeemToken) {
-        if (this.claimStatus != ClaimStatus.UNCLAIMED || this.redeemToken != null) {
+        if (this.claimStatus != ClaimStatus.UNCLAIMED || this.redeemToken.isEmpty()) {
             throw new SecurityException("Device was already claimed.");
         }
         this.redeemToken = redeemToken;
