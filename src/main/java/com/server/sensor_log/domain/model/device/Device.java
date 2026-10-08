@@ -22,9 +22,10 @@ public class Device {
     private String description;
 
     private String ownerId;
-    private Instant claimedAt;
-
     private ClaimStatus claimStatus;
+    private Instant claimedAt;
+    private Certificate certificate;
+
     private ConnectionStatus connectionStatus;
 
     private Location location;
@@ -36,6 +37,7 @@ public class Device {
     private Device(
             String serialNumber,
             String ownerId,
+            Certificate certificate,
             ClaimStatus claimStatus,
             Instant claimedAt,
             ConnectionStatus connectionStatus,
@@ -47,6 +49,7 @@ public class Device {
             Instant createdAt) {
         this.serialNumber = serialNumber;
         this.ownerId = ownerId;
+        this.certificate = certificate;
         this.claimStatus = claimStatus;
         this.claimedAt = claimedAt;
         this.connectionStatus = connectionStatus;
@@ -71,6 +74,7 @@ public class Device {
         this.location = location;
         this.description = description;
         this.bootstrapToken = bootstrapToken;
+        this.certificate = null;
         this.redeemToken = "";
         this.createdAt = Instant.now();
         this.metrics = new EnumMap<>(MetricsType.class);
@@ -99,6 +103,7 @@ public class Device {
     public static Device restore(
             String serialNumber,
             String ownerId,
+            Certificate certificate,
             Instant claimedAt,
             ClaimStatus claimStatus,
             ConnectionStatus connectionStatus,
@@ -111,6 +116,7 @@ public class Device {
         Device device = new Device(
                 serialNumber,
                 ownerId,
+                certificate,
                 claimStatus,
                 claimedAt,
                 connectionStatus,
