@@ -14,16 +14,16 @@ import org.springframework.validation.annotation.Validated;
 public class MqttProperties {
 
     @NotBlank(message = "mqtt.host must not be blank")
-    private String host;
+    public String host;
 
     @Min(value = 1, message = "mqtt.port must be greater than 0")
     @Max(value = 65535, message = "mqtt.port must be lower than 65536")
-    private int port;
+    public int port;
 
     @NotBlank(message = "mqtt.client-id must not be blank")
-    private String clientId;
-    private String username;
-    private String password;
-    private boolean sslEnabled;
-    private String sslCertificateFile;
+    public String clientId;
+    public String username;
+    public String password;
+    public boolean sslEnabled;
+    public String sslCertificateFile;
 }
