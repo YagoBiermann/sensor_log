@@ -130,7 +130,8 @@ public class Device {
         return device;
     }
 
-    public void boot(String serialNumber, String bootstrapToken, RandomGenerator identityGenerator, PasswordEncoder passwordEncoder)
+    public void boot(String serialNumber, String bootstrapToken, RandomGenerator identityGenerator,
+            PasswordEncoder passwordEncoder)
             throws SecurityException {
         if (!this.serialNumber.equals(serialNumber)) {
             throw new SecurityException("Invalid serial number.");
@@ -148,20 +149,22 @@ public class Device {
         this.redeemToken = passwordEncoder.encode(this.redeemToken);
     }
 
-    public void claim(String ownerId, String redeemToken, PasswordEncoder passwordEncoder) throws SecurityException {
-        if(this.connectionStatus != ConnectionStatus.ONLINE || !this.bootstrapToken.isEmpty()) {
+    public void claim(String ownerId, String redeemToken, Certificate certificate, PasswordEncoder passwordEncoder)
+            throws SecurityException {
+        if (this.connectionStatus != ConnectionStatus.ONLINE || !this.bootstrapToken.isEmpty()) {
             throw new SecurityException("Please, boot the device first.");
         }
         if (this.claimStatus != ClaimStatus.UNCLAIMED) {
             throw new SecurityException("Device property already confirmed.");
         }
-        if(!passwordEncoder.matches(redeemToken, this.redeemToken)) {
+        if (!passwordEncoder.matches(redeemToken, this.redeemToken)) {
             throw new SecurityException("Invalid redeem token.");
         }
         this.ownerId = ownerId;
         this.redeemToken = passwordEncoder.encode(redeemToken);
         this.claimStatus = ClaimStatus.CLAIMED;
         this.connectionStatus = ConnectionStatus.ONLINE;
+        this.certificate = certificate;
         this.claimedAt = Instant.now();
     }
 
