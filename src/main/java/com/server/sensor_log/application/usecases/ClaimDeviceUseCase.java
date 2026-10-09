@@ -27,6 +27,13 @@ public class ClaimDeviceUseCase {
         Device device = deviceRepository.findById(request.serialNumber())
                 .orElseThrow(() -> new DeviceNotFoundException("Device not found"));
 
+        if (device.isClaimed()) {
+            throw new SecurityException("Device is already claimed");
+        }
+        if(!passwordEncoder.matches(request.redeemToken(), device.getRedeemToken())) {
+            throw new SecurityException("Invalid redeem token");
+        }
+
         X509Certificate x509certificate = authService.signCertificate(request);
         Certificate certificate = new Certificate(Certificate.toPem(x509certificate),
                 x509certificate.getSerialNumber().toString(), x509certificate.getNotAfter().toInstant(),
