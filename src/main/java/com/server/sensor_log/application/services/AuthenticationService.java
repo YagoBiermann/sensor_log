@@ -1,27 +1,24 @@
 package com.server.sensor_log.application.services;
 
-import java.security.cert.CertificateEncodingException;
 import java.security.cert.X509Certificate;
-import java.util.Base64;
-
-import javax.naming.NameNotFoundException;
+import java.time.Duration;
 
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
-import org.springframework.security.core.GrantedAuthority;
-import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.vault.core.VaultPkiOperations;
+import org.springframework.vault.core.VaultTemplate;
+import org.springframework.vault.support.VaultCertificateRequest;
+import org.springframework.vault.support.VaultSignCertificateRequestResponse;
 
-import com.server.sensor_log.application.controllers.device.dto.CertificateResponse;
-import com.server.sensor_log.application.controllers.device.dto.SignCertificateRequest;
+import com.server.sensor_log.application.controllers.device.dto.ClaimDeviceRequest;
 import com.server.sensor_log.application.controllers.user.dto.LoginRequest;
 import com.server.sensor_log.application.controllers.user.dto.LoginResponse;
 import com.server.sensor_log.application.controllers.user.dto.RegisterRequest;
 import com.server.sensor_log.application.exceptions.InvalidCredentialsException;
 import com.server.sensor_log.application.exceptions.UserAlreadyExistsException;
-import com.server.sensor_log.domain.model.device.Device;
 import com.server.sensor_log.domain.model.device.RandomGenerator;
+import com.server.sensor_log.domain.model.device.Role;
 import com.server.sensor_log.domain.model.user.User;
-import com.server.sensor_log.infra.repository.DeviceRepository;
 import com.server.sensor_log.infra.repository.UserRepository;
 
 import lombok.RequiredArgsConstructor;
@@ -31,7 +28,6 @@ import lombok.RequiredArgsConstructor;
 public class AuthenticationService {
         private final VaultTemplate vaultTemplate;
         private final UserRepository userRepository;
-        private final DeviceRepository deviceRepository;
         private final PasswordEncoder passwordEncoder;
         private final JwtService jwtService;
         private final RandomGenerator randomGenerator;
@@ -56,38 +52,17 @@ public class AuthenticationService {
                 userRepository.save(user);
         }
 
-        public CertificateResponse signCertificate(SignCertificateRequest request)
-                        throws SecurityException, NameNotFoundException, CertificateEncodingException {
-
-                Device device = deviceRepository.findById(request.serialNumber())
-                                .orElseThrow(() -> new NameNotFoundException("Device with serial number "
-                                                + request.serialNumber() + " does not exist."));
-                device.claim(request.ownerId(), request.bootstrapToken(), request.redeemToken());
-                X509Certificate signedCertificate = vaultService.signCertificate(request);
-
-                deviceRepository.save(device);
-
-                return new CertificateResponse(
-                                toPem(signedCertificate),
-                                signedCertificate.getSerialNumber().toString(),
-                                signedCertificate.getNotAfter()
-                                                .toInstant()
-                                                .toString());
-        }
-
-        private X509Certificate signCertificate(ClaimDeviceRequest signRequest) {
+        public X509Certificate signCertificate(ClaimDeviceRequest signRequest) {
                 VaultPkiOperations pkiOperations = vaultTemplate.opsForPki("pki_int");
                 VaultCertificateRequest certificateSignRequest = VaultCertificateRequest.builder()
                                 .commonName(signRequest.serialNumber())
                                 .ttl(Duration.ofHours(24))
+                                .userId(signRequest.ownerId())
+                                .userId(signRequest.serialNumber())
                                 .build();
                 VaultSignCertificateRequestResponse response = pkiOperations.signCertificateRequest(Role.DEVICE.name(),
                                 signRequest.csr(), certificateSignRequest);
-                Certificate certificate = response.getRequiredData();
-                certificate.getSerialNumber();
-
-                return certificate.getX509Certificate();
-        }
+                X509Certificate certificate = response.getRequiredData().getX509Certificate();
 
                 return certificate;
         }
