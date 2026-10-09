@@ -11,20 +11,25 @@ import com.server.sensor_log.domain.model.device.RandomGenerator;
 import com.server.sensor_log.infra.repository.DeviceRepository;
 
 import lombok.AllArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 
 @Component
+@Slf4j
 @AllArgsConstructor
 public class BootDeviceUseCase {
     private final DeviceRepository deviceRepository;
-    private final RandomGenerator identityGenerator;
+    private final RandomGenerator codeGenerator;
+    private final PasswordEncoder passwordEncoder;
 
     public BootDeviceResponse execute(FirstBootRequest firstBootRequest)
             throws SecurityException, DeviceNotFoundException {
-        String serialNumber = identityGenerator.encode(firstBootRequest.serialNumber());
-        String firstBootToken = identityGenerator.encode(firstBootRequest.firstBootToken());
+        String serialNumber = firstBootRequest.serialNumber();
+        String firstBootToken = firstBootRequest.firstBootToken();
         Device device = deviceRepository.findById(serialNumber)
                 .orElseThrow(() -> new DeviceNotFoundException("Device not found"));
-        device.boot(serialNumber, firstBootToken, identityGenerator);
+
+        device.boot(serialNumber, firstBootToken, codeGenerator, passwordEncoder);
+        log.info("Device {} booted successfully.", serialNumber);
 
         return new BootDeviceResponse(device.getRedeemToken());
     }
