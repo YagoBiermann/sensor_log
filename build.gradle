@@ -33,12 +33,10 @@ dependencies {
     implementation 'org.springframework.boot:spring-boot-starter-validation'
     implementation 'org.hibernate.validator:hibernate-validator'
     implementation 'org.springdoc:springdoc-openapi-starter-webmvc-ui:2.5.0'
-    implementation 'org.mapstruct:mapstruct:1.5.5.Final'
     implementation 'com.fasterxml.jackson.datatype:jackson-datatype-jsr310'
     implementation 'io.jsonwebtoken:jjwt-api:0.12.6'
     runtimeOnly 'io.jsonwebtoken:jjwt-impl:0.12.6'
     runtimeOnly 'io.jsonwebtoken:jjwt-jackson:0.12.6'
-    compileOnly 'org.projectlombok:lombok'
     developmentOnly 'org.springframework.boot:spring-boot-devtools'
     developmentOnly 'org.springframework.boot:spring-boot-docker-compose'
     testImplementation 'org.springframework.boot:spring-boot-starter-test'
@@ -48,9 +46,10 @@ dependencies {
     testImplementation "org.testcontainers:testcontainers-junit-jupiter:2.0.5"
     testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
     annotationProcessor 'org.springframework.boot:spring-boot-configuration-processor'
-    annotationProcessor 'org.projectlombok:lombok'
-    annotationProcessor 'org.projectlombok:lombok-mapstruct-binding:0.2.0'
-    annotationProcessor 'org.mapstruct:mapstruct-processor:1.5.5.Final'
+    compileOnly("org.projectlombok:lombok:1.18.48")
+	annotationProcessor("org.projectlombok:lombok:1.18.48")
+	testCompileOnly("org.projectlombok:lombok:1.18.48")
+	testAnnotationProcessor("org.projectlombok:lombok:1.18.48")
 }
 dependencyManagement {
     imports {
