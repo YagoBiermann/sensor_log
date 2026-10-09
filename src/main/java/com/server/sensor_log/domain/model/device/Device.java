@@ -168,6 +168,10 @@ public class Device {
         this.claimedAt = Instant.now();
     }
 
+    public boolean isClaimed() {
+        return this.claimStatus == ClaimStatus.CLAIMED;
+    }
+
     public void setLocation(Location newLocation) {
         this.location = newLocation;
     }
