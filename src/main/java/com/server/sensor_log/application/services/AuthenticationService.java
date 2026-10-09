@@ -89,9 +89,6 @@ public class AuthenticationService {
                 return certificate.getX509Certificate();
         }
 
-        private String toPem(X509Certificate certificate) throws CertificateEncodingException {
-                Base64.Encoder encoder = Base64.getMimeEncoder(64, "\n".getBytes());
-                String encoded = encoder.encodeToString(certificate.getEncoded());
-                return "-----BEGIN CERTIFICATE-----\n" + encoded + "\n-----END CERTIFICATE-----";
+                return certificate;
         }
 }
