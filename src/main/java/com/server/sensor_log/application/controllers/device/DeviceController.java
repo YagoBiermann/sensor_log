@@ -16,14 +16,17 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.server.sensor_log.application.controllers.device.dto.BootDeviceResponse;
 import com.server.sensor_log.application.controllers.device.dto.CertificateResponse;
+import com.server.sensor_log.application.controllers.device.dto.ClaimDeviceResponse;
 import com.server.sensor_log.application.controllers.device.dto.CreateDeviceRequest;
 import com.server.sensor_log.application.controllers.device.dto.CreateDeviceResponse;
 import com.server.sensor_log.application.controllers.device.dto.FirstBootRequest;
-import com.server.sensor_log.application.controllers.device.dto.SignCertificateRequest;
+import com.server.sensor_log.application.controllers.device.dto.ClaimDeviceRequest;
+import com.server.sensor_log.application.controllers.device.dto.ClaimDeviceRequestBody;
 import com.server.sensor_log.application.exceptions.DeviceNotFoundException;
 import com.server.sensor_log.application.services.AuthenticationService;
 import com.server.sensor_log.application.services.JwtService;
 import com.server.sensor_log.application.usecases.BootDeviceUseCase;
+import com.server.sensor_log.application.usecases.ClaimDeviceUseCase;
 import com.server.sensor_log.application.usecases.CreateDeviceUseCase;
 import com.server.sensor_log.application.usecases.dto.NewDevice;
 
@@ -32,23 +35,32 @@ import jakarta.validation.Valid;
 @RestController
 @RequestMapping("/api/devices")
 public class DeviceController {
-    private final JwtService jwtService;
+    private final ClaimDeviceUseCase claimDeviceUseCase;
     private final CreateDeviceUseCase createDeviceUseCase;
     private final BootDeviceUseCase bootDeviceUseCase;
-    private final AuthenticationService authenticationService;
+    private final JwtService jwtService;
 
-    public DeviceController(JwtService jwtService, CreateDeviceUseCase createDeviceUseCase,
+    public DeviceController(JwtService jwtService, ClaimDeviceUseCase claimDeviceUseCase,
+            CreateDeviceUseCase createDeviceUseCase,
             BootDeviceUseCase bootDeviceUseCase, AuthenticationService authenticationService) {
         this.jwtService = jwtService;
+        this.claimDeviceUseCase = claimDeviceUseCase;
         this.createDeviceUseCase = createDeviceUseCase;
         this.bootDeviceUseCase = bootDeviceUseCase;
-        this.authenticationService = authenticationService;
     }
 
-    @PostMapping("/devices/{id}/claim")
-    public ResponseEntity<String> ClaimDevice(@PathVariable String id, @RequestBody String claimCode,
+    @PostMapping("/devices/{serial}/claim")
+    public ResponseEntity<?> ClaimDevice(@PathVariable String serial,
+            @RequestBody ClaimDeviceRequestBody body,
             @RequestHeader("Bearer") String token) {
-        return ResponseEntity.status(HttpStatus.NOT_IMPLEMENTED).build();
+        try {
+            String userId = jwtService.extractUserId(token);
+            ClaimDeviceRequest request = new ClaimDeviceRequest(serial, userId, body.redeemCode(), body.csr());
+            ClaimDeviceResponse response = claimDeviceUseCase.execute(request);
+            return ResponseEntity.ok(response);
+        } catch (DeviceNotFoundException | SecurityException | CertificateEncodingException e) {
+            return ResponseEntity.badRequest().body(e.getMessage());
+        }
     }
 
     @PostMapping("/devices/{serial}/boot")
@@ -84,16 +96,6 @@ public class DeviceController {
         CreateDeviceResponse response = createDeviceUseCase.execute(newDevice);
 
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
-    }
-
-    @PostMapping(value = "/devices/certificate", consumes = "application/json", produces = "application/json")
-    public ResponseEntity<?> signRequest(@Valid @RequestBody SignCertificateRequest signRequest) {
-        try {
-            CertificateResponse response = authenticationService.signCertificate(signRequest);
-            return ResponseEntity.ok(response);
-        } catch (CertificateEncodingException | NameNotFoundException e) {
-            return ResponseEntity.badRequest().body(e.getMessage());
-        }
     }
 
     @PostMapping("/devices/{serial}/metrics")
