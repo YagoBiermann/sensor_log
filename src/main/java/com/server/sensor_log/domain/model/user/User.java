@@ -20,11 +20,11 @@ import lombok.Getter;
 @RequiredArgsConstructor
 public class User {
     @Id
-    private final String userId;
+    private String userId;
     private final Role role = Role.USER;
-    private final List<String> ownedDevices = new ArrayList<>();
+    private List<String> ownedDevices = new ArrayList<>();
     @Indexed(unique = true)
-    private final String email;
+    private String email;
     private String password;
     private Instant createdAt;
 
