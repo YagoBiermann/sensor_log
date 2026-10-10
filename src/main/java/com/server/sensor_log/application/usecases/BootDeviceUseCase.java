@@ -3,7 +3,7 @@ package com.server.sensor_log.application.usecases;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
 
-import com.server.sensor_log.application.controllers.device.dto.BootDeviceResponse;
+import com.server.sensor_log.application.controllers.device.dto.FirstBootResponse;
 import com.server.sensor_log.application.controllers.device.dto.FirstBootRequest;
 import com.server.sensor_log.application.exceptions.DeviceNotFoundException;
 import com.server.sensor_log.domain.model.device.Device;
@@ -21,7 +21,7 @@ public class BootDeviceUseCase {
     private final RandomGenerator codeGenerator;
     private final PasswordEncoder passwordEncoder;
 
-    public BootDeviceResponse execute(FirstBootRequest firstBootRequest)
+    public FirstBootResponse execute(FirstBootRequest firstBootRequest)
             throws SecurityException, DeviceNotFoundException {
         String serialNumber = firstBootRequest.serialNumber();
         String firstBootToken = firstBootRequest.firstBootToken();
@@ -31,6 +31,6 @@ public class BootDeviceUseCase {
         device.boot(serialNumber, firstBootToken, codeGenerator, passwordEncoder);
         log.info("Device {} booted successfully.", serialNumber);
 
-        return new BootDeviceResponse(device.getRedeemToken());
+        return new FirstBootResponse(device.getRedeemToken());
     }
 }

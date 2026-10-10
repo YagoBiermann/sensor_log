@@ -14,7 +14,7 @@ import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.server.sensor_log.application.controllers.device.dto.BootDeviceResponse;
+import com.server.sensor_log.application.controllers.device.dto.FirstBootResponse;
 import com.server.sensor_log.application.controllers.device.dto.CertificateResponse;
 import com.server.sensor_log.application.controllers.device.dto.ClaimDeviceResponse;
 import com.server.sensor_log.application.controllers.device.dto.CreateDeviceRequest;
@@ -64,11 +64,11 @@ public class DeviceController {
     }
 
     @PostMapping("/devices/{serial}/boot")
-    public ResponseEntity<BootDeviceResponse> BootDevice(@PathVariable String serial,
+    public ResponseEntity<FirstBootResponse> BootDevice(@PathVariable String serial,
             @RequestBody String firstBootToken) {
         try {
             FirstBootRequest firstBootRequest = new FirstBootRequest(serial, firstBootToken);
-            BootDeviceResponse response = bootDeviceUseCase.execute(firstBootRequest);
+            FirstBootResponse response = bootDeviceUseCase.execute(firstBootRequest);
 
             return ResponseEntity.ok(response);
         } catch (DeviceNotFoundException e) {
