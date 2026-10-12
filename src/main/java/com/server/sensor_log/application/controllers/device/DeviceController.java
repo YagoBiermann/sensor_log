@@ -2,8 +2,6 @@ package com.server.sensor_log.application.controllers.device;
 
 import java.security.cert.CertificateEncodingException;
 
-import javax.naming.NameNotFoundException;
-
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -14,23 +12,20 @@ import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.server.sensor_log.application.controllers.device.dto.FirstBootResponse;
-import com.server.sensor_log.application.controllers.device.dto.CertificateResponse;
+import com.server.sensor_log.application.controllers.device.dto.ClaimDeviceRequest;
+import com.server.sensor_log.application.controllers.device.dto.ClaimDeviceRequestBody;
 import com.server.sensor_log.application.controllers.device.dto.ClaimDeviceResponse;
 import com.server.sensor_log.application.controllers.device.dto.CreateDeviceRequest;
 import com.server.sensor_log.application.controllers.device.dto.CreateDeviceResponse;
 import com.server.sensor_log.application.controllers.device.dto.FirstBootRequest;
-import com.server.sensor_log.application.controllers.device.dto.ClaimDeviceRequest;
-import com.server.sensor_log.application.controllers.device.dto.ClaimDeviceRequestBody;
+import com.server.sensor_log.application.controllers.device.dto.FirstBootResponse;
+import com.server.sensor_log.application.controllers.device.dto.NewDevice;
 import com.server.sensor_log.application.exceptions.DeviceNotFoundException;
 import com.server.sensor_log.application.services.AuthenticationService;
 import com.server.sensor_log.application.services.JwtService;
 import com.server.sensor_log.application.usecases.BootDeviceUseCase;
 import com.server.sensor_log.application.usecases.ClaimDeviceUseCase;
 import com.server.sensor_log.application.usecases.CreateDeviceUseCase;
-import com.server.sensor_log.application.usecases.dto.NewDevice;
-
-import jakarta.validation.Valid;
 
 @RestController
 @RequestMapping("/api/devices")
@@ -91,8 +86,7 @@ public class DeviceController {
     @PostMapping
     public ResponseEntity<CreateDeviceResponse> CreateDevice(@RequestHeader("Bearer") String token,
             @RequestBody CreateDeviceRequest createDeviceRequest) {
-        NewDevice newDevice = new NewDevice(createDeviceRequest.description(), createDeviceRequest.location(),
-                createDeviceRequest.deviceMetrics());
+        NewDevice newDevice = new NewDevice(createDeviceRequest.deviceMetrics());
         CreateDeviceResponse response = createDeviceUseCase.execute(newDevice);
 
         return ResponseEntity.status(HttpStatus.CREATED).body(response);

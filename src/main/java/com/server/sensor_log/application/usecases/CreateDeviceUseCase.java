@@ -3,8 +3,9 @@ package com.server.sensor_log.application.usecases;
 import org.springframework.stereotype.Component;
 
 import com.server.sensor_log.application.controllers.device.dto.CreateDeviceResponse;
-import com.server.sensor_log.application.usecases.dto.NewDevice;
+import com.server.sensor_log.application.controllers.device.dto.NewDevice;
 import com.server.sensor_log.domain.model.device.Device;
+import com.server.sensor_log.domain.model.device.Location;
 import com.server.sensor_log.domain.model.device.RandomGenerator;
 import com.server.sensor_log.infra.repository.DeviceRepository;
 
@@ -31,7 +32,7 @@ public class CreateDeviceUseCase {
         String serialNumberHash = identityGenerator.encode(serialNumber);
         String bootstrapTokenHash = identityGenerator.encode(bootstrapToken);
 
-        Device device = Device.create(serialNumberHash, bootstrapTokenHash, newDevice.description(), newDevice.location(), newDevice.deviceMetrics());
+        Device device = Device.create(serialNumberHash, bootstrapTokenHash, "", new Location(0,0), newDevice.deviceMetrics());
         log.info("🔵 Creating new device: {}", newDevice);
         deviceRepository.save(device);
         log.info("🟢 saved device entity: {}", device);
