@@ -30,8 +30,7 @@ services:
     env_file: .env
     volumes:
       - ./certs:/certs:ro
-      - ./mosquitto.conf:/mosquitto/config/mosquitto.conf
-      - ./mosquitto.passwd:/mosquitto/config/mosquitto.passwd
+      - ./mosquitto:/mosquitto/config
       - mosquitto_data:/mosquitto/data
       - mosquitto_logs:/mosquitto/log
     healthcheck:
@@ -54,6 +53,7 @@ services:
     - vault_data:/vault/data
     - ./vault/config:/vault/config
     - ./certs/vault:/vault/tls:ro
+    - ./certs/docker-truststore.p12:/vault/tls/docker-truststore.p12:ro
     - ./vault/policies:/vault/policies:ro
     environment:
       VAULT_ADDR: ${VAULT_ADDR}
