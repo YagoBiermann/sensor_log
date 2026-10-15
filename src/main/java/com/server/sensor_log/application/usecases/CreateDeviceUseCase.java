@@ -1,5 +1,6 @@
 package com.server.sensor_log.application.usecases;
 
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
 
 import com.server.sensor_log.application.controllers.device.dto.CreateDeviceResponse;
@@ -16,11 +17,13 @@ import lombok.extern.slf4j.Slf4j;
 public class CreateDeviceUseCase {
     private final DeviceRepository deviceRepository;
     private final RandomGenerator identityGenerator;
+    private final PasswordEncoder passwordEncoder;
 
     public CreateDeviceUseCase(DeviceRepository deviceRepository,
-            RandomGenerator identityGenerator) {
+            RandomGenerator identityGenerator, PasswordEncoder passwordEncoder) {
         this.identityGenerator = identityGenerator;
         this.deviceRepository = deviceRepository;
+        this.passwordEncoder = passwordEncoder;
     }
 
     public CreateDeviceResponse execute(NewDevice newDevice) {
@@ -29,8 +32,8 @@ public class CreateDeviceUseCase {
         while (deviceRepository.existsById(serialNumber)) {
             serialNumber = identityGenerator.generateSerialNumber();
         }
-        String serialNumberHash = identityGenerator.encode(serialNumber);
-        String bootstrapTokenHash = identityGenerator.encode(bootstrapToken);
+        String serialNumberHash = passwordEncoder.encode(serialNumber);
+        String bootstrapTokenHash = passwordEncoder.encode(bootstrapToken);
 
         Device device = Device.create(serialNumberHash, bootstrapTokenHash, "", new Location(0,0), newDevice.deviceMetrics());
         log.info("🔵 Creating new device: {}", newDevice);

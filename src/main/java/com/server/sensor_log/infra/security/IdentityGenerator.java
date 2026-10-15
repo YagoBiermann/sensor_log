@@ -1,14 +1,8 @@
 package com.server.sensor_log.infra.security;
 
-import java.nio.charset.StandardCharsets;
-import java.security.MessageDigest;
-import java.security.NoSuchAlgorithmException;
 import java.security.SecureRandom;
 import java.util.Base64;
-import java.util.HexFormat;
 import java.util.UUID;
-
-import org.springframework.security.crypto.password.PasswordEncoder;
 
 import com.server.sensor_log.domain.model.device.RandomGenerator;
 
