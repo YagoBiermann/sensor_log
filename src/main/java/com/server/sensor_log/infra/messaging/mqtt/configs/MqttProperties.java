@@ -25,5 +25,6 @@ public class MqttProperties {
     public String username;
     public String password;
     public boolean sslEnabled;
-    public String sslCertificateFile;
+    public String keystorePath;
+    public String keystorePassword;
 }
