@@ -147,7 +147,7 @@ class MqttServiceTest {
     void shouldHandleMessageAndDispatchCorrectly() {
         var msg = message("iot/temp", "25C".getBytes());
 
-        mqttConnectionManager.handleMessage(msg);
+        mqttConnectionManager.onMessages(msg);
 
         verify(dispatcher).dispatch("iot/temp", "25C");
     }
@@ -159,7 +159,7 @@ class MqttServiceTest {
         doThrow(new RuntimeException())
                 .when(dispatcher).dispatch(anyString(), anyString());
 
-        assertDoesNotThrow(() -> mqttConnectionManager.handleMessage(msg));
+        assertDoesNotThrow(() -> mqttConnectionManager.onMessages(msg));
 
         verify(dispatcher).dispatch("iot/temp", "error");
     }
@@ -168,7 +168,7 @@ class MqttServiceTest {
     void shouldHandleInvalidTopic() {
         var msg = message("", "25".getBytes());
 
-        assertDoesNotThrow(() -> mqttConnectionManager.handleMessage(msg));
+        assertDoesNotThrow(() -> mqttConnectionManager.onMessages(msg));
 
         verify(dispatcher, never()).dispatch(any(), any());
     }
@@ -177,7 +177,7 @@ class MqttServiceTest {
     void shouldHandleInvalidPayload() {
         var msg = message("iot/temp", new byte[]{(byte) 0xFF});
 
-        assertDoesNotThrow(() -> mqttConnectionManager.handleMessage(msg));
+        assertDoesNotThrow(() -> mqttConnectionManager.onMessages(msg));
 
         verify(dispatcher, never()).dispatch(eq("iot/temp"), anyString());
     }
@@ -202,7 +202,7 @@ class MqttServiceTest {
     @Test
     void shouldRejectBlankPayload() {
         var msg = message("iot/temp", new byte[0]); // or "   ".getBytes()
-        assertDoesNotThrow(() -> mqttConnectionManager.handleMessage(msg));
+        assertDoesNotThrow(() -> mqttConnectionManager.onMessages(msg));
         verify(dispatcher, never()).dispatch(any(), any());
     }
 

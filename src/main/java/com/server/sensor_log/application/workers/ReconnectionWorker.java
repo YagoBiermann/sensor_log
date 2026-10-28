@@ -15,7 +15,6 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 @RequiredArgsConstructor
 public class ReconnectionWorker {
-
     private final AtomicReference<ScheduledFuture<?>> reconnectTask = new AtomicReference<>();
     private final TaskScheduler scheduler;
 
