@@ -53,8 +53,8 @@ public class MqttConnectionManager {
                 });
     }
 
-    public void publish(String topic, String payload) {
-        mqttClient.publishWith()
+    public CompletableFuture<Void> publish(String topic, String payload) {
+        return mqttClient.publishWith()
                 .topic(topic)
                 .payload(payload.getBytes(StandardCharsets.UTF_8))
                 .qos(MqttQos.AT_LEAST_ONCE)
@@ -62,7 +62,7 @@ public class MqttConnectionManager {
                 .thenRun(() -> log.info("Message published to topic: {}", topic))
                 .exceptionally(throwable -> {
                     log.error("Failed to publish message to topic: {}", topic, throwable);
-                    return null;
+                    throw new CompletionException("MQTT publish failed", throwable);
                 });
     }
 

@@ -23,6 +23,7 @@ import com.server.sensor_log.application.controllers.device.dto.NewDevice;
 import com.server.sensor_log.application.exceptions.DeviceNotFoundException;
 import com.server.sensor_log.application.services.AuthenticationService;
 import com.server.sensor_log.application.services.JwtService;
+import com.server.sensor_log.application.services.MqttDynamicSecurityService;
 import com.server.sensor_log.application.usecases.BootDeviceUseCase;
 import com.server.sensor_log.application.usecases.ClaimDeviceUseCase;
 import com.server.sensor_log.application.usecases.CreateDeviceUseCase;
@@ -34,14 +35,17 @@ public class DeviceController {
     private final CreateDeviceUseCase createDeviceUseCase;
     private final BootDeviceUseCase bootDeviceUseCase;
     private final JwtService jwtService;
+    private final MqttDynamicSecurityService mqttDynamicSecurityService;
 
     public DeviceController(JwtService jwtService, ClaimDeviceUseCase claimDeviceUseCase,
             CreateDeviceUseCase createDeviceUseCase,
-            BootDeviceUseCase bootDeviceUseCase, AuthenticationService authenticationService) {
+            BootDeviceUseCase bootDeviceUseCase, AuthenticationService authenticationService,
+            MqttDynamicSecurityService mqttDynamicSecurityService) {
         this.jwtService = jwtService;
         this.claimDeviceUseCase = claimDeviceUseCase;
         this.createDeviceUseCase = createDeviceUseCase;
         this.bootDeviceUseCase = bootDeviceUseCase;
+        this.mqttDynamicSecurityService = mqttDynamicSecurityService;
     }
 
     @PostMapping("/devices/{serial}/claim")
@@ -88,6 +92,7 @@ public class DeviceController {
             @RequestBody CreateDeviceRequest createDeviceRequest) {
         NewDevice newDevice = new NewDevice(createDeviceRequest.deviceMetrics());
         CreateDeviceResponse response = createDeviceUseCase.execute(newDevice);
+        mqttDynamicSecurityService.createDeviceClient(response.serialNumber()).join();
 
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
