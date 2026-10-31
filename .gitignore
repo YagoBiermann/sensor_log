@@ -6,7 +6,10 @@ secrets/
 vault-init.txt
 .env
 certbot/duckdns.ini
-certs/*
+certs/bundles/*
+certs/ca/*
+certs/private/*
+certs/public/*
 !certs/README.md
 mosquitto.passwd
 HELP.md

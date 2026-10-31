@@ -29,12 +29,15 @@ services:
       - "8883:8883"
     env_file: .env
     volumes:
-      - ./certs:/certs:ro
+      - ./certs/public:/certs/public:ro
+      - ./certs/ca/mqtt-client-ca.crt:/certs/ca/mqtt-client-ca.crt:ro
+      - ./certs/public/admin.crt:/certs/public/admin.crt:ro
+      - ./certs/private/admin.key:/certs/private/admin.key:ro
       - ./mosquitto:/mosquitto/config
       - mosquitto_data:/mosquitto/data
       - mosquitto_logs:/mosquitto/log
     healthcheck:
-      test: ["CMD", "sh", "-c", "mosquitto_pub -h mosquitto -p ${MQTT_PORT} --tls-use-os-certs -u ${MQTT_USERNAME} -P ${MQTT_PASSWORD} -t healthcheck -m ok"]
+      test: ["CMD-SHELL", "mosquitto_pub -h localhost -p 8883 --cafile /certs/ca/mqtt-client-ca.crt --certfile /certs/public/admin.crt --keyfile /certs/private/admin.key -t healthcheck -m ok -q 0"]
       interval: 30s
       timeout: 3s
       retries: 5
@@ -52,7 +55,10 @@ services:
     volumes:
     - vault_data:/vault/data
     - ./vault/config:/vault/config
-    - ./certs/vault:/vault/tls:ro
+    - ./certs/public/vault-server.crt:/vault/tls/vault-server.crt:ro
+    - ./certs/private/vault-server.key:/vault/tls/vault-server.key:ro
+    - ./certs/ca/vault-ca.crt:/vault/tls/ca.crt:ro
+    - ./certs/bundles/truststore.p12:/vault/tls/truststore.p12:ro
     - ./vault/policies:/vault/policies:ro
     environment:
       VAULT_ADDR: ${VAULT_ADDR}
@@ -73,7 +79,8 @@ services:
       mosquitto:
         condition: service_healthy
     volumes:
-    - ./certs/docker-truststore.p12:/certs/docker-truststore.p12:ro
+    - ./certs/bundles/truststore.p12:/vault/tls/truststore.p12:ro
+    - ./certs/bundles/admin.p12:/certs/bundles/admin.p12:ro
     networks:
       - sensor_log_network
     restart: no
