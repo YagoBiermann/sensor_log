@@ -43,7 +43,7 @@ public class AuthenticationService {
         }
 
         public void register(RegisterRequest registerRequest) throws UserAlreadyExistsException {
-                Boolean userExists = userRepository.ExistsByEmail(registerRequest.email());
+                Boolean userExists = userRepository.existsByEmail(registerRequest.email());
                 if (userExists) {
                         throw new UserAlreadyExistsException("this user already exists");
                 }
