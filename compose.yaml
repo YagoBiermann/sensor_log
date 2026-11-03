@@ -33,11 +33,12 @@ services:
       - ./certs/ca/mqtt-client-ca.crt:/certs/ca/mqtt-client-ca.crt:ro
       - ./certs/public/admin.crt:/certs/public/admin.crt:ro
       - ./certs/private/admin.key:/certs/private/admin.key:ro
+      - ./certs/private/server.key:/certs/private/server.key:ro
       - ./mosquitto:/mosquitto/config
       - mosquitto_data:/mosquitto/data
       - mosquitto_logs:/mosquitto/log
     healthcheck:
-      test: ["CMD-SHELL", "mosquitto_pub -h localhost -p 8883 --cafile /certs/ca/mqtt-client-ca.crt --certfile /certs/public/admin.crt --keyfile /certs/private/admin.key -t healthcheck -m ok -q 0"]
+      test: ["CMD-SHELL", "mosquitto_pub -h localhost -p 8883 --cafile /etc/ssl/certs/ca-certificates.crt --cert /certs/public/admin.crt --key /certs/private/admin.key --insecure -t healthcheck -m ok -q 0"]
       interval: 30s
       timeout: 3s
       retries: 5
@@ -73,6 +74,9 @@ services:
     environment:
       SPRING_DATA_MONGODB_URI: $MONGO_URI
       SPRING_DATA_MONGODB_AUTO_INDEX_CREATION: "true"
+      SPRING_CLOUD_VAULT_AUTHENTICATION: APPROLE
+      SPRING_CLOUD_VAULT_APP_ROLE_ROLE_ID: ${VAULT_ROLE_ID}
+      SPRING_CLOUD_VAULT_APP_ROLE_SECRET_ID: ${VAULT_SECRET_ID}
     depends_on:
       mongodb:
         condition: service_healthy
