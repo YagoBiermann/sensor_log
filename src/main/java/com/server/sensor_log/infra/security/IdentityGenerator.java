@@ -4,11 +4,11 @@ import java.security.SecureRandom;
 import java.util.Base64;
 import java.util.UUID;
 
+import org.springframework.stereotype.Component;
+
 import com.server.sensor_log.domain.model.device.RandomGenerator;
 
-import lombok.AllArgsConstructor;
-
-@AllArgsConstructor
+@Component
 public class IdentityGenerator implements RandomGenerator {
     private final SecureRandom RANDOM = new SecureRandom();
 
