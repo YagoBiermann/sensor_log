@@ -130,7 +130,7 @@ public class Device {
         return device;
     }
 
-    public void boot(String serialNumber, String bootstrapToken, RandomGenerator identityGenerator,
+    public String boot(String serialNumber, String bootstrapToken, RandomGenerator identityGenerator,
             PasswordEncoder passwordEncoder)
             throws SecurityException {
         if (!this.serialNumber.equals(serialNumber)) {
@@ -145,8 +145,9 @@ public class Device {
 
         this.connectionStatus = ConnectionStatus.ONLINE;
         this.bootstrapToken = "";
-        this.redeemToken = identityGenerator.generateRedeemToken();
-        this.redeemToken = passwordEncoder.encode(this.redeemToken);
+        String plainRedeemToken = identityGenerator.generateRedeemToken();
+        this.redeemToken = passwordEncoder.encode(plainRedeemToken);
+        return plainRedeemToken;
     }
 
     public void claim(String ownerId, String redeemToken, Certificate certificate, PasswordEncoder passwordEncoder)
