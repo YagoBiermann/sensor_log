@@ -6,6 +6,7 @@ import java.util.List;
 import java.util.Map;
 
 import org.springframework.data.annotation.Id;
+import org.springframework.data.annotation.PersistenceCreator;
 import org.springframework.data.mongodb.core.mapping.Document;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
@@ -34,6 +35,7 @@ public class Device {
     private String bootstrapToken;
     private String redeemToken;
 
+    @PersistenceCreator
     private Device(
             String serialNumber,
             String ownerId,
