@@ -139,7 +139,7 @@ public class Device {
         if (!passwordEncoder.matches(bootstrapToken, this.bootstrapToken)) {
             throw new SecurityException("Invalid token.");
         }
-        if (this.claimStatus != ClaimStatus.UNCLAIMED) {
+        if (this.claimStatus != ClaimStatus.UNCLAIMED || this.bootstrapToken.isEmpty()) {
             throw new SecurityException("Device was already booted.");
         }
 
