@@ -15,11 +15,17 @@ public class ReceiveMetricsDataUseCase {
     private final DeviceRepository deviceRepository;
 
     public void execute(Topic topic, Payload payload) {
+        if (topic == null || payload == null) {
+            throw new IllegalArgumentException("Topic and payload must be provided");
+        }
         if (!"data".equals(topic.getActionType())) {
             throw new IllegalArgumentException("Only data topics can update metrics");
         }
         if (!topic.getDeviceSerialNumber().equals(payload.getSerialNumber())) {
             throw new IllegalArgumentException("Topic and payload serial numbers do not match");
+        }
+        if (payload.getMetrics() == null || payload.getMetrics().isEmpty()) {
+            throw new IllegalArgumentException("Payload must contain metrics");
         }
 
         Device device = deviceRepository.findById(topic.getDeviceSerialNumber())
