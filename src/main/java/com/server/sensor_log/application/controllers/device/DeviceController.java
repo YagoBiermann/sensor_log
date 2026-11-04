@@ -1,6 +1,8 @@
 package com.server.sensor_log.application.controllers.device;
 
 import java.security.cert.CertificateEncodingException;
+import java.util.List;
+import java.util.stream.Collectors;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -17,16 +19,20 @@ import com.server.sensor_log.application.controllers.device.dto.ClaimDeviceReque
 import com.server.sensor_log.application.controllers.device.dto.ClaimDeviceResponse;
 import com.server.sensor_log.application.controllers.device.dto.CreateDeviceRequest;
 import com.server.sensor_log.application.controllers.device.dto.CreateDeviceResponse;
+import com.server.sensor_log.application.controllers.device.dto.DeviceResponse;
 import com.server.sensor_log.application.controllers.device.dto.FirstBootRequest;
 import com.server.sensor_log.application.controllers.device.dto.FirstBootResponse;
 import com.server.sensor_log.application.controllers.device.dto.NewDevice;
 import com.server.sensor_log.application.exceptions.DeviceNotFoundException;
-import com.server.sensor_log.application.services.AuthenticationService;
 import com.server.sensor_log.application.services.JwtService;
 import com.server.sensor_log.application.services.MqttDynamicSecurityService;
 import com.server.sensor_log.application.usecases.BootDeviceUseCase;
 import com.server.sensor_log.application.usecases.ClaimDeviceUseCase;
 import com.server.sensor_log.application.usecases.CreateDeviceUseCase;
+import com.server.sensor_log.domain.model.device.Device;
+import com.server.sensor_log.infra.repository.DeviceRepository;
+
+import jakarta.validation.Valid;
 
 @RestController
 @RequestMapping("/api/devices")
@@ -36,24 +42,27 @@ public class DeviceController {
     private final BootDeviceUseCase bootDeviceUseCase;
     private final JwtService jwtService;
     private final MqttDynamicSecurityService mqttDynamicSecurityService;
+    private final DeviceRepository deviceRepository;
 
     public DeviceController(JwtService jwtService, ClaimDeviceUseCase claimDeviceUseCase,
             CreateDeviceUseCase createDeviceUseCase,
-            BootDeviceUseCase bootDeviceUseCase, AuthenticationService authenticationService,
-            MqttDynamicSecurityService mqttDynamicSecurityService) {
+            BootDeviceUseCase bootDeviceUseCase,
+            MqttDynamicSecurityService mqttDynamicSecurityService,
+            DeviceRepository deviceRepository) {
         this.jwtService = jwtService;
         this.claimDeviceUseCase = claimDeviceUseCase;
         this.createDeviceUseCase = createDeviceUseCase;
         this.bootDeviceUseCase = bootDeviceUseCase;
         this.mqttDynamicSecurityService = mqttDynamicSecurityService;
+        this.deviceRepository = deviceRepository;
     }
 
     @PostMapping("/{serial}/claim")
     public ResponseEntity<?> ClaimDevice(@PathVariable String serial,
-            @RequestBody ClaimDeviceRequestBody body,
-            @RequestHeader("Bearer") String token) {
+            @Valid @RequestBody ClaimDeviceRequestBody body,
+            @RequestHeader("Authorization") String authorization) {
         try {
-            String userId = jwtService.extractUserId(token);
+            String userId = jwtService.extractUserId(extractBearerToken(authorization));
             ClaimDeviceRequest request = new ClaimDeviceRequest(serial, userId, body.redeemCode(), body.csr());
             ClaimDeviceResponse response = claimDeviceUseCase.execute(request);
             return ResponseEntity.ok(response);
