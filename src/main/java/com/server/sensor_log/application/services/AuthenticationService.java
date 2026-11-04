@@ -35,11 +35,11 @@ public class AuthenticationService {
         public LoginResponse login(LoginRequest loginRequest) throws InvalidCredentialsException {
                 User user = userRepository.findByEmail(loginRequest.email());
 
-                if (!passwordEncoder.matches(loginRequest.password(), user.getPassword())) {
+                if (user == null || !passwordEncoder.matches(loginRequest.password(), user.getPassword())) {
                         throw new InvalidCredentialsException("Invalid credentials.");
                 }
 
-                return new LoginResponse(jwtService.generateToken(user.getEmail(), user.getRole().name()));
+                return new LoginResponse(jwtService.generateToken(user.getUserId(), user.getRole().name()));
         }
 
         public void register(RegisterRequest registerRequest) throws UserAlreadyExistsException {
@@ -57,7 +57,6 @@ public class AuthenticationService {
                 VaultCertificateRequest certificateSignRequest = VaultCertificateRequest.builder()
                                 .commonName(signRequest.serialNumber())
                                 .ttl(Duration.ofHours(24))
-                                .userId(signRequest.ownerId())
                                 .userId(signRequest.serialNumber())
                                 .build();
                 VaultSignCertificateRequestResponse response = pkiOperations.signCertificateRequest(Role.DEVICE.name(),
