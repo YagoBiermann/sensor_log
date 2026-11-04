@@ -46,7 +46,7 @@ public class UserController {
 
             return ResponseEntity.ok(response);
         } catch (InvalidCredentialsException e) {
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(e);
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(e.getMessage());
         } catch (Exception e) {
             return ResponseEntity.internalServerError()
                     .body("Something is not working as expected. \nPlease try again later.");
