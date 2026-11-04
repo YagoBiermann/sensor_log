@@ -86,9 +86,20 @@ public class DeviceController {
         }
     }
 
-    @PostMapping("/devices/{serial}/revoke")
-    public ResponseEntity<String> RevokeDevice(@PathVariable String serial, @RequestHeader("Bearer") String token) {
-        return ResponseEntity.status(HttpStatus.NOT_IMPLEMENTED).build();
+    @PostMapping("/{serial}/revoke")
+    public ResponseEntity<?> RevokeDevice(@PathVariable String serial, @RequestHeader("Authorization") String authorization) {
+        try {
+            String token = extractBearerToken(authorization);
+            var device = deviceRepository.findById(serial).orElseThrow(() -> new DeviceNotFoundException("Device not found"));
+            authorizeOwnerOrAdmin(device.getOwnerId(), token);
+            device.revoke();
+            deviceRepository.save(device);
+            return ResponseEntity.noContent().build();
+        } catch (DeviceNotFoundException e) {
+            return ResponseEntity.notFound().build();
+        } catch (SecurityException e) {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).body(e.getMessage());
+        }
     }
 
     @GetMapping("/devices/{serial}")
@@ -112,7 +123,38 @@ public class DeviceController {
     }
 
     @GetMapping("/metrics")
-    public ResponseEntity<String> GetAllMetrics(@RequestHeader("Bearer") String token) {
-        return ResponseEntity.status(HttpStatus.NOT_IMPLEMENTED).build();
+    public ResponseEntity<?> GetAllMetrics(@RequestHeader("Authorization") String authorization) {
+        try {
+            String token = extractBearerToken(authorization);
+            String userId = jwtService.extractUserId(token);
+            boolean admin = "ADMIN".equals(jwtService.extractRole(token));
+            List<DeviceResponse> devices = deviceRepository.findAll().stream()
+                    .filter(device -> admin || userId.equals(device.getOwnerId()))
+                    .map(this::toResponse)
+                    .collect(Collectors.toList());
+            return ResponseEntity.ok(devices);
+        } catch (SecurityException e) {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).body(e.getMessage());
+        }
+    }
+
+    private String extractBearerToken(String authorization) {
+        if (authorization == null || !authorization.startsWith("Bearer ")) {
+            throw new SecurityException("Invalid Authorization header");
+        }
+        return authorization.substring(7);
+    }
+
+    private void authorizeOwnerOrAdmin(String ownerId, String token) {
+        String userId = jwtService.extractUserId(token);
+        String role = jwtService.extractRole(token);
+        if (!"ADMIN".equals(role) && !userId.equals(ownerId)) {
+            throw new SecurityException("User is not allowed to access this device");
+        }
+    }
+
+    private DeviceResponse toResponse(Device device) {
+        return new DeviceResponse(device.getSerialNumber(), device.getOwnerId(), device.getClaimStatus(),device.getLocation(),
+                device.getConnectionStatus(), device.getCreatedAt(), device.getMetrics());
     }
 }

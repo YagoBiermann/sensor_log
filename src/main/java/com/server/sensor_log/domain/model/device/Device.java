@@ -172,6 +172,14 @@ public class Device {
         return this.claimStatus == ClaimStatus.CLAIMED;
     }
 
+    public void revoke() {
+        if (!isClaimed()) {
+            throw new SecurityException("Device is not claimed");
+        }
+        this.claimStatus = ClaimStatus.REVOKED;
+        this.connectionStatus = ConnectionStatus.OFFLINE;
+    }
+
     public void setLocation(Location newLocation) {
         this.location = newLocation;
     }
