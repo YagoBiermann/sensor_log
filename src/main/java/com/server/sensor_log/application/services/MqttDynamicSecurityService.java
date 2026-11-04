@@ -37,9 +37,9 @@ public class MqttDynamicSecurityService {
                 "command", "createRole",
                 "rolename", DEVICE_ROLE,
                 "acls", List.of(
-                        acl("publishClientSend", "iot/%u/+/data"),
-                        acl("subscribePattern", "iot/%u/+/command"),
-                        acl("publishClientReceive", "iot/%u/+/command")));
+                        acl("publishClientSend", "iot/%u/data"),
+                        acl("subscribePattern", "iot/%u/command"),
+                        acl("publishClientReceive", "iot/%u/command")));
 
         Map<String, Object> createClient = Map.of(
                 "command", "createClient",
