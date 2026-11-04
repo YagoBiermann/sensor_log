@@ -48,7 +48,7 @@ public class DeviceController {
         this.mqttDynamicSecurityService = mqttDynamicSecurityService;
     }
 
-    @PostMapping("/devices/{serial}/claim")
+    @PostMapping("/{serial}/claim")
     public ResponseEntity<?> ClaimDevice(@PathVariable String serial,
             @RequestBody ClaimDeviceRequestBody body,
             @RequestHeader("Bearer") String token) {
@@ -62,7 +62,7 @@ public class DeviceController {
         }
     }
 
-    @PostMapping("/devices/{serial}/boot")
+    @PostMapping("/{serial}/boot")
     public ResponseEntity<FirstBootResponse> BootDevice(@PathVariable String serial,
             @RequestBody String firstBootToken) {
         try {
