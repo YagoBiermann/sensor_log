@@ -102,14 +102,22 @@ public class DeviceController {
         }
     }
 
-    @GetMapping("/devices/{serial}")
-    public ResponseEntity<String> GetDevice(@RequestHeader("Bearer") String token, @PathVariable String serial) {
-        return ResponseEntity.ok("Device information for serial: " + serial);
+    @GetMapping("/{serial}")
+    public ResponseEntity<?> GetDevice(@RequestHeader("Authorization") String authorization, @PathVariable String serial) {
+        try {
+            String token = extractBearerToken(authorization);
+            var device = deviceRepository.findById(serial).orElseThrow(() -> new DeviceNotFoundException("Device not found"));
+            authorizeOwnerOrAdmin(device.getOwnerId(), token);
+            return ResponseEntity.ok(toResponse(device));
+        } catch (DeviceNotFoundException e) {
+            return ResponseEntity.notFound().build();
+        } catch (SecurityException e) {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).body(e.getMessage());
+        }
     }
 
     @PostMapping
-    public ResponseEntity<CreateDeviceResponse> CreateDevice(@RequestHeader("Bearer") String token,
-            @RequestBody CreateDeviceRequest createDeviceRequest) {
+    public ResponseEntity<CreateDeviceResponse> CreateDevice(@Valid @RequestBody CreateDeviceRequest createDeviceRequest) {
         NewDevice newDevice = new NewDevice(createDeviceRequest.deviceMetrics());
         CreateDeviceResponse response = createDeviceUseCase.execute(newDevice);
         mqttDynamicSecurityService.createDeviceClient(response.serialNumber()).join();
@@ -117,9 +125,9 @@ public class DeviceController {
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
 
-    @PostMapping("/devices/{serial}/metrics")
-    public ResponseEntity<String> GetDeviceMetrics(@PathVariable String serial) {
-        return ResponseEntity.status(HttpStatus.NOT_IMPLEMENTED).build();
+    @GetMapping("/{serial}/metrics")
+    public ResponseEntity<?> GetDeviceMetrics(@PathVariable String serial, @RequestHeader("Authorization") String authorization) {
+        return GetDevice(authorization, serial);
     }
 
     @GetMapping("/metrics")
