@@ -4,11 +4,30 @@ import org.springframework.stereotype.Component;
 
 import com.server.sensor_log.application.ports.Payload;
 import com.server.sensor_log.application.ports.Topic;
+import com.server.sensor_log.application.exceptions.DeviceNotFoundException;
+import com.server.sensor_log.domain.model.device.Device;
+import com.server.sensor_log.infra.repository.DeviceRepository;
+import lombok.RequiredArgsConstructor;
 
-//TODO add device validation, check if device exists, check if metrics are valid for the device, etc.
 @Component
+@RequiredArgsConstructor
 public class ReceiveMetricsDataUseCase {
+    private final DeviceRepository deviceRepository;
+
     public void execute(Topic topic, Payload payload) {
-        System.out.println("Received metrics data for topic: " + topic + ", payload: " + payload);
+        if (!"data".equals(topic.getActionType())) {
+            throw new IllegalArgumentException("Only data topics can update metrics");
+        }
+        if (!topic.getDeviceSerialNumber().equals(payload.getSerialNumber())) {
+            throw new IllegalArgumentException("Topic and payload serial numbers do not match");
+        }
+
+        Device device = deviceRepository.findById(topic.getDeviceSerialNumber())
+                .orElseThrow(() -> new DeviceNotFoundException("Device not found"));
+        if (!device.getMetrics().keySet().containsAll(payload.getMetrics().keySet())) {
+            throw new IllegalArgumentException("Payload contains metrics not configured for the device");
+        }
+        device.updateMetrics(payload.getMetrics());
+        deviceRepository.save(device);
     }
 }
