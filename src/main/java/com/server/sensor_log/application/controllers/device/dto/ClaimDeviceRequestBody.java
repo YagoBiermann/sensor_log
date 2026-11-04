@@ -1,6 +1,8 @@
 package com.server.sensor_log.application.controllers.device.dto;
 
+import jakarta.validation.constraints.NotBlank;
+
 public record ClaimDeviceRequestBody(
-        String redeemCode,
-        String csr
+        @NotBlank String redeemCode,
+        @NotBlank String csr
 ) {}
