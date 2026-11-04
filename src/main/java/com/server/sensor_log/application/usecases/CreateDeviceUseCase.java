@@ -1,5 +1,7 @@
 package com.server.sensor_log.application.usecases;
 
+import java.util.Objects;
+
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
 
@@ -27,18 +29,21 @@ public class CreateDeviceUseCase {
     }
 
     public CreateDeviceResponse execute(NewDevice newDevice) {
+        Objects.requireNonNull(newDevice, "Device data must be provided");
+        if (newDevice.deviceMetrics() == null || newDevice.deviceMetrics().isEmpty()) {
+            throw new IllegalArgumentException("At least one device metric type must be provided");
+        }
         String serialNumber = identityGenerator.generateSerialNumber();
         String bootstrapToken = identityGenerator.generateBootstrapToken();
         while (deviceRepository.existsById(serialNumber)) {
             serialNumber = identityGenerator.generateSerialNumber();
         }
-        String serialNumberHash = passwordEncoder.encode(serialNumber);
         String bootstrapTokenHash = passwordEncoder.encode(bootstrapToken);
 
-        Device device = Device.create(serialNumberHash, bootstrapTokenHash, "", new Location(0,0), newDevice.deviceMetrics());
-        log.info("🔵 Creating new device: {}", newDevice);
+        Device device = Device.create(serialNumber, bootstrapTokenHash, "", new Location(0, 0), newDevice.deviceMetrics());
+        log.info("Creating new device with serial {}", serialNumber);
         deviceRepository.save(device);
-        log.info("🟢 saved device entity: {}", device);
+        log.info("Device {} saved", serialNumber);
 
         return new CreateDeviceResponse(serialNumber, bootstrapToken);
     }
