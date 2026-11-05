@@ -1,12 +1,18 @@
 package com.server.sensor_log.application.usecases;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import org.springframework.stereotype.Component;
 
+import com.server.sensor_log.application.exceptions.DeviceNotFoundException;
+import com.server.sensor_log.application.exceptions.InvalidDeviceStatusException;
 import com.server.sensor_log.application.ports.Payload;
 import com.server.sensor_log.application.ports.Topic;
-import com.server.sensor_log.application.exceptions.DeviceNotFoundException;
 import com.server.sensor_log.domain.model.device.Device;
+import com.server.sensor_log.domain.model.device.MetricsType;
 import com.server.sensor_log.infra.repository.DeviceRepository;
+
 import lombok.RequiredArgsConstructor;
 
 @Component
@@ -37,6 +43,9 @@ public class ReceiveMetricsDataUseCase {
         if (device.isRevoked()) {
             throw new InvalidDeviceStatusException("Unable to publish metrics for revoked device {0}", device.getSerialNumber());
         }
+        List<MetricsType> payloadMetrics;
+        payloadMetrics = new ArrayList<>(payload.getMetrics().keySet());
+        if (!device.containsMetrics(payloadMetrics)) {
             throw new IllegalArgumentException("Payload contains metrics not configured for the device");
         }
         device.updateMetrics(payload.getMetrics());

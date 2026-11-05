@@ -188,6 +188,10 @@ public class Device {
         this.connectionStatus = ConnectionStatus.OFFLINE;
     }
 
+    public boolean containsMetrics(List<MetricsType> metrics) {
+        return this.metrics.keySet().containsAll(metrics);
+    }
+
     public void setLocation(Location newLocation) {
         this.location = newLocation;
     }
