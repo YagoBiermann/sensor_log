@@ -3,181 +3,104 @@ package com.server.sensor_log.application.integration;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
 
-import java.math.BigInteger;
-import java.security.cert.X509Certificate;
-import java.time.Instant;
-import java.util.Date;
 import java.util.List;
 
-import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.BeforeAll;
-import org.springframework.data.mongodb.core.MongoTemplate;
-import org.springframework.data.mongodb.repository.support.MongoRepositoryFactory;
-import org.springframework.data.mongodb.core.SimpleMongoClientDatabaseFactory;
+import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.Test;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
-import com.mongodb.client.MongoClient;
-import com.mongodb.client.MongoClients;
 import org.testcontainers.containers.MongoDBContainer;
 import org.testcontainers.junit.jupiter.Container;
 import org.testcontainers.junit.jupiter.Testcontainers;
 
-import com.server.sensor_log.application.controllers.device.dto.ClaimDeviceRequest;
-import com.server.sensor_log.application.controllers.device.dto.FirstBootRequest;
-import com.server.sensor_log.application.controllers.device.dto.NewDevice;
-import com.server.sensor_log.application.controllers.user.dto.RegisterRequest;
-import com.server.sensor_log.application.services.AuthenticationService;
-import com.server.sensor_log.application.usecases.BootDeviceUseCase;
-import com.server.sensor_log.application.usecases.ClaimDeviceUseCase;
-import com.server.sensor_log.application.usecases.CreateDeviceUseCase;
+import com.server.sensor_log.application.controllers.device.dto.ClaimDeviceResponse;
+import com.server.sensor_log.application.controllers.device.dto.CreateDeviceResponse;
 import com.server.sensor_log.domain.model.device.ClaimStatus;
 import com.server.sensor_log.domain.model.device.ConnectionStatus;
+import com.server.sensor_log.domain.model.device.Device;
 import com.server.sensor_log.domain.model.device.MetricsType;
-import com.server.sensor_log.domain.model.device.RandomGenerator;
 import com.server.sensor_log.domain.model.user.User;
-import com.server.sensor_log.infra.repository.DeviceRepository;
-import com.server.sensor_log.infra.repository.UserRepository;
+import com.server.sensor_log.application.integration.support.DeviceLifecycleScenario;
+import com.server.sensor_log.application.integration.support.IntegrationMongoSupport;
 
 @Testcontainers
 class DeviceLifecycleIntegrationTest {
 
     @Container
-    static final MongoDBContainer MONGO = new MongoDBContainer("mongo:7.0");
-
-    private static MongoClient mongoClient;
-    private static MongoTemplate mongoTemplate;
-    private static DeviceRepository deviceRepository;
-    private static UserRepository userRepository;
+    static final MongoDBContainer MONGO = IntegrationMongoSupport.MONGO;
+    private final IntegrationMongoSupport mongo = new IntegrationMongoSupport();
     private final PasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
-    private final RandomGenerator identityGenerator = new FixedIdentityGenerator();
+    private DeviceLifecycleScenario fixture;
 
     @BeforeAll
-    static void setUpMongoRepositories() {
-        mongoClient = MongoClients.create(MONGO.getReplicaSetUrl());
-        mongoTemplate = new MongoTemplate(
-                new SimpleMongoClientDatabaseFactory(mongoClient, "sensor_log_integration"));
-        MongoRepositoryFactory repositoryFactory = new MongoRepositoryFactory(mongoTemplate);
-        deviceRepository = repositoryFactory.getRepository(DeviceRepository.class);
-        userRepository = repositoryFactory.getRepository(UserRepository.class);
+    static void setUpMongo() {
+        IntegrationMongoSupport.setUpRepositories();
     }
 
     @AfterAll
-    static void closeMongoClient() {
-        mongoClient.close();
+    static void closeMongo() {
+        IntegrationMongoSupport.closeMongoClient();
     }
 
     @BeforeEach
     void cleanDatabase() {
-        deviceRepository.deleteAll();
-        userRepository.deleteAll();
+        mongo.clear();
+        fixture = new DeviceLifecycleScenario(
+                mongo.deviceRepository(), mongo.userRepository(), passwordEncoder);
     }
 
     @Test
     void createsBootsAndClaimsDeviceForRegisteredUser() throws Exception {
-        CreateDeviceUseCase createDeviceUseCase = new CreateDeviceUseCase(
-                deviceRepository, identityGenerator, passwordEncoder);
-        BootDeviceUseCase bootDeviceUseCase = new BootDeviceUseCase(
-                deviceRepository, identityGenerator, passwordEncoder);
-        AuthenticationService authenticationService = new TestAuthenticationService(
-                userRepository, passwordEncoder, identityGenerator);
-        ClaimDeviceUseCase claimDeviceUseCase = new ClaimDeviceUseCase(
-                deviceRepository, passwordEncoder, authenticationService);
+        User user = fixture.registerUser();
+        CreateDeviceResponse created = fixture.createDevice();
 
-        authenticationService.register(new RegisterRequest(
-                "owner@example.com", "correct-password", "Owner"));
-        User user = userRepository.findByEmail("owner@example.com");
-        assertNotNull(user);
+        assertCreatedDevice(created);
 
-        var created = createDeviceUseCase.execute(
-                new NewDevice(List.of(MetricsType.TEMPERATURE, MetricsType.HUMIDITY)));
+        var booted = fixture.bootDevice(created);
+        assertBootedDevice(created, booted.redeemToken());
 
-        var createdDevice = deviceRepository.findById(created.serialNumber()).orElseThrow();
-        assertEquals(ClaimStatus.UNCLAIMED, createdDevice.getClaimStatus());
-        assertEquals(ConnectionStatus.OFFLINE, createdDevice.getConnectionStatus());
-        assertEquals(0.0, createdDevice.getMetrics().get(MetricsType.TEMPERATURE));
-        assertFalse(createdDevice.getBootstrapToken().isBlank());
-        assertEquals("", createdDevice.getRedeemToken());
+        ClaimDeviceResponse claim = fixture.claimDevice(created, booted.redeemToken(), user);
+        assertClaimedDevice(claim, user, created);
+    }
 
-        var booted = bootDeviceUseCase.execute(new FirstBootRequest(
-                created.serialNumber(), created.bootstrapToken()));
+    private void assertCreatedDevice(CreateDeviceResponse created) {
+        Device device = mongo.deviceRepository().findById(created.serialNumber()).orElseThrow();
 
-        var bootedDevice = deviceRepository.findById(created.serialNumber()).orElseThrow();
-        assertEquals("redeem-1234", booted.redeemToken());
-        assertEquals(ClaimStatus.UNCLAIMED, bootedDevice.getClaimStatus());
-        assertEquals(ConnectionStatus.ONLINE, bootedDevice.getConnectionStatus());
-        assertEquals("", bootedDevice.getBootstrapToken());
-        assertTruePasswordIsStored(booted.redeemToken(), bootedDevice.getRedeemToken());
+        assertEquals(ClaimStatus.UNCLAIMED, device.getClaimStatus());
+        assertEquals(ConnectionStatus.OFFLINE, device.getConnectionStatus());
+        assertEquals(0.0, device.getMetrics().get(MetricsType.TEMPERATURE));
+        assertFalse(device.getBootstrapToken().isBlank());
+        assertEquals("", device.getRedeemToken());
+    }
 
-        var claim = claimDeviceUseCase.execute(new ClaimDeviceRequest(
-                created.serialNumber(),
-                user.getUserId(),
-                booted.redeemToken(),
-                "-----BEGIN CERTIFICATE REQUEST-----\nYWJj\n-----END CERTIFICATE REQUEST-----"));
+    private void assertBootedDevice(CreateDeviceResponse created, String redeemToken) {
+        Device device = mongo.deviceRepository().findById(created.serialNumber()).orElseThrow();
 
-        var claimedDevice = deviceRepository.findById(created.serialNumber()).orElseThrow();
+        assertEquals("redeem-1234", redeemToken);
+        assertEquals(ClaimStatus.UNCLAIMED, device.getClaimStatus());
+        assertEquals(ConnectionStatus.ONLINE, device.getConnectionStatus());
+        assertEquals("", device.getBootstrapToken());
+        assertFalse(redeemToken.equals(device.getRedeemToken()));
+        org.junit.jupiter.api.Assertions.assertTrue(
+                passwordEncoder.matches(redeemToken, device.getRedeemToken()));
+    }
+
+    private void assertClaimedDevice(
+            ClaimDeviceResponse claim,
+            User user,
+            CreateDeviceResponse created) {
+        Device device = mongo.deviceRepository().findById(created.serialNumber()).orElseThrow();
+
         assertEquals(created.serialNumber(), claim.serialNumber());
         assertEquals(user.getUserId(), claim.ownerId());
         assertEquals(ClaimStatus.CLAIMED, claim.claimStatus());
-        assertEquals(ClaimStatus.CLAIMED, claimedDevice.getClaimStatus());
-        assertEquals(user.getUserId(), claimedDevice.getOwnerId());
-        assertEquals(ConnectionStatus.ONLINE, claimedDevice.getConnectionStatus());
+        assertEquals(ClaimStatus.CLAIMED, device.getClaimStatus());
+        assertEquals(user.getUserId(), device.getOwnerId());
+        assertEquals(ConnectionStatus.ONLINE, device.getConnectionStatus());
         assertNotNull(claim.certificate());
-        assertNotNull(claimedDevice.getCertificate());
-    }
-
-    private void assertTruePasswordIsStored(String plainText, String encoded) {
-        assertFalse(plainText.equals(encoded));
-        org.junit.jupiter.api.Assertions.assertTrue(passwordEncoder.matches(plainText, encoded));
-    }
-
-    private static final class FixedIdentityGenerator implements RandomGenerator {
-        @Override
-        public String generateSerialNumber() {
-            return "123456789012";
-        }
-
-        @Override
-        public String generateBootstrapToken() {
-            return "bootstrap-123";
-        }
-
-        @Override
-        public String generateRedeemToken() {
-            return "redeem-1234";
-        }
-
-        @Override
-        public String generateUserId() {
-            return "user-123";
-        }
-    }
-
-    private static final class TestAuthenticationService extends AuthenticationService {
-        private TestAuthenticationService(
-                UserRepository userRepository,
-                PasswordEncoder passwordEncoder,
-                RandomGenerator randomGenerator) {
-            super(null, userRepository, passwordEncoder, null, randomGenerator);
-        }
-
-        @Override
-        public X509Certificate signCertificate(ClaimDeviceRequest request) {
-            Instant issuedAt = Instant.parse("2026-01-01T00:00:00Z");
-            X509Certificate certificate = mock(X509Certificate.class);
-            try {
-                when(certificate.getEncoded()).thenReturn(new byte[] { 1, 2, 3 });
-                when(certificate.getSerialNumber()).thenReturn(BigInteger.ONE);
-                when(certificate.getNotBefore()).thenReturn(Date.from(issuedAt));
-                when(certificate.getNotAfter()).thenReturn(Date.from(issuedAt.plusSeconds(86400)));
-            } catch (Exception exception) {
-                throw new AssertionError("Could not configure test certificate", exception);
-            }
-            return certificate;
-        }
+        assertNotNull(device.getCertificate());
     }
 }
