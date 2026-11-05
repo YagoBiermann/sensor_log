@@ -92,6 +92,7 @@ public class DeviceController {
             String token = extractBearerToken(authorization);
             var device = deviceRepository.findById(serial).orElseThrow(() -> new DeviceNotFoundException("Device not found"));
             authorizeOwnerOrAdmin(device.getOwnerId(), token);
+            mqttDynamicSecurityService.revokeDevice(serial).join();
             device.revoke();
             deviceRepository.save(device);
             return ResponseEntity.noContent().build();

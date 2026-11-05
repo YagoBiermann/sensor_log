@@ -32,6 +32,19 @@ public class MqttDynamicSecurityService {
         }
     }
 
+    public CompletableFuture<Void> revokeDevice(String serialNumber) {
+        validateSerialNumber(serialNumber);
+
+        try {
+            return mqttConnectionManager.publish(CONTROL_TOPIC, objectMapper.writeValueAsString(Map.of(
+                    "commands", List.of(Map.of(
+                            "command", "disableClient",
+                            "username", serialNumber)))));
+        } catch (JsonProcessingException exception) {
+            return CompletableFuture.failedFuture(exception);
+        }
+    }
+
     private String commandPayload(String serialNumber) throws JsonProcessingException {
         Map<String, Object> createRole = Map.of(
                 "command", "createRole",
