@@ -30,7 +30,13 @@ public class ReceiveMetricsDataUseCase {
 
         Device device = deviceRepository.findById(topic.getDeviceSerialNumber())
                 .orElseThrow(() -> new DeviceNotFoundException("Device not found"));
-        if (!device.getMetrics().keySet().containsAll(payload.getMetrics().keySet())) {
+
+        if (device.isUnclaimed()) {
+            throw new InvalidDeviceStatusException("Unable to publish metrics for unclaimed device {0}", device.getSerialNumber());
+        }
+        if (device.isRevoked()) {
+            throw new InvalidDeviceStatusException("Unable to publish metrics for revoked device {0}", device.getSerialNumber());
+        }
             throw new IllegalArgumentException("Payload contains metrics not configured for the device");
         }
         device.updateMetrics(payload.getMetrics());

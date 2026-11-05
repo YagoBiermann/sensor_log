@@ -174,7 +174,12 @@ public class Device {
     public boolean isClaimed() {
         return this.claimStatus == ClaimStatus.CLAIMED;
     }
-
+    public boolean isRevoked() {
+        return this.claimStatus == ClaimStatus.REVOKED;
+    }
+    public boolean isUnclaimed() {
+        return this.claimStatus == ClaimStatus.UNCLAIMED;
+    }
     public void revoke() {
         if (!isClaimed()) {
             throw new SecurityException("Device is not claimed");
