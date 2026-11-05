@@ -116,7 +116,10 @@ public class DeviceController {
         try {
             String token = extractBearerToken(authorization);
             var device = deviceRepository.findById(serial).orElseThrow(() -> new DeviceNotFoundException("Device not found"));
-            authorizeOwnerOrAdmin(device.getOwnerId(), token);
+            authenticationService.authorizeOwnerOrAdmin(
+                    device.getOwnerId(),
+                    jwtService.extractUserId(token),
+                    jwtService.extractRole(token));
             return ResponseEntity.ok(toResponse(device));
         } catch (DeviceNotFoundException e) {
             return ResponseEntity.notFound().build();
@@ -144,7 +147,7 @@ public class DeviceController {
         try {
             String token = extractBearerToken(authorization);
             String userId = jwtService.extractUserId(token);
-            boolean admin = "ADMIN".equals(jwtService.extractRole(token));
+            boolean admin = authenticationService.isAdmin(jwtService.extractRole(token));
             List<DeviceResponse> devices = deviceRepository.findAll().stream()
                     .filter(device -> admin || userId.equals(device.getOwnerId()))
                     .map(this::toResponse)
@@ -160,14 +163,6 @@ public class DeviceController {
             throw new SecurityException("Invalid Authorization header");
         }
         return authorization.substring(7);
-    }
-
-    private void authorizeOwnerOrAdmin(String ownerId, String token) {
-        String userId = jwtService.extractUserId(token);
-        String role = jwtService.extractRole(token);
-        if (!"ADMIN".equals(role) && !userId.equals(ownerId)) {
-            throw new SecurityException("User is not allowed to access this device");
-        }
     }
 
     private DeviceResponse toResponse(Device device) {

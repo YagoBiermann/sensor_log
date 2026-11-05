@@ -54,6 +54,25 @@ public class AuthenticationService {
                 userRepository.save(user);
         }
 
+        public void authorizeOwnerOrAdmin(String ownerId, String userId, String role) {
+                Role userRole = parseRole(role);
+                if (userRole != Role.ADMIN && (userId == null || !userId.equals(ownerId))) {
+                        throw new SecurityException("User is not allowed to access this device");
+                }
+        }
+
+        public boolean isAdmin(String role) {
+                return parseRole(role) == Role.ADMIN;
+        }
+
+        private Role parseRole(String role) {
+                try {
+                        return Role.valueOf(role);
+                } catch (IllegalArgumentException | NullPointerException exception) {
+                        throw new SecurityException("Invalid user role");
+                }
+        }
+
         public X509Certificate signCertificate(ClaimDeviceRequest signRequest) {
                 VaultPkiOperations pkiOperations = vaultTemplate.opsForPki("pki_int");
                 VaultCertificateRequest certificateSignRequest = VaultCertificateRequest.builder()
