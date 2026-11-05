@@ -38,4 +38,16 @@ class MqttDynamicSecurityServiceTest {
         assertThrows(IllegalArgumentException.class, () -> service.createDeviceClient("invalid"));
         verifyNoInteractions(connectionManager);
     }
+
+    @Test
+    void disablesRevokedDeviceInBroker() {
+        when(connectionManager.publish(anyString(), anyString())).thenReturn(CompletableFuture.completedFuture(null));
+        var service = new MqttDynamicSecurityService(connectionManager, new ObjectMapper());
+
+        service.revokeDevice("123456789012").join();
+
+        verify(connectionManager).publish(eq("$CONTROL/dynamic-security/v1"), argThat(payload ->
+                payload.contains("\"command\":\"disableClient\"")
+                        && payload.contains("\"username\":\"123456789012\"")));
+    }
 }
