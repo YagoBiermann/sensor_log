@@ -9,3 +9,7 @@ path "pki_int/issue/broker" {
 path "pki_int/cert/ca_chain" {
   capabilities = ["read"]
 }
+
+path "pki_int/revoke" {
+  capabilities = ["create", "update"]
+}
