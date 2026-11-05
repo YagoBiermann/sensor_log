@@ -30,6 +30,7 @@ import com.server.sensor_log.application.services.MqttDynamicSecurityService;
 import com.server.sensor_log.application.usecases.BootDeviceUseCase;
 import com.server.sensor_log.application.usecases.ClaimDeviceUseCase;
 import com.server.sensor_log.application.usecases.CreateDeviceUseCase;
+import com.server.sensor_log.application.usecases.RevokeDeviceUseCase;
 import com.server.sensor_log.domain.model.device.Device;
 import com.server.sensor_log.infra.repository.DeviceRepository;
 
@@ -43,13 +44,16 @@ public class DeviceController {
     private final BootDeviceUseCase bootDeviceUseCase;
     private final JwtService jwtService;
     private final AuthenticationService authenticationService;
+    private final RevokeDeviceUseCase revokeDeviceUseCase;
     private final MqttDynamicSecurityService mqttDynamicSecurityService;
     private final DeviceRepository deviceRepository;
 
-    public DeviceController(JwtService jwtService, AuthenticationService authenticationService,
+    public DeviceController(JwtService jwtService,
+            AuthenticationService authenticationService,
             ClaimDeviceUseCase claimDeviceUseCase,
             CreateDeviceUseCase createDeviceUseCase,
             BootDeviceUseCase bootDeviceUseCase,
+            RevokeDeviceUseCase revokeDeviceUseCase,
             MqttDynamicSecurityService mqttDynamicSecurityService,
             DeviceRepository deviceRepository) {
         this.jwtService = jwtService;
@@ -57,6 +61,7 @@ public class DeviceController {
         this.claimDeviceUseCase = claimDeviceUseCase;
         this.createDeviceUseCase = createDeviceUseCase;
         this.bootDeviceUseCase = bootDeviceUseCase;
+        this.revokeDeviceUseCase = revokeDeviceUseCase;
         this.mqttDynamicSecurityService = mqttDynamicSecurityService;
         this.deviceRepository = deviceRepository;
     }
@@ -94,15 +99,10 @@ public class DeviceController {
     public ResponseEntity<?> RevokeDevice(@PathVariable String serial, @RequestHeader("Authorization") String authorization) {
         try {
             String token = extractBearerToken(authorization);
-            var device = deviceRepository.findById(serial).orElseThrow(() -> new DeviceNotFoundException("Device not found"));
-            authorizeOwnerOrAdmin(device.getOwnerId(), token);
-            if (device.getCertificate() == null) {
-                throw new SecurityException("Device has no certificate to revoke");
-            }
-            authenticationService.revokeCertificate(device.getCertificate().certificateSerialNumber());
-            mqttDynamicSecurityService.revokeDevice(serial).join();
-            device.revoke();
-            deviceRepository.save(device);
+            revokeDeviceUseCase.execute(
+                    serial,
+                    jwtService.extractUserId(token),
+                    jwtService.extractRole(token));
             return ResponseEntity.noContent().build();
         } catch (DeviceNotFoundException e) {
             return ResponseEntity.notFound().build();
