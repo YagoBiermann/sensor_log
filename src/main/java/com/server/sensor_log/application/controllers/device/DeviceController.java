@@ -24,6 +24,7 @@ import com.server.sensor_log.application.controllers.device.dto.FirstBootRequest
 import com.server.sensor_log.application.controllers.device.dto.FirstBootResponse;
 import com.server.sensor_log.application.controllers.device.dto.NewDevice;
 import com.server.sensor_log.application.exceptions.DeviceNotFoundException;
+import com.server.sensor_log.application.services.AuthenticationService;
 import com.server.sensor_log.application.services.JwtService;
 import com.server.sensor_log.application.services.MqttDynamicSecurityService;
 import com.server.sensor_log.application.usecases.BootDeviceUseCase;
@@ -41,15 +42,18 @@ public class DeviceController {
     private final CreateDeviceUseCase createDeviceUseCase;
     private final BootDeviceUseCase bootDeviceUseCase;
     private final JwtService jwtService;
+    private final AuthenticationService authenticationService;
     private final MqttDynamicSecurityService mqttDynamicSecurityService;
     private final DeviceRepository deviceRepository;
 
-    public DeviceController(JwtService jwtService, ClaimDeviceUseCase claimDeviceUseCase,
+    public DeviceController(JwtService jwtService, AuthenticationService authenticationService,
+            ClaimDeviceUseCase claimDeviceUseCase,
             CreateDeviceUseCase createDeviceUseCase,
             BootDeviceUseCase bootDeviceUseCase,
             MqttDynamicSecurityService mqttDynamicSecurityService,
             DeviceRepository deviceRepository) {
         this.jwtService = jwtService;
+        this.authenticationService = authenticationService;
         this.claimDeviceUseCase = claimDeviceUseCase;
         this.createDeviceUseCase = createDeviceUseCase;
         this.bootDeviceUseCase = bootDeviceUseCase;
@@ -92,6 +96,10 @@ public class DeviceController {
             String token = extractBearerToken(authorization);
             var device = deviceRepository.findById(serial).orElseThrow(() -> new DeviceNotFoundException("Device not found"));
             authorizeOwnerOrAdmin(device.getOwnerId(), token);
+            if (device.getCertificate() == null) {
+                throw new SecurityException("Device has no certificate to revoke");
+            }
+            authenticationService.revokeCertificate(device.getCertificate().certificateSerialNumber());
             mqttDynamicSecurityService.revokeDevice(serial).join();
             device.revoke();
             deviceRepository.save(device);

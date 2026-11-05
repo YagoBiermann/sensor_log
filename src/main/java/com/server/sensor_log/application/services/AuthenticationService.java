@@ -2,6 +2,8 @@ package com.server.sensor_log.application.services;
 
 import java.security.cert.X509Certificate;
 import java.time.Duration;
+import java.math.BigInteger;
+import java.util.Map;
 
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -64,5 +66,34 @@ public class AuthenticationService {
                 X509Certificate certificate = response.getRequiredData().getX509Certificate();
 
                 return certificate;
+        }
+
+        public void revokeCertificate(String certificateSerialNumber) {
+                if (certificateSerialNumber == null || certificateSerialNumber.isBlank()) {
+                        throw new IllegalArgumentException("Certificate serial number is required");
+                }
+
+                vaultTemplate.write("pki_int/revoke", Map.of(
+                                "serial_number", toVaultSerialNumber(certificateSerialNumber)));
+        }
+
+        private String toVaultSerialNumber(String certificateSerialNumber) {
+                if (!certificateSerialNumber.matches("\\d+")) {
+                        return certificateSerialNumber;
+                }
+
+                String hexadecimal = new BigInteger(certificateSerialNumber).toString(16);
+                if ((hexadecimal.length() & 1) != 0) {
+                        hexadecimal = "0" + hexadecimal;
+                }
+
+                StringBuilder formatted = new StringBuilder();
+                for (int index = 0; index < hexadecimal.length(); index += 2) {
+                        if (formatted.length() > 0) {
+                                formatted.append(':');
+                        }
+                        formatted.append(hexadecimal, index, index + 2);
+                }
+                return formatted.toString();
         }
 }
