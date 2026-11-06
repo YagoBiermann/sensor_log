@@ -6,6 +6,7 @@ import lombok.Getter;
 public class Topic {
     public String deviceSerialNumber;
     public String actionType;
+    public static String prefix = "iot";
 
     public Topic(String deviceSerialNumber, String actionType) {
         this.deviceSerialNumber = deviceSerialNumber;
@@ -13,16 +14,16 @@ public class Topic {
     }
 
     public String getTopic() {
-        return "iot/" + deviceSerialNumber + "/" + actionType;
+        return prefix + "/" + deviceSerialNumber + "/" + actionType;
     }
 
     public static Topic parse(String topic) {
         String[] parts = topic.split("/");
-        if (parts.length < 3) {
+        if (parts.length != 3) {
             throw new IllegalArgumentException("Invalid topic format");
         }
-        if (!parts[0].equals("iot")) {
-            throw new IllegalArgumentException("Invalid topic format: must start with 'iot'");
+        if (!parts[0].equals(prefix)) {
+            throw new IllegalArgumentException("Invalid topic format: must start with" + prefix);
         }
         if (!parts[1].matches("^[a-zA-Z0-9]{12}$")) {
             throw new IllegalArgumentException("Invalid topic format: device serial number must be exactly 12 alphanumeric characters");
