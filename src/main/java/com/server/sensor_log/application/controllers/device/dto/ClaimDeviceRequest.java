@@ -5,8 +5,8 @@ import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Size;
 
 public record ClaimDeviceRequest(
-        @NotBlank(message = "número serial do dispositivo é obrigatório") @Size(min = 12, max = 12, message = "número serial deve ter 12 caracteres") @Pattern(regexp = "^[A-Za-z0-9]{12}$", message = "número serial contém caracteres inválidos") String serialNumber,
-        @NotBlank(message = "Id do usuário não fornecido") @Size(max = 254, message = "email deve ter no máximo 254 caracteres") String ownerId,
-        @NotBlank(message = "código do produto é obrigatório") @Size(min = 4, max = 4, message = "código do produto inválido") @Pattern(regexp = "^[A-Za-z0-9_-]*$", message = "código do produto contém caracteres inválidos") String redeemToken,
-        @NotBlank(message = "csr é obrigatório") @Size(max = 8192, message = "csr excede o tamanho máximo") @Pattern(regexp = "(?s)^\\s*-----BEGIN (NEW )?CERTIFICATE REQUEST-----[A-Za-z0-9+/=\\s]+-----END (NEW )?CERTIFICATE REQUEST-----\\s*$", message = "csr deve estar em formato PEM") String csr) {
+        @NotBlank(message = "Device serial number is required") @Size(min = 12, max = 12, message = "Serial number must contain 12 characters") @Pattern(regexp = "^[A-Za-z0-9]{12}$", message = "Serial number contains invalid characters") String serialNumber,
+        @NotBlank(message = "User ID is required") @Size(max = 254, message = "Email must contain at most 254 characters") String ownerId,
+        @NotBlank(message = "Product code is required") @Size(min = 4, max = 4, message = "Product code must contain 4 characters") @Pattern(regexp = "^[A-Za-z0-9_-]*$", message = "Product code contains invalid characters") String redeemCode,
+        @NotBlank(message = "csr is required") @Size(max = 8192, message = "csr must contain at most 8192 characters") @Pattern(regexp = "(?s)^\\s*-----BEGIN (NEW )?CERTIFICATE REQUEST-----[A-Za-z0-9+/=\\s]+-----END (NEW )?CERTIFICATE REQUEST-----\\s*$", message = "csr must be in PEM format") String csr) {
 }
