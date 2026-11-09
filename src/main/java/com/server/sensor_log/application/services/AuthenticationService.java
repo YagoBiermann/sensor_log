@@ -77,7 +77,7 @@ public class AuthenticationService {
                 VaultPkiOperations pkiOperations = vaultTemplate.opsForPki("pki_int");
                 VaultCertificateRequest certificateSignRequest = VaultCertificateRequest.builder()
                                 .commonName(signRequest.serialNumber())
-                                .ttl(Duration.ofHours(24))
+                                .ttl(Duration.ofDays(30))
                                 .userId(signRequest.serialNumber())
                                 .build();
                 VaultSignCertificateRequestResponse response = pkiOperations.signCertificateRequest(Role.DEVICE.name(),
