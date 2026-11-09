@@ -33,7 +33,7 @@ public class Device {
     private Map<MetricsType, Double> metrics;
 
     private String bootstrapToken;
-    private String redeemToken;
+    private String redeemCode;
 
     @PersistenceCreator
     private Device(
@@ -47,7 +47,7 @@ public class Device {
             String description,
             Map<MetricsType, Double> metrics,
             String bootstrapToken,
-            String redeemToken,
+            String redeemCode,
             Instant createdAt) {
         this.serialNumber = serialNumber;
         this.ownerId = ownerId;
@@ -58,7 +58,7 @@ public class Device {
         this.location = location;
         this.description = description;
         this.bootstrapToken = bootstrapToken;
-        this.redeemToken = redeemToken;
+        this.redeemCode = redeemCode;
         this.createdAt = createdAt;
         this.metrics = new EnumMap<>(MetricsType.class);
         metrics.forEach((key, value) -> {
@@ -77,7 +77,7 @@ public class Device {
         this.description = description;
         this.bootstrapToken = bootstrapToken;
         this.certificate = null;
-        this.redeemToken = "";
+        this.redeemCode = "";
         this.createdAt = Instant.now();
         this.metrics = new EnumMap<>(MetricsType.class);
         metrics.forEach(mt -> {
@@ -113,7 +113,7 @@ public class Device {
             String description,
             Map<MetricsType, Double> metrics,
             String bootstrapToken,
-            String redeemToken,
+            String redeemCode,
             Instant createdAt) {
         Device device = new Device(
                 serialNumber,
@@ -126,7 +126,7 @@ public class Device {
                 description,
                 metrics,
                 bootstrapToken,
-                redeemToken,
+                redeemCode,
                 createdAt);
 
         return device;
@@ -147,12 +147,12 @@ public class Device {
 
         this.connectionStatus = ConnectionStatus.ONLINE;
         this.bootstrapToken = "";
-        String plainRedeemToken = identityGenerator.generateRedeemToken();
-        this.redeemToken = passwordEncoder.encode(plainRedeemToken);
-        return plainRedeemToken;
+        String plainRedeemCode = identityGenerator.generateRedeemCode();
+        this.redeemCode = passwordEncoder.encode(plainRedeemCode);
+        return plainRedeemCode;
     }
 
-    public void claim(String ownerId, String redeemToken, Certificate certificate, PasswordEncoder passwordEncoder)
+    public void claim(String ownerId, String redeemCode, Certificate certificate, PasswordEncoder passwordEncoder)
             throws SecurityException {
         if (this.connectionStatus != ConnectionStatus.ONLINE || !this.bootstrapToken.isEmpty()) {
             throw new SecurityException("Please, boot the device first.");
@@ -160,11 +160,11 @@ public class Device {
         if (this.claimStatus != ClaimStatus.UNCLAIMED) {
             throw new SecurityException("Device property already confirmed.");
         }
-        if (!passwordEncoder.matches(redeemToken, this.redeemToken)) {
+        if (!passwordEncoder.matches(redeemCode, this.redeemCode)) {
             throw new SecurityException("Invalid redeem token.");
         }
         this.ownerId = ownerId;
-        this.redeemToken = passwordEncoder.encode(redeemToken);
+        this.redeemCode = passwordEncoder.encode(redeemCode);
         this.claimStatus = ClaimStatus.CLAIMED;
         this.connectionStatus = ConnectionStatus.ONLINE;
         this.certificate = certificate;
@@ -200,11 +200,11 @@ public class Device {
         this.description = newDescription;
     }
 
-    public void setRedeemToken(String redeemToken) {
-        if (this.claimStatus != ClaimStatus.UNCLAIMED || this.redeemToken.isEmpty()) {
+    public void setRedeemCode(String redeemCode) {
+        if (this.claimStatus != ClaimStatus.UNCLAIMED || this.redeemCode.isEmpty()) {
             throw new SecurityException("Device was already claimed.");
         }
-        this.redeemToken = redeemToken;
+        this.redeemCode = redeemCode;
     }
 
     public void updateMetrics(Map<MetricsType, Double> newMetrics) {

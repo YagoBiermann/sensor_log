@@ -28,25 +28,25 @@ class BootDeviceUseCaseTest {
     @Mock PasswordEncoder encoder;
 
     @Test
-    void bootsAndReturnsPlainRedeemToken() {
+    void bootsAndReturnsPlainRedeemCode() {
         Device device = Device.create("123456789012", "bootstrap-hash", "", null,
                 List.of(MetricsType.TEMPERATURE));
         when(repository.findById("123456789012")).thenReturn(Optional.of(device));
         when(encoder.matches("bootstrap", "bootstrap-hash")).thenReturn(true);
-        when(generator.generateRedeemToken()).thenReturn("redeem");
+        when(generator.generateRedeemCode()).thenReturn("redeem");
         when(encoder.encode("redeem")).thenReturn("redeem-hash");
 
         var response = new BootDeviceUseCase(repository, generator, encoder)
                 .execute(new FirstBootRequest("123456789012", "bootstrap"));
 
-        assertEquals("redeem", response.redeemToken());
+        assertEquals("redeem", response.redeemCode());
         assertEquals("123456789012", device.getSerialNumber());
         assertEquals(ClaimStatus.UNCLAIMED, device.getClaimStatus());
         assertEquals(ConnectionStatus.ONLINE, device.getConnectionStatus());
         assertEquals("", device.getBootstrapToken());
-        assertEquals("redeem-hash", device.getRedeemToken());
+        assertEquals("redeem-hash", device.getRedeemCode());
         verify(encoder).matches("bootstrap", "bootstrap-hash");
-        verify(generator).generateRedeemToken();
+        verify(generator).generateRedeemCode();
         verify(encoder).encode("redeem");
         verify(repository).save(device);
     }
@@ -72,7 +72,7 @@ class BootDeviceUseCaseTest {
 
         assertEquals(ConnectionStatus.OFFLINE, device.getConnectionStatus());
         assertEquals("bootstrap-hash", device.getBootstrapToken());
-        assertEquals("", device.getRedeemToken());
+        assertEquals("", device.getRedeemCode());
         verify(encoder).matches("wrong", "bootstrap-hash");
         verifyNoInteractions(generator);
         verify(repository, never()).save(any());
@@ -84,7 +84,7 @@ class BootDeviceUseCaseTest {
                 List.of(MetricsType.TEMPERATURE));
         when(repository.findById("123456789012")).thenReturn(Optional.of(device));
         when(encoder.matches("bootstrap", "bootstrap-hash")).thenReturn(true);
-        when(generator.generateRedeemToken()).thenReturn("redeem");
+        when(generator.generateRedeemCode()).thenReturn("redeem");
         when(encoder.encode("redeem")).thenReturn("redeem-hash");
 
         new BootDeviceUseCase(repository, generator, encoder)
@@ -95,7 +95,7 @@ class BootDeviceUseCaseTest {
         assertThrows(SecurityException.class, () -> new BootDeviceUseCase(repository, generator, encoder)
                 .execute(new FirstBootRequest("123456789012", "bootstrap")));
 
-        verify(generator, times(1)).generateRedeemToken();
+        verify(generator, times(1)).generateRedeemCode();
         verify(repository, times(1)).save(device);
     }
 

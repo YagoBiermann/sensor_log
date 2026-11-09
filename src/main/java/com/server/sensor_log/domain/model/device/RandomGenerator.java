@@ -1,7 +1,7 @@
 package com.server.sensor_log.domain.model.device;
 
 public interface RandomGenerator {
-    String generateRedeemToken();
+    String generateRedeemCode();
     String generateBootstrapToken();
     String generateSerialNumber();
     String generateUserId();

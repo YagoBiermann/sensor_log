@@ -28,10 +28,10 @@ public class BootDeviceUseCase {
         Device device = deviceRepository.findById(serialNumber)
                 .orElseThrow(() -> new DeviceNotFoundException("Device not found"));
 
-        String redeemToken = device.boot(serialNumber, firstBootToken, codeGenerator, passwordEncoder);
+        String redeemCode = device.boot(serialNumber, firstBootToken, codeGenerator, passwordEncoder);
         log.info("Device {} booted successfully.", serialNumber);
         deviceRepository.save(device);
 
-        return new FirstBootResponse(redeemToken);
+        return new FirstBootResponse(redeemCode);
     }
 }

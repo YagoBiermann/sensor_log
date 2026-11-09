@@ -30,12 +30,12 @@ class IdentityGeneratorTest {
     @Test
     void tokensHaveExpectedUrlSafeLengthsAndAreDifferent() {
         String bootstrap = generator.generateBootstrapToken();
-        String redeem = generator.generateRedeemToken();
+        String redeem = generator.generateRedeemCode();
 
         assertAll(
                 () -> assertTrue(bootstrap.matches("[A-Za-z0-9_-]{11}")),
                 () -> assertTrue(redeem.matches("[A-Za-z0-9_-]{6}")),
                 () -> assertNotEquals(bootstrap, generator.generateBootstrapToken()),
-                () -> assertNotEquals(redeem, generator.generateRedeemToken()));
+                () -> assertNotEquals(redeem, generator.generateRedeemCode()));
     }
 }

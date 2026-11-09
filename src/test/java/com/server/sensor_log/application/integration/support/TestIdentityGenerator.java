@@ -15,7 +15,7 @@ final class TestIdentityGenerator implements RandomGenerator {
     }
 
     @Override
-    public String generateRedeemToken() {
+    public String generateRedeemCode() {
         return "redeem-1234";
     }
 

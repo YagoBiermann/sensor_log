@@ -60,9 +60,9 @@ class DeviceLifecycleIntegrationTest {
         assertCreatedDevice(created);
 
         var booted = fixture.bootDevice(created);
-        assertBootedDevice(created, booted.redeemToken());
+        assertBootedDevice(created, booted.redeemCode());
 
-        ClaimDeviceResponse claim = fixture.claimDevice(created, booted.redeemToken(), user);
+        ClaimDeviceResponse claim = fixture.claimDevice(created, booted.redeemCode(), user);
         assertClaimedDevice(claim, user, created);
     }
 
@@ -73,19 +73,19 @@ class DeviceLifecycleIntegrationTest {
         assertEquals(ConnectionStatus.OFFLINE, device.getConnectionStatus());
         assertEquals(0.0, device.getMetrics().get(MetricsType.TEMPERATURE));
         assertFalse(device.getBootstrapToken().isBlank());
-        assertEquals("", device.getRedeemToken());
+        assertEquals("", device.getRedeemCode());
     }
 
-    private void assertBootedDevice(CreateDeviceResponse created, String redeemToken) {
+    private void assertBootedDevice(CreateDeviceResponse created, String redeemCode) {
         Device device = mongo.deviceRepository().findById(created.serialNumber()).orElseThrow();
 
-        assertEquals("redeem-1234", redeemToken);
+        assertEquals("redeem-1234", redeemCode);
         assertEquals(ClaimStatus.UNCLAIMED, device.getClaimStatus());
         assertEquals(ConnectionStatus.ONLINE, device.getConnectionStatus());
         assertEquals("", device.getBootstrapToken());
-        assertFalse(redeemToken.equals(device.getRedeemToken()));
+        assertFalse(redeemCode.equals(device.getRedeemCode()));
         org.junit.jupiter.api.Assertions.assertTrue(
-                passwordEncoder.matches(redeemToken, device.getRedeemToken()));
+                passwordEncoder.matches(redeemCode, device.getRedeemCode()));
     }
 
     private void assertClaimedDevice(

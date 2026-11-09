@@ -39,7 +39,7 @@ class ClaimDeviceUseCaseTest {
     }
 
     @Test
-    void rejectsInvalidRedeemTokenAndAlreadyClaimedDevice() {
+    void rejectsInvalidRedeemCodeAndAlreadyClaimedDevice() {
         Device unclaimed = Device.restore("123456789012", null, null, null, ClaimStatus.UNCLAIMED,
                 com.server.sensor_log.domain.model.device.ConnectionStatus.ONLINE, null, "",
                 java.util.Map.of(MetricsType.TEMPERATURE, 0.0), "", "hash", java.time.Instant.now());
@@ -59,7 +59,7 @@ class ClaimDeviceUseCaseTest {
     }
 
     @Test
-    void rescuesDeviceSuccessfullyWithValidRedeemTokenAndCertificate() throws Exception {
+    void rescuesDeviceSuccessfullyWithValidRedeemCodeAndCertificate() throws Exception {
         Instant issuedAt = Instant.parse("2026-01-01T00:00:00Z");
         Instant expiresAt = Instant.parse("2026-01-02T00:00:00Z");
         Device device = Device.restore("123456789012", null, null, null, ClaimStatus.UNCLAIMED,
@@ -73,8 +73,8 @@ class ClaimDeviceUseCaseTest {
                 "-----BEGIN CERTIFICATE REQUEST-----\nYWJj\n-----END CERTIFICATE REQUEST-----");
 
         when(repository.findById(request.serialNumber())).thenReturn(Optional.of(device));
-        when(encoder.matches(request.redeemToken(), device.getRedeemToken())).thenReturn(true);
-        when(encoder.encode(request.redeemToken())).thenReturn("redeem-hash-after-claim");
+        when(encoder.matches(request.redeemCode(), device.getRedeemCode())).thenReturn(true);
+        when(encoder.encode(request.redeemCode())).thenReturn("redeem-hash-after-claim");
         when(authenticationService.signCertificate(request)).thenReturn(certificate);
         when(certificate.getEncoded()).thenReturn(new byte[] { 1, 2, 3 });
         when(certificate.getSerialNumber()).thenReturn(BigInteger.valueOf(42));
@@ -87,7 +87,7 @@ class ClaimDeviceUseCaseTest {
         assertEquals("owner-1", response.ownerId());
         assertEquals(ClaimStatus.CLAIMED, response.claimStatus());
         assertEquals("owner-1", device.getOwnerId());
-        assertEquals("redeem-hash-after-claim", device.getRedeemToken());
+        assertEquals("redeem-hash-after-claim", device.getRedeemCode());
         assertEquals(response.certificate(), device.getCertificate());
         assertEquals("42", response.certificate().certificateSerialNumber());
         assertEquals(issuedAt, response.certificate().certificateIssuedAt());

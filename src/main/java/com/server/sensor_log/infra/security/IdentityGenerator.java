@@ -35,7 +35,7 @@ public class IdentityGenerator implements RandomGenerator {
     }
 
     @Override
-    public String generateRedeemToken() {
+    public String generateRedeemCode() {
         return generateToken(4);
     }
 

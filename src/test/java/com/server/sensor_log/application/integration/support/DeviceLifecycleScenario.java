@@ -69,9 +69,9 @@ public final class DeviceLifecycleScenario {
 
     public ClaimDeviceResponse claimDevice(
             CreateDeviceResponse device,
-            String redeemToken,
+            String redeemCode,
             User user) throws Exception {
         return claimDeviceUseCase.execute(new ClaimDeviceRequest(
-                device.serialNumber(), user.getUserId(), redeemToken, CSR));
+                device.serialNumber(), user.getUserId(), redeemCode, CSR));
     }
 }

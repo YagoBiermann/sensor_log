@@ -30,15 +30,15 @@ public class ClaimDeviceUseCase {
         if (device.isClaimed()) {
             throw new SecurityException("Device is already claimed");
         }
-        if(!passwordEncoder.matches(request.redeemToken(), device.getRedeemToken())) {
-            throw new SecurityException("Invalid redeem token");
+        if(!passwordEncoder.matches(request.redeemCode(), device.getRedeemCode())) {
+            throw new SecurityException("Invalid redeem code");
         }
 
         X509Certificate x509certificate = authService.signCertificate(request);
         Certificate certificate = new Certificate(Certificate.toPem(x509certificate),
                 x509certificate.getSerialNumber().toString(), x509certificate.getNotAfter().toInstant(),
                 x509certificate.getNotBefore().toInstant());
-        device.claim(request.ownerId(), request.redeemToken(), certificate, passwordEncoder);
+        device.claim(request.ownerId(), request.redeemCode(), certificate, passwordEncoder);
         deviceRepository.save(device);
 
         return new ClaimDeviceResponse(device.getSerialNumber(), device.getOwnerId(), device.getClaimStatus(), certificate);

@@ -26,7 +26,7 @@ class DeviceTest {
                 () -> assertEquals(Role.DEVICE, device.getRole()),
                 () -> assertEquals("1.0.0", device.getFirmwareVersion()),
                 () -> assertEquals(BOOTSTRAP, device.getBootstrapToken()),
-                () -> assertEquals("", device.getRedeemToken()),
+                () -> assertEquals("", device.getRedeemCode()),
                 () -> assertEquals(ClaimStatus.UNCLAIMED, device.getClaimStatus()),
                 () -> assertEquals(ConnectionStatus.OFFLINE, device.getConnectionStatus()),
                 () -> assertEquals(Map.of(METRIC, 0.0, MetricsType.HUMIDITY, 0.0), device.getMetrics()),
@@ -64,12 +64,12 @@ class DeviceTest {
         assertThrows(SecurityException.class, () -> device.boot(SERIAL, "wrong", mock(RandomGenerator.class), encoder));
 
         RandomGenerator generator = mock(RandomGenerator.class);
-        when(generator.generateRedeemToken()).thenReturn("redeem");
+        when(generator.generateRedeemCode()).thenReturn("redeem");
         when(encoder.encode("redeem")).thenReturn("redeem-hash");
         assertEquals("redeem", device.boot(SERIAL, BOOTSTRAP, generator, encoder));
         assertEquals(ConnectionStatus.ONLINE, device.getConnectionStatus());
         assertEquals("", device.getBootstrapToken());
-        assertEquals("redeem-hash", device.getRedeemToken());
+        assertEquals("redeem-hash", device.getRedeemCode());
         assertThrows(SecurityException.class, () -> device.boot(SERIAL, BOOTSTRAP, generator, encoder));
     }
 
@@ -93,7 +93,7 @@ class DeviceTest {
 
         assertTrue(device.isClaimed());
         assertEquals("owner", device.getOwnerId());
-        assertEquals("new-hash", device.getRedeemToken());
+        assertEquals("new-hash", device.getRedeemCode());
         assertEquals(certificate, device.getCertificate());
         assertEquals(ConnectionStatus.ONLINE, device.getConnectionStatus());
         assertNotNull(device.getClaimedAt());
@@ -118,18 +118,18 @@ class DeviceTest {
                 () -> assertEquals(42.0, device.getMetrics().get(METRIC)),
                 () -> assertEquals(1000.0, device.getMetrics().get(MetricsType.PRESSURE)));
         assertThrows(SecurityException.class, () -> device.revoke());
-        assertThrows(SecurityException.class, () -> device.setRedeemToken("another"));
+        assertThrows(SecurityException.class, () -> device.setRedeemCode("another"));
     }
 
     @Test
-    void setRedeemTokenUpdatesAnUnclaimedDeviceAndRevokeRejectsUnclaimedDevice() {
+    void setRedeemCodeUpdatesAnUnclaimedDeviceAndRevokeRejectsUnclaimedDevice() {
         Device device = Device.restore(SERIAL, null, null, null, ClaimStatus.UNCLAIMED,
                 ConnectionStatus.ONLINE, new Location(0, 0), "description", Map.of(METRIC, 0.0),
                 "", "old-redeem", Instant.now());
 
-        device.setRedeemToken("new-redeem");
+        device.setRedeemCode("new-redeem");
 
-        assertEquals("new-redeem", device.getRedeemToken());
+        assertEquals("new-redeem", device.getRedeemCode());
         assertThrows(SecurityException.class, device::revoke);
     }
 
