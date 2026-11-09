@@ -3,6 +3,8 @@ package com.server.sensor_log.application.usecases;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
+import java.time.Instant;
+import java.util.EnumMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -13,8 +15,11 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import com.server.sensor_log.application.exceptions.DeviceNotFoundException;
+import com.server.sensor_log.application.exceptions.InvalidDeviceStatusException;
 import com.server.sensor_log.application.ports.Payload;
 import com.server.sensor_log.application.ports.Topic;
+import com.server.sensor_log.domain.model.device.ClaimStatus;
+import com.server.sensor_log.domain.model.device.ConnectionStatus;
 import com.server.sensor_log.domain.model.device.Device;
 import com.server.sensor_log.domain.model.device.MetricsType;
 import com.server.sensor_log.infra.repository.DeviceRepository;
@@ -25,7 +30,7 @@ class ReceiveMetricsDataUseCaseTest {
 
     @Test
     void updatesConfiguredMetrics() {
-        Device device = Device.create("123456789012", "", "", null, List.of(MetricsType.TEMPERATURE));
+        Device device = claimedDevice(MetricsType.TEMPERATURE);
         when(repository.findById("123456789012")).thenReturn(Optional.of(device));
 
         new ReceiveMetricsDataUseCase(repository).execute(
@@ -38,8 +43,8 @@ class ReceiveMetricsDataUseCaseTest {
 
     @Test
     void updatesMultipleConfiguredMetricsAndPreservesExistingValues() {
-        Device device = Device.create("123456789012", "", "", null,
-                List.of(MetricsType.TEMPERATURE, MetricsType.HUMIDITY, MetricsType.PRESSURE));
+        Device device = claimedDevice(
+                MetricsType.TEMPERATURE, MetricsType.HUMIDITY, MetricsType.PRESSURE);
         device.updateMetrics(Map.of(
                 MetricsType.TEMPERATURE, 18.0,
                 MetricsType.HUMIDITY, 40.0,
@@ -72,12 +77,23 @@ class ReceiveMetricsDataUseCaseTest {
 
     @Test
     void rejectsMetricsNotConfiguredForDevice() {
-        Device device = Device.create("123456789012", "", "", null, List.of(MetricsType.TEMPERATURE));
+        Device device = claimedDevice(MetricsType.TEMPERATURE);
         when(repository.findById("123456789012")).thenReturn(Optional.of(device));
 
         assertThrows(IllegalArgumentException.class, () -> new ReceiveMetricsDataUseCase(repository).execute(
                 new Topic("123456789012", "data"),
                 new Payload("123456789012", Map.of(MetricsType.HUMIDITY, 50.0))));
+        verify(repository, never()).save(any());
+    }
+
+    @Test
+    void rejectsMetricsForUnclaimedDevice() {
+        Device device = Device.create("123456789012", "", "", null, List.of(MetricsType.TEMPERATURE));
+        when(repository.findById("123456789012")).thenReturn(Optional.of(device));
+
+        assertThrows(InvalidDeviceStatusException.class, () -> new ReceiveMetricsDataUseCase(repository).execute(
+                new Topic("123456789012", "data"),
+                new Payload("123456789012", Map.of(MetricsType.TEMPERATURE, 22.5))));
         verify(repository, never()).save(any());
     }
 
@@ -114,5 +130,26 @@ class ReceiveMetricsDataUseCaseTest {
                 new Topic("123456789012", "data"), null));
 
         verifyNoInteractions(repository);
+    }
+
+    private Device claimedDevice(MetricsType... metrics) {
+        Map<MetricsType, Double> metricValues = new EnumMap<>(MetricsType.class);
+        for (MetricsType metric : metrics) {
+            metricValues.put(metric, 0.0);
+        }
+        Instant now = Instant.now();
+        return Device.restore(
+                "123456789012",
+                "owner",
+                null,
+                now,
+                ClaimStatus.CLAIMED,
+                ConnectionStatus.ONLINE,
+                null,
+                "",
+                metricValues,
+                "",
+                "",
+                now);
     }
 }

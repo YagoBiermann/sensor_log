@@ -4,7 +4,8 @@ import static org.awaitility.Awaitility.await;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import java.time.Duration;
-import java.util.List;
+import java.time.Instant;
+import java.util.EnumMap;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
@@ -21,6 +22,8 @@ import com.hivemq.client.mqtt.mqtt5.Mqtt5AsyncClient;
 import com.mongodb.client.MongoClient;
 import com.mongodb.client.MongoClients;
 import com.server.sensor_log.application.usecases.ReceiveMetricsDataUseCase;
+import com.server.sensor_log.domain.model.device.ClaimStatus;
+import com.server.sensor_log.domain.model.device.ConnectionStatus;
 import com.server.sensor_log.domain.model.device.Device;
 import com.server.sensor_log.domain.model.device.MetricsType;
 import com.server.sensor_log.infra.messaging.mqtt.MqttConnectionManager;
@@ -72,12 +75,23 @@ class MqttMetricsIntegrationTest {
 
     @Test
     void persistsMetricsPublishedByDeviceThroughMosquitto() {
-        Device device = Device.create(
+        Instant now = Instant.now();
+        Map<MetricsType, Double> metrics = new EnumMap<>(MetricsType.class);
+        metrics.put(MetricsType.TEMPERATURE, 0.0);
+        metrics.put(MetricsType.HUMIDITY, 0.0);
+        Device device = Device.restore(
                 "123456789012",
-                "",
-                "",
+                "owner",
                 null,
-                List.of(MetricsType.TEMPERATURE, MetricsType.HUMIDITY));
+                now,
+                ClaimStatus.CLAIMED,
+                ConnectionStatus.ONLINE,
+                null,
+                "",
+                metrics,
+                "",
+                "",
+                now);
         deviceRepository.save(device);
 
         ReceiveMetricsDataUseCase receiveMetricsDataUseCase =
