@@ -48,7 +48,7 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.POST,"/api/devices/*/claim").hasRole("USER")
                         .requestMatchers(HttpMethod.POST,"/api/devices/*/revoke").hasAnyRole("ADMIN", "USER")
                         .requestMatchers(HttpMethod.GET, "/api/devices/*").hasAnyRole("ADMIN", "USER")
-                        .requestMatchers(HttpMethod.POST,"/api/devices").hasRole("ADMIN")
+                        .requestMatchers(HttpMethod.POST,"/api/devices").hasAnyRole("ADMIN", "USER")
                         .requestMatchers(HttpMethod.POST,"/api/auth/users/login").permitAll()
                         .requestMatchers(HttpMethod.POST,"/api/auth/users/register").permitAll()
                         .requestMatchers(HttpMethod.POST,"/api/devices/*/boot").hasRole("DEVICE")
