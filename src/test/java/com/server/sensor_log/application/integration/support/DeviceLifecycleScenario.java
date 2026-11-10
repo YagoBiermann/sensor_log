@@ -10,6 +10,7 @@ import com.server.sensor_log.application.controllers.device.dto.FirstBootRespons
 import com.server.sensor_log.application.controllers.device.dto.NewDevice;
 import com.server.sensor_log.application.controllers.user.dto.RegisterRequest;
 import com.server.sensor_log.application.services.AuthenticationService;
+import com.server.sensor_log.application.services.JwtService;
 import com.server.sensor_log.application.usecases.BootDeviceUseCase;
 import com.server.sensor_log.application.usecases.ClaimDeviceUseCase;
 import com.server.sensor_log.application.usecases.CreateDeviceUseCase;
@@ -45,7 +46,8 @@ public final class DeviceLifecycleScenario {
         this.authenticationService = new TestAuthenticationService(
                 userRepository, passwordEncoder, identityGenerator);
         this.createDeviceUseCase = new CreateDeviceUseCase(
-                deviceRepository, identityGenerator, passwordEncoder);
+                deviceRepository, identityGenerator, passwordEncoder,
+                new JwtService("integration-test-secret-0123456789-abcdef"));
         this.bootDeviceUseCase = new BootDeviceUseCase(
                 deviceRepository, identityGenerator, passwordEncoder);
         this.claimDeviceUseCase = new ClaimDeviceUseCase(
