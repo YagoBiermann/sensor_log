@@ -17,12 +17,15 @@ import org.springframework.web.bind.annotation.RestController;
 import com.server.sensor_log.application.controllers.device.dto.ClaimDeviceRequest;
 import com.server.sensor_log.application.controllers.device.dto.ClaimDeviceRequestBody;
 import com.server.sensor_log.application.controllers.device.dto.ClaimDeviceResponse;
+import com.server.sensor_log.application.controllers.device.dto.CertificateResponse;
 import com.server.sensor_log.application.controllers.device.dto.CreateDeviceRequest;
 import com.server.sensor_log.application.controllers.device.dto.CreateDeviceResponse;
+import com.server.sensor_log.application.controllers.device.dto.DeviceEnrollmentRequestBody;
 import com.server.sensor_log.application.controllers.device.dto.DeviceResponse;
 import com.server.sensor_log.application.controllers.device.dto.FirstBootRequest;
 import com.server.sensor_log.application.controllers.device.dto.FirstBootResponse;
 import com.server.sensor_log.application.controllers.device.dto.NewDevice;
+import com.server.sensor_log.application.exceptions.InvalidDeviceStatusException;
 import com.server.sensor_log.application.exceptions.DeviceNotFoundException;
 import com.server.sensor_log.application.services.AuthenticationService;
 import com.server.sensor_log.application.services.JwtService;
@@ -30,6 +33,7 @@ import com.server.sensor_log.application.services.MqttDynamicSecurityService;
 import com.server.sensor_log.application.usecases.BootDeviceUseCase;
 import com.server.sensor_log.application.usecases.ClaimDeviceUseCase;
 import com.server.sensor_log.application.usecases.CreateDeviceUseCase;
+import com.server.sensor_log.application.usecases.DeviceEnrollmentUseCase;
 import com.server.sensor_log.application.usecases.RevokeDeviceUseCase;
 import com.server.sensor_log.domain.model.device.Device;
 import com.server.sensor_log.infra.repository.DeviceRepository;
@@ -45,6 +49,7 @@ public class DeviceController {
     private final JwtService jwtService;
     private final AuthenticationService authenticationService;
     private final RevokeDeviceUseCase revokeDeviceUseCase;
+    private final DeviceEnrollmentUseCase deviceEnrollmentUseCase;
     private final MqttDynamicSecurityService mqttDynamicSecurityService;
     private final DeviceRepository deviceRepository;
 
@@ -54,6 +59,7 @@ public class DeviceController {
             CreateDeviceUseCase createDeviceUseCase,
             BootDeviceUseCase bootDeviceUseCase,
             RevokeDeviceUseCase revokeDeviceUseCase,
+            DeviceEnrollmentUseCase deviceEnrollmentUseCase,
             MqttDynamicSecurityService mqttDynamicSecurityService,
             DeviceRepository deviceRepository) {
         this.jwtService = jwtService;
@@ -62,6 +68,7 @@ public class DeviceController {
         this.createDeviceUseCase = createDeviceUseCase;
         this.bootDeviceUseCase = bootDeviceUseCase;
         this.revokeDeviceUseCase = revokeDeviceUseCase;
+        this.deviceEnrollmentUseCase = deviceEnrollmentUseCase;
         this.mqttDynamicSecurityService = mqttDynamicSecurityService;
         this.deviceRepository = deviceRepository;
     }
@@ -77,6 +84,19 @@ public class DeviceController {
             return ResponseEntity.ok(response);
         } catch (DeviceNotFoundException | SecurityException | CertificateEncodingException e) {
             return ResponseEntity.badRequest().body(e.getMessage());
+        }
+    }
+
+    @PostMapping("/{serial}/enrollment")
+    public ResponseEntity<CertificateResponse> EnrollDevice(
+            @PathVariable String serial,
+            @Valid @RequestBody DeviceEnrollmentRequestBody body) throws CertificateEncodingException {
+        try {
+            return ResponseEntity.ok(deviceEnrollmentUseCase.execute(serial, body.csr()));
+        } catch (DeviceNotFoundException e) {
+            return ResponseEntity.notFound().build();
+        } catch (InvalidDeviceStatusException e) {
+            return ResponseEntity.status(HttpStatus.CONFLICT).build();
         }
     }
 
