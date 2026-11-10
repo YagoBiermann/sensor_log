@@ -46,6 +46,7 @@ public class SecurityConfig {
                 .csrf(csrf -> csrf.disable())
                 .authorizeHttpRequests((var auth) -> auth
                         .requestMatchers(HttpMethod.POST,"/api/devices/*/claim").hasRole("USER")
+                        .requestMatchers(HttpMethod.POST,"/api/devices/*/enrollment").hasRole("DEVICE")
                         .requestMatchers(HttpMethod.POST,"/api/devices/*/revoke").hasAnyRole("ADMIN", "USER")
                         .requestMatchers(HttpMethod.GET, "/api/devices/*").hasAnyRole("ADMIN", "USER")
                         .requestMatchers(HttpMethod.POST,"/api/devices").hasAnyRole("ADMIN", "USER")
