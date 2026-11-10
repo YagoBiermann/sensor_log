@@ -146,22 +146,23 @@ public class Device {
         }
 
         this.connectionStatus = ConnectionStatus.ONLINE;
-        this.bootstrapToken = "";
+        this.claimStatus = ClaimStatus.PENDING;
         String plainRedeemCode = identityGenerator.generateRedeemCode();
         this.redeemCode = passwordEncoder.encode(plainRedeemCode);
+
         return plainRedeemCode;
     }
 
     public void claim(String ownerId, String redeemCode, Certificate certificate, PasswordEncoder passwordEncoder)
             throws SecurityException {
-        if (this.connectionStatus != ConnectionStatus.ONLINE || !this.bootstrapToken.isEmpty()) {
-            throw new SecurityException("Please, boot the device first.");
-        }
-        if (this.claimStatus != ClaimStatus.UNCLAIMED) {
+        if (this.claimStatus == ClaimStatus.CLAIMED) {
             throw new SecurityException("Device property already confirmed.");
         }
+        if (this.claimStatus != ClaimStatus.PENDING) {
+            throw new SecurityException("Please, boot the device first.");
+        }
         if (!passwordEncoder.matches(redeemCode, this.redeemCode)) {
-            throw new SecurityException("Invalid redeem token.");
+            throw new SecurityException("The given code is invalid.");
         }
         this.ownerId = ownerId;
         this.redeemCode = "";
