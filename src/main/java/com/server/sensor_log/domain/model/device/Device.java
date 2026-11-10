@@ -164,7 +164,7 @@ public class Device {
             throw new SecurityException("Invalid redeem token.");
         }
         this.ownerId = ownerId;
-        this.redeemCode = passwordEncoder.encode(redeemCode);
+        this.redeemCode = "";
         this.claimStatus = ClaimStatus.CLAIMED;
         this.connectionStatus = ConnectionStatus.ONLINE;
         this.certificate = certificate;
