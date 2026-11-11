@@ -1,8 +1,8 @@
 package com.server.sensor_log.application.services;
 
+import java.math.BigInteger;
 import java.security.cert.X509Certificate;
 import java.time.Duration;
-import java.math.BigInteger;
 import java.util.Map;
 
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -73,15 +73,15 @@ public class AuthenticationService {
                 }
         }
 
-        public X509Certificate signCertificate(ClaimDeviceRequest signRequest) {
+        public X509Certificate signCertificate(String serialNumber, String csr) {
                 VaultPkiOperations pkiOperations = vaultTemplate.opsForPki("pki_int");
                 VaultCertificateRequest certificateSignRequest = VaultCertificateRequest.builder()
-                                .commonName(signRequest.serialNumber())
+                                .commonName(serialNumber)
                                 .ttl(Duration.ofDays(30))
-                                .userId(signRequest.serialNumber())
+                                .userId(serialNumber)
                                 .build();
                 VaultSignCertificateRequestResponse response = pkiOperations.signCertificateRequest(Role.DEVICE.name(),
-                                signRequest.csr(), certificateSignRequest);
+                                csr, certificateSignRequest);
                 X509Certificate certificate = response.getRequiredData().getX509Certificate();
 
                 return certificate;

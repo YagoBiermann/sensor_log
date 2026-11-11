@@ -1,17 +1,17 @@
 package com.server.sensor_log.application.usecases;
 
-import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.Mockito.*;
-
-import java.math.BigInteger;
-import java.security.cert.X509Certificate;
 import java.time.Instant;
-import java.util.List;
 import java.util.Optional;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyNoInteractions;
+import static org.mockito.Mockito.when;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
@@ -40,7 +40,7 @@ class ClaimDeviceUseCaseTest {
 
     @Test
     void rejectsInvalidRedeemCodeAndAlreadyClaimedDevice() {
-        Device unclaimed = Device.restore("123456789012", null, null, null, ClaimStatus.UNCLAIMED,
+        Device unclaimed = Device.restore("123456789012", null, null, null, ClaimStatus.PENDING,
                 com.server.sensor_log.domain.model.device.ConnectionStatus.ONLINE, null, "",
                 java.util.Map.of(MetricsType.TEMPERATURE, 0.0), "", "hash", java.time.Instant.now());
         when(repository.findById("123456789012")).thenReturn(Optional.of(unclaimed));
@@ -59,13 +59,11 @@ class ClaimDeviceUseCaseTest {
     }
 
     @Test
-    void rescuesDeviceSuccessfullyWithValidRedeemCodeAndCertificate() throws Exception {
+    void claimsDeviceSuccessfullyWithValidRedeemCodeWithoutIssuingCertificate() throws Exception {
         Instant issuedAt = Instant.parse("2026-01-01T00:00:00Z");
-        Instant expiresAt = Instant.parse("2026-01-02T00:00:00Z");
-        Device device = Device.restore("123456789012", null, null, null, ClaimStatus.UNCLAIMED,
+        Device device = Device.restore("123456789012", null, null, null, ClaimStatus.PENDING,
                 com.server.sensor_log.domain.model.device.ConnectionStatus.ONLINE, null, "",
                 java.util.Map.of(MetricsType.TEMPERATURE, 0.0), "", "redeem-hash", issuedAt);
-        X509Certificate certificate = mock(X509Certificate.class);
         ClaimDeviceRequest request = new ClaimDeviceRequest(
                 "123456789012",
                 "owner-1",
@@ -74,26 +72,15 @@ class ClaimDeviceUseCaseTest {
 
         when(repository.findById(request.serialNumber())).thenReturn(Optional.of(device));
         when(encoder.matches(request.redeemCode(), device.getRedeemCode())).thenReturn(true);
-        when(encoder.encode(request.redeemCode())).thenReturn("redeem-hash-after-claim");
-        when(authenticationService.signCertificate(request)).thenReturn(certificate);
-        when(certificate.getEncoded()).thenReturn(new byte[] { 1, 2, 3 });
-        when(certificate.getSerialNumber()).thenReturn(BigInteger.valueOf(42));
-        when(certificate.getNotBefore()).thenReturn(java.util.Date.from(issuedAt));
-        when(certificate.getNotAfter()).thenReturn(java.util.Date.from(expiresAt));
-
         var response = new ClaimDeviceUseCase(repository, encoder, authenticationService).execute(request);
 
         assertEquals("123456789012", response.serialNumber());
         assertEquals("owner-1", response.ownerId());
         assertEquals(ClaimStatus.CLAIMED, response.claimStatus());
         assertEquals("owner-1", device.getOwnerId());
-        assertEquals("redeem-hash-after-claim", device.getRedeemCode());
-        assertEquals(response.certificate(), device.getCertificate());
-        assertEquals("42", response.certificate().certificateSerialNumber());
-        assertEquals(issuedAt, response.certificate().certificateIssuedAt());
-        assertEquals(expiresAt, response.certificate().certificateExpiresAt());
-        assertTrue(response.certificate().certificatePEM().startsWith("-----BEGIN CERTIFICATE-----"));
-        verify(authenticationService).signCertificate(request);
+        assertEquals("", device.getRedeemCode());
+        assertNull(device.getCertificate());
+        verifyNoInteractions(authenticationService);
         verify(repository).save(device);
     }
 }

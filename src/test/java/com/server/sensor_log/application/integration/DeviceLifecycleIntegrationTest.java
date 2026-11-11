@@ -2,7 +2,8 @@ package com.server.sensor_log.application.integration;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.util.List;
 
@@ -10,8 +11,8 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.Test;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.security.crypto.password.Pbkdf2PasswordEncoder;
 import org.testcontainers.containers.MongoDBContainer;
 import org.testcontainers.junit.jupiter.Container;
 import org.testcontainers.junit.jupiter.Testcontainers;
@@ -32,7 +33,7 @@ class DeviceLifecycleIntegrationTest {
     @Container
     static final MongoDBContainer MONGO = IntegrationMongoSupport.MONGO;
     private final IntegrationMongoSupport mongo = new IntegrationMongoSupport();
-    private final PasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
+    private final PasswordEncoder passwordEncoder = Pbkdf2PasswordEncoder.defaultsForSpringSecurity_v5_8();
     private DeviceLifecycleScenario fixture;
 
     @BeforeAll
@@ -80,9 +81,10 @@ class DeviceLifecycleIntegrationTest {
         Device device = mongo.deviceRepository().findById(created.serialNumber()).orElseThrow();
 
         assertEquals("redeem-1234", redeemCode);
-        assertEquals(ClaimStatus.UNCLAIMED, device.getClaimStatus());
+        assertEquals(ClaimStatus.PENDING, device.getClaimStatus());
         assertEquals(ConnectionStatus.ONLINE, device.getConnectionStatus());
-        assertEquals("", device.getBootstrapToken());
+        assertFalse(device.getBootstrapToken().isBlank());
+        assertTrue(passwordEncoder.matches(created.bootstrapToken(), device.getBootstrapToken()));
         assertFalse(redeemCode.equals(device.getRedeemCode()));
         org.junit.jupiter.api.Assertions.assertTrue(
                 passwordEncoder.matches(redeemCode, device.getRedeemCode()));
@@ -100,7 +102,6 @@ class DeviceLifecycleIntegrationTest {
         assertEquals(ClaimStatus.CLAIMED, device.getClaimStatus());
         assertEquals(user.getUserId(), device.getOwnerId());
         assertEquals(ConnectionStatus.ONLINE, device.getConnectionStatus());
-        assertNotNull(claim.certificate());
-        assertNotNull(device.getCertificate());
+        assertNull(device.getCertificate());
     }
 }

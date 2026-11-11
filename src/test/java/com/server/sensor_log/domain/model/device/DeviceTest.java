@@ -1,14 +1,19 @@
 package com.server.sensor_log.domain.model.device;
 
-import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.Mockito.*;
-
 import java.time.Instant;
 import java.util.EnumMap;
 import java.util.List;
 import java.util.Map;
 
+import static org.junit.jupiter.api.Assertions.assertAll;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import org.junit.jupiter.api.Test;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
 class DeviceTest {
@@ -68,7 +73,7 @@ class DeviceTest {
         when(encoder.encode("redeem")).thenReturn("redeem-hash");
         assertEquals("redeem", device.boot(SERIAL, BOOTSTRAP, generator, encoder));
         assertEquals(ConnectionStatus.ONLINE, device.getConnectionStatus());
-        assertEquals("", device.getBootstrapToken());
+        assertEquals(BOOTSTRAP, device.getBootstrapToken());
         assertEquals("redeem-hash", device.getRedeemCode());
         assertThrows(SecurityException.class, () -> device.boot(SERIAL, BOOTSTRAP, generator, encoder));
     }
@@ -77,24 +82,22 @@ class DeviceTest {
     void claimValidatesStateAndTransitionsToClaimed() {
         PasswordEncoder encoder = mock(PasswordEncoder.class);
         Device initialDevice = Device.create(SERIAL, BOOTSTRAP, "description", new Location(0, 0), List.of(METRIC));
-        Certificate certificate = new Certificate("pem", "serial", Instant.now().plusSeconds(100), Instant.now());
 
         assertThrows(SecurityException.class,
-                () -> initialDevice.claim("owner", "redeem", certificate, encoder));
+                () -> initialDevice.claim("owner", "redeem", encoder));
 
-        Device device = Device.restore(SERIAL, null, null, null, ClaimStatus.UNCLAIMED, ConnectionStatus.ONLINE,
+        Device device = Device.restore(SERIAL, null, null, null, ClaimStatus.PENDING, ConnectionStatus.ONLINE,
                 new Location(0, 0), "description", Map.of(METRIC, 0.0), "", "redeem-hash", Instant.now());
         when(encoder.matches("wrong", "redeem-hash")).thenReturn(false);
-        assertThrows(SecurityException.class, () -> device.claim("owner", "wrong", certificate, encoder));
+        assertThrows(SecurityException.class, () -> device.claim("owner", "wrong", encoder));
         when(encoder.matches("redeem", "redeem-hash")).thenReturn(true);
-        when(encoder.encode("redeem")).thenReturn("new-hash");
 
-        device.claim("owner", "redeem", certificate, encoder);
+        device.claim("owner", "redeem", encoder);
 
         assertTrue(device.isClaimed());
         assertEquals("owner", device.getOwnerId());
-        assertEquals("new-hash", device.getRedeemCode());
-        assertEquals(certificate, device.getCertificate());
+        assertEquals("", device.getRedeemCode());
+        assertNull(device.getCertificate());
         assertEquals(ConnectionStatus.ONLINE, device.getConnectionStatus());
         assertNotNull(device.getClaimedAt());
     }

@@ -41,9 +41,9 @@ class BootDeviceUseCaseTest {
 
         assertEquals("redeem", response.redeemCode());
         assertEquals("123456789012", device.getSerialNumber());
-        assertEquals(ClaimStatus.UNCLAIMED, device.getClaimStatus());
+        assertEquals(ClaimStatus.PENDING, device.getClaimStatus());
         assertEquals(ConnectionStatus.ONLINE, device.getConnectionStatus());
-        assertEquals("", device.getBootstrapToken());
+        assertEquals("bootstrap-hash", device.getBootstrapToken());
         assertEquals("redeem-hash", device.getRedeemCode());
         verify(encoder).matches("bootstrap", "bootstrap-hash");
         verify(generator).generateRedeemCode();
@@ -89,8 +89,6 @@ class BootDeviceUseCaseTest {
 
         new BootDeviceUseCase(repository, generator, encoder)
                 .execute(new FirstBootRequest("123456789012", "bootstrap"));
-
-        when(encoder.matches("bootstrap", "")).thenReturn(true);
 
         assertThrows(SecurityException.class, () -> new BootDeviceUseCase(repository, generator, encoder)
                 .execute(new FirstBootRequest("123456789012", "bootstrap")));

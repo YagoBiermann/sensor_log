@@ -8,7 +8,6 @@ import java.security.cert.X509Certificate;
 import java.time.Instant;
 import java.util.Date;
 
-import com.server.sensor_log.application.controllers.device.dto.ClaimDeviceRequest;
 import com.server.sensor_log.application.services.AuthenticationService;
 import com.server.sensor_log.domain.model.device.RandomGenerator;
 import com.server.sensor_log.infra.repository.UserRepository;
@@ -24,7 +23,7 @@ final class TestAuthenticationService extends AuthenticationService {
     }
 
     @Override
-    public X509Certificate signCertificate(ClaimDeviceRequest request) {
+    public X509Certificate signCertificate(String serialNumber, String csr) {
         Instant issuedAt = Instant.parse("2026-01-01T00:00:00Z");
         X509Certificate certificate = mock(X509Certificate.class);
         try {
