@@ -174,6 +174,19 @@ public class Device {
     public boolean isClaimed() {
         return this.claimStatus == ClaimStatus.CLAIMED;
     }
+
+    public void enroll(Certificate certificate) {
+        if (!isClaimed()) {
+            throw new SecurityException("Device must be claimed before enrollment.");
+        }
+        if(hasCertificate()) {
+            throw new SecurityException("Device is already enrolled.");
+        }
+        this.certificate = certificate;
+    }
+    public boolean hasCertificate() {
+        return this.certificate != null;
+    }
     public boolean isRevoked() {
         return this.claimStatus == ClaimStatus.REVOKED;
     }
