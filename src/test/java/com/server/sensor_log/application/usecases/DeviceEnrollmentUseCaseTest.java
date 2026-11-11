@@ -59,6 +59,17 @@ class DeviceEnrollmentUseCaseTest {
     }
 
     @Test
+    void rejectsRevokedDeviceWithoutSigningOrSaving() {
+        Device device = device(ClaimStatus.REVOKED);
+        when(repository.findById(SERIAL)).thenReturn(Optional.of(device));
+
+        assertThrows(InvalidDeviceStatusException.class, () -> useCase().execute(SERIAL, CSR));
+
+        verifyNoInteractions(authenticationService);
+        verify(repository, org.mockito.Mockito.never()).save(device);
+    }
+
+    @Test
     void signsAndStoresCertificateForClaimedDevice() throws Exception {
         Device device = device(ClaimStatus.CLAIMED);
         Instant issuedAt = Instant.parse("2026-01-01T00:00:00Z");

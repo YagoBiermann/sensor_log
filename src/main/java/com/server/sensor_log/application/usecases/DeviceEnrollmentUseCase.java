@@ -26,11 +26,15 @@ public class DeviceEnrollmentUseCase {
         Device device = deviceRepository.findById(serialNumber)
                 .orElseThrow(() -> new DeviceNotFoundException("Device not found"));
 
+        if (device.isRevoked()) {
+            throw new InvalidDeviceStatusException("Device is revoked and cannot be enrolled");
+        }
+
         if (!device.isClaimed()) {
             throw new InvalidDeviceStatusException("Device must be claimed before enrollment");
         }
 
-        if(device.hasCertificate()) {
+        if (device.hasCertificate()) {
             throw new InvalidDeviceStatusException("Device is already enrolled");
         }
 

@@ -125,6 +125,23 @@ class DeviceTest {
     }
 
     @Test
+    void enrollmentRejectsRevokedDevicesAndDuplicateCertificates() {
+        Device claimed = Device.restore(SERIAL, "owner", null, Instant.now(), ClaimStatus.CLAIMED,
+                ConnectionStatus.ONLINE, new Location(0, 0), "description", Map.of(METRIC, 0.0),
+                "", "", Instant.now());
+        Certificate certificate = new Certificate("pem", "serial", Instant.now().plusSeconds(120), Instant.now());
+
+        claimed.enroll(certificate);
+        assertEquals(certificate, claimed.getCertificate());
+        assertThrows(SecurityException.class, () -> claimed.enroll(certificate));
+
+        Device revoked = Device.restore(SERIAL, "owner", null, Instant.now(), ClaimStatus.REVOKED,
+                ConnectionStatus.ONLINE, new Location(0, 0), "description", Map.of(METRIC, 0.0),
+                "", "", Instant.now());
+        assertThrows(SecurityException.class, () -> revoked.enroll(certificate));
+    }
+
+    @Test
     void setRedeemCodeUpdatesAnUnclaimedDeviceAndRevokeRejectsUnclaimedDevice() {
         Device device = Device.restore(SERIAL, null, null, null, ClaimStatus.UNCLAIMED,
                 ConnectionStatus.ONLINE, new Location(0, 0), "description", Map.of(METRIC, 0.0),

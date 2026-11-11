@@ -176,10 +176,13 @@ public class Device {
     }
 
     public void enroll(Certificate certificate) {
+        if (isRevoked()) {
+            throw new SecurityException("Device is revoked and cannot be enrolled.");
+        }
         if (!isClaimed()) {
             throw new SecurityException("Device must be claimed before enrollment.");
         }
-        if(hasCertificate()) {
+        if (hasCertificate()) {
             throw new SecurityException("Device is already enrolled.");
         }
         this.certificate = certificate;
