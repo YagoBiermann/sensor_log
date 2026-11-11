@@ -9,11 +9,13 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
+import org.springframework.security.authorization.AuthorizationDecision;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.security.oauth2.jwt.JwtDecoder;
 import org.springframework.security.oauth2.jwt.NimbusJwtDecoder;
 import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationConverter;
@@ -46,7 +48,17 @@ public class SecurityConfig {
                 .csrf(csrf -> csrf.disable())
                 .authorizeHttpRequests((var auth) -> auth
                         .requestMatchers(HttpMethod.POST,"/api/devices/*/claim").hasRole("USER")
-                        .requestMatchers(HttpMethod.POST,"/api/devices/*/enrollment").hasRole("DEVICE")
+                        .requestMatchers(HttpMethod.POST,"/api/devices/{serial}/enrollment")
+                        .access((authentication, context) -> {
+                            var currentAuthentication = authentication.get();
+                            String serial = context.getVariables().get("serial");
+                            boolean isDevice = currentAuthentication.getAuthorities().stream()
+                                    .anyMatch(authority -> authority.getAuthority().equals("ROLE_DEVICE"));
+                            boolean serialMatches = currentAuthentication.getPrincipal() instanceof Jwt jwt
+                                    && serial != null
+                                    && serial.equals(jwt.getSubject());
+                            return new AuthorizationDecision(isDevice && serialMatches);
+                        })
                         .requestMatchers(HttpMethod.POST,"/api/devices/*/revoke").hasAnyRole("ADMIN", "USER")
                         .requestMatchers(HttpMethod.GET, "/api/devices/*").hasAnyRole("ADMIN", "USER")
                         .requestMatchers(HttpMethod.POST,"/api/devices").hasAnyRole("ADMIN", "USER")
