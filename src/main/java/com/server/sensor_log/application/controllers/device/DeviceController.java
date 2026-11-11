@@ -82,7 +82,7 @@ public class DeviceController {
             ClaimDeviceRequest request = new ClaimDeviceRequest(serial, userId, body.redeemCode(), body.csr());
             ClaimDeviceResponse response = claimDeviceUseCase.execute(request);
             return ResponseEntity.ok(response);
-        } catch (DeviceNotFoundException | SecurityException | CertificateEncodingException e) {
+        } catch (DeviceNotFoundException | SecurityException e) {
             return ResponseEntity.badRequest().body(e.getMessage());
         }
     }

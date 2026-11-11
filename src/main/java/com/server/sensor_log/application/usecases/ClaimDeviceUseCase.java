@@ -1,8 +1,5 @@
 package com.server.sensor_log.application.usecases;
 
-import java.security.cert.CertificateEncodingException;
-import java.security.cert.X509Certificate;
-
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
 
@@ -23,7 +20,7 @@ public class ClaimDeviceUseCase {
     private PasswordEncoder passwordEncoder;
     private AuthenticationService authService;
 
-    public ClaimDeviceResponse execute(ClaimDeviceRequest request) throws SecurityException, DeviceNotFoundException, CertificateEncodingException {
+    public ClaimDeviceResponse execute(ClaimDeviceRequest request) throws SecurityException, DeviceNotFoundException {
         Device device = deviceRepository.findById(request.serialNumber())
                 .orElseThrow(() -> new DeviceNotFoundException("Device not found"));
 
@@ -34,13 +31,9 @@ public class ClaimDeviceUseCase {
             throw new SecurityException("Invalid redeem code");
         }
 
-        X509Certificate x509certificate = authService.signCertificate(request);
-        Certificate certificate = new Certificate(Certificate.toPem(x509certificate),
-                x509certificate.getSerialNumber().toString(), x509certificate.getNotAfter().toInstant(),
-                x509certificate.getNotBefore().toInstant());
-        device.claim(request.ownerId(), request.redeemCode(), certificate, passwordEncoder);
+        device.claim(request.ownerId(), request.redeemCode(), passwordEncoder);
         deviceRepository.save(device);
 
-        return new ClaimDeviceResponse(device.getSerialNumber(), device.getOwnerId(), device.getClaimStatus(), certificate);
+        return new ClaimDeviceResponse(device.getSerialNumber(), device.getOwnerId(), device.getClaimStatus());
     }
 }

@@ -153,7 +153,7 @@ public class Device {
         return plainRedeemCode;
     }
 
-    public void claim(String ownerId, String redeemCode, Certificate certificate, PasswordEncoder passwordEncoder)
+    public void claim(String ownerId, String redeemCode, PasswordEncoder passwordEncoder)
             throws SecurityException {
         if (this.claimStatus == ClaimStatus.CLAIMED) {
             throw new SecurityException("Device property already confirmed.");
@@ -168,7 +168,6 @@ public class Device {
         this.redeemCode = "";
         this.claimStatus = ClaimStatus.CLAIMED;
         this.connectionStatus = ConnectionStatus.ONLINE;
-        this.certificate = certificate;
         this.claimedAt = Instant.now();
     }
 
