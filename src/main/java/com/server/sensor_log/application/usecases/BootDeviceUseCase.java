@@ -8,6 +8,7 @@ import com.server.sensor_log.application.controllers.device.dto.FirstBootRequest
 import com.server.sensor_log.application.exceptions.DeviceNotFoundException;
 import com.server.sensor_log.domain.model.device.Device;
 import com.server.sensor_log.domain.model.device.RandomGenerator;
+import com.server.sensor_log.domain.model.device.RedeemCode;
 import com.server.sensor_log.infra.repository.DeviceRepository;
 
 import lombok.AllArgsConstructor;
@@ -28,10 +29,15 @@ public class BootDeviceUseCase {
         Device device = deviceRepository.findById(serialNumber)
                 .orElseThrow(() -> new DeviceNotFoundException("Device not found"));
 
-        String redeemCode = device.boot(serialNumber, firstBootToken, codeGenerator, passwordEncoder);
-        log.info("Device {} booted successfully.", serialNumber);
-        deviceRepository.save(device);
+        try {
+            RedeemCode redeemCode = device.boot(serialNumber, firstBootToken, codeGenerator, passwordEncoder);
+            log.info("Device {} booted successfully.", serialNumber);
+            deviceRepository.save(device);
 
-        return new FirstBootResponse(redeemCode);
+            return new FirstBootResponse(redeemCode.toString(), device.getClaimStatus().toString(), device.getConnectionStatus().toString(), redeemCode.isInCooldown(), redeemCode.isExpired());
+        } catch (Exception e) {
+            deviceRepository.save(device);
+            throw e;
+        }
     }
 }
