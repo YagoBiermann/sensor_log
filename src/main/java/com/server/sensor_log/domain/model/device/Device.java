@@ -200,6 +200,9 @@ public class Device {
     public boolean isUnclaimed() {
         return this.claimStatus == ClaimStatus.UNCLAIMED;
     }
+    public boolean isPending() {
+        return this.claimStatus == ClaimStatus.PENDING;
+    }
     public void revoke() {
         if (!isClaimed()) {
             throw new SecurityException("Device is not claimed");
