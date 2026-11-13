@@ -1,5 +1,6 @@
 package com.server.sensor_log.application.controllers.device;
 
+import java.net.URI;
 import java.security.cert.CertificateEncodingException;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -25,6 +26,7 @@ import com.server.sensor_log.application.controllers.device.dto.DeviceResponse;
 import com.server.sensor_log.application.controllers.device.dto.FirstBootRequest;
 import com.server.sensor_log.application.controllers.device.dto.FirstBootResponse;
 import com.server.sensor_log.application.controllers.device.dto.NewDevice;
+import com.server.sensor_log.application.controllers.device.dto.RedeemCodeResponse;
 import com.server.sensor_log.application.exceptions.InvalidDeviceStatusException;
 import com.server.sensor_log.application.exceptions.DeviceNotFoundException;
 import com.server.sensor_log.application.exceptions.ExpiredCodeException;
@@ -40,6 +42,7 @@ import com.server.sensor_log.application.usecases.CreateDeviceUseCase;
 import com.server.sensor_log.application.usecases.DeviceEnrollmentUseCase;
 import com.server.sensor_log.application.usecases.RevokeDeviceUseCase;
 import com.server.sensor_log.domain.model.device.Device;
+import com.server.sensor_log.domain.model.device.Role;
 import com.server.sensor_log.infra.repository.DeviceRepository;
 
 import jakarta.validation.Valid;
@@ -157,6 +160,24 @@ public class DeviceController {
                     jwtService.extractUserId(token),
                     jwtService.extractRole(token));
             return ResponseEntity.ok(toResponse(device));
+        } catch (DeviceNotFoundException e) {
+            return ResponseEntity.notFound().build();
+        } catch (SecurityException e) {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).body(e.getMessage());
+        }
+    }
+
+    @GetMapping("/{serial}/code")
+    public ResponseEntity<?> GetDeviceCode(
+            @PathVariable String serial) {
+        try {
+            Device device = deviceRepository.findById(serial)
+                    .orElseThrow(() -> new DeviceNotFoundException("Device not found"));
+
+            if (device.getRedeemCode() == null) {
+                return ResponseEntity.notFound().build();
+            }
+            return ResponseEntity.ok(new RedeemCodeResponse(device.getRedeemCode().toString()));
         } catch (DeviceNotFoundException e) {
             return ResponseEntity.notFound().build();
         } catch (SecurityException e) {

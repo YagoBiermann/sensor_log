@@ -53,10 +53,9 @@ public class SecurityConfig {
                         .access((authentication, context) -> {
                             var currentAuthentication = authentication.get();
                             String serial = context.getVariables().get("serial");
-                            boolean isAdminOrUser = isAdmin(currentAuthentication) || isUser(currentAuthentication);
                             boolean isMatchingDevice = isDevice(currentAuthentication)
                                     && serialMatches(currentAuthentication, serial);
-                            return new AuthorizationDecision(isAdminOrUser || isMatchingDevice);
+                            return new AuthorizationDecision(isMatchingDevice);
                         })
                         .requestMatchers(HttpMethod.POST,"/api/devices/{serial}/enrollment")
                         .access((authentication, context) -> {
