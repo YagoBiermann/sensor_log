@@ -220,13 +220,6 @@ public class Device {
         this.description = newDescription;
     }
 
-    public void setRedeemCode(String redeemCode) {
-        if (this.claimStatus != ClaimStatus.UNCLAIMED || this.redeemCode.isEmpty()) {
-            throw new SecurityException("Device was already claimed.");
-        }
-        this.redeemCode = redeemCode;
-    }
-
     public void updateMetrics(Map<MetricsType, Double> newMetrics) {
         newMetrics.forEach((key, value) -> {
             this.metrics.put(key, value);
