@@ -10,6 +10,10 @@ import org.springframework.data.annotation.PersistenceCreator;
 import org.springframework.data.mongodb.core.mapping.Document;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
+import com.server.sensor_log.application.exceptions.InvalidCodeException;
+import com.server.sensor_log.application.exceptions.MaxAttemptsFailedException;
+import com.server.sensor_log.application.exceptions.RetryBeforeCooldownException;
+
 import lombok.Getter;
 
 @Getter
@@ -33,7 +37,7 @@ public class Device {
     private Map<MetricsType, Double> metrics;
 
     private String bootstrapToken;
-    private String redeemCode;
+    private RedeemCode redeemCode;
 
     @PersistenceCreator
     private Device(
@@ -47,7 +51,7 @@ public class Device {
             String description,
             Map<MetricsType, Double> metrics,
             String bootstrapToken,
-            String redeemCode,
+            RedeemCode redeemCode,
             Instant createdAt) {
         this.serialNumber = serialNumber;
         this.ownerId = ownerId;
@@ -77,7 +81,7 @@ public class Device {
         this.description = description;
         this.bootstrapToken = bootstrapToken;
         this.certificate = null;
-        this.redeemCode = "";
+        this.redeemCode = null;
         this.createdAt = Instant.now();
         this.metrics = new EnumMap<>(MetricsType.class);
         metrics.forEach(mt -> {
@@ -113,7 +117,7 @@ public class Device {
             String description,
             Map<MetricsType, Double> metrics,
             String bootstrapToken,
-            String redeemCode,
+            RedeemCode redeemCode,
             Instant createdAt) {
         Device device = new Device(
                 serialNumber,
