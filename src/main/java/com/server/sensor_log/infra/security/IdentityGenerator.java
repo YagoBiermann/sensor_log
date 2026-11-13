@@ -1,7 +1,6 @@
 package com.server.sensor_log.infra.security;
 
 import java.security.SecureRandom;
-import java.util.Base64;
 import java.util.UUID;
 
 import org.springframework.stereotype.Component;
@@ -11,7 +10,7 @@ import com.server.sensor_log.domain.model.device.RandomGenerator;
 @Component
 public class IdentityGenerator implements RandomGenerator {
     private final SecureRandom RANDOM = new SecureRandom();
-
+    private static final String TOKEN_CHARS = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
     public String generateSerialNumber() {
         Integer length = 12;
         StringBuilder serial = new StringBuilder(length);
@@ -40,10 +39,10 @@ public class IdentityGenerator implements RandomGenerator {
     }
 
     private String generateToken(int length) {
-        byte[] bytes = new byte[length];
-        RANDOM.nextBytes(bytes);
-        return Base64.getUrlEncoder()
-                .withoutPadding()
-                .encodeToString(bytes);
+        StringBuilder token = new StringBuilder(length);
+        for (int i = 0; i < length; i++) {
+            token.append(TOKEN_CHARS.charAt(RANDOM.nextInt(TOKEN_CHARS.length())));
+        }
+        return token.toString();
     }
 }
