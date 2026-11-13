@@ -7,6 +7,7 @@ import org.springframework.stereotype.Component;
 
 import com.server.sensor_log.application.controllers.device.dto.CertificateResponse;
 import com.server.sensor_log.application.exceptions.DeviceNotFoundException;
+import com.server.sensor_log.application.exceptions.ExpiredCodeException;
 import com.server.sensor_log.application.exceptions.InvalidDeviceStatusException;
 import com.server.sensor_log.application.services.AuthenticationService;
 import com.server.sensor_log.domain.model.device.Certificate;
@@ -37,7 +38,9 @@ public class DeviceEnrollmentUseCase {
         if (device.hasCertificate()) {
             throw new InvalidDeviceStatusException("Device is already enrolled");
         }
-
+        if(device.getRedeemCode().isExpired()) {
+            throw new ExpiredCodeException("code is expired");
+        }
         X509Certificate signedCertificate = authenticationService.signCertificate(serialNumber, csr);
         Certificate certificate = new Certificate(
                 Certificate.toPem(signedCertificate),
