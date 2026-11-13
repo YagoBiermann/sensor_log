@@ -109,6 +109,10 @@ public class DeviceController {
             return ResponseEntity.notFound().build();
         } catch (InvalidDeviceStatusException e) {
             return ResponseEntity.status(HttpStatus.CONFLICT).build();
+        } catch (ExpiredCodeException e) {
+            return ResponseEntity.status(HttpStatus.FOUND)
+                    .location(URI.create("/api/devices/" + serial + "/code"))
+                    .build();
         }
     }
 
