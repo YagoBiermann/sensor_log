@@ -12,6 +12,8 @@ certs/private/*
 certs/public/*
 !certs/README.md
 mosquitto.passwd
+arduino/esp32_sensor/.pio/
+arduino/esp32_sensor/include/config.h
 HELP.md
 .gradle
 build/
