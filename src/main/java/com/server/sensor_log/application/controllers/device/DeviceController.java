@@ -27,6 +27,10 @@ import com.server.sensor_log.application.controllers.device.dto.FirstBootRespons
 import com.server.sensor_log.application.controllers.device.dto.NewDevice;
 import com.server.sensor_log.application.exceptions.InvalidDeviceStatusException;
 import com.server.sensor_log.application.exceptions.DeviceNotFoundException;
+import com.server.sensor_log.application.exceptions.ExpiredCodeException;
+import com.server.sensor_log.application.exceptions.InvalidCodeException;
+import com.server.sensor_log.application.exceptions.MaxAttemptsFailedException;
+import com.server.sensor_log.application.exceptions.RetryBeforeCooldownException;
 import com.server.sensor_log.application.services.AuthenticationService;
 import com.server.sensor_log.application.services.JwtService;
 import com.server.sensor_log.application.services.MqttDynamicSecurityService;
@@ -82,8 +86,16 @@ public class DeviceController {
             ClaimDeviceRequest request = new ClaimDeviceRequest(serial, userId, body.redeemCode(), body.csr());
             ClaimDeviceResponse response = claimDeviceUseCase.execute(request);
             return ResponseEntity.ok(response);
-        } catch (DeviceNotFoundException | SecurityException e) {
-            return ResponseEntity.badRequest().body(e.getMessage());
+        } catch (DeviceNotFoundException e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
+        } catch (SecurityException e) {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).body(e.getMessage());
+        } catch (MaxAttemptsFailedException | RetryBeforeCooldownException e) {
+            return ResponseEntity.status(HttpStatus.TOO_MANY_REQUESTS).body(e.getMessage());
+        } catch (ExpiredCodeException e) {
+            return ResponseEntity.status(HttpStatus.GONE).body(e.getMessage());
+        } catch (InvalidCodeException e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
         }
     }
 
