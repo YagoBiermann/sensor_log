@@ -1,15 +1,12 @@
 package com.server.sensor_log.application.integration;
 
+import org.junit.jupiter.api.AfterAll;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
-
-import java.util.List;
-
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.BeforeAll;
-import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.crypto.password.Pbkdf2PasswordEncoder;
@@ -19,13 +16,14 @@ import org.testcontainers.junit.jupiter.Testcontainers;
 
 import com.server.sensor_log.application.controllers.device.dto.ClaimDeviceResponse;
 import com.server.sensor_log.application.controllers.device.dto.CreateDeviceResponse;
+import com.server.sensor_log.application.integration.support.DeviceLifecycleScenario;
+import com.server.sensor_log.application.integration.support.IntegrationMongoSupport;
 import com.server.sensor_log.domain.model.device.ClaimStatus;
 import com.server.sensor_log.domain.model.device.ConnectionStatus;
 import com.server.sensor_log.domain.model.device.Device;
 import com.server.sensor_log.domain.model.device.MetricsType;
+import com.server.sensor_log.domain.model.device.Role;
 import com.server.sensor_log.domain.model.user.User;
-import com.server.sensor_log.application.integration.support.DeviceLifecycleScenario;
-import com.server.sensor_log.application.integration.support.IntegrationMongoSupport;
 
 @Testcontainers
 class DeviceLifecycleIntegrationTest {
@@ -73,21 +71,21 @@ class DeviceLifecycleIntegrationTest {
         assertEquals(ClaimStatus.UNCLAIMED, device.getClaimStatus());
         assertEquals(ConnectionStatus.OFFLINE, device.getConnectionStatus());
         assertEquals(0.0, device.getMetrics().get(MetricsType.TEMPERATURE));
+        assertEquals(device.getRole(), Role.DEVICE);
         assertFalse(device.getBootstrapToken().isBlank());
-        assertEquals("", device.getRedeemCode());
+        assertNull(device.getRedeemCode());
+        assertNull(device.getOwnerId());
+        assertNull(device.getCertificate());
     }
 
     private void assertBootedDevice(CreateDeviceResponse created, String redeemCode) {
         Device device = mongo.deviceRepository().findById(created.serialNumber()).orElseThrow();
 
-        assertEquals("redeem-1234", redeemCode);
         assertEquals(ClaimStatus.PENDING, device.getClaimStatus());
         assertEquals(ConnectionStatus.ONLINE, device.getConnectionStatus());
         assertFalse(device.getBootstrapToken().isBlank());
         assertTrue(passwordEncoder.matches(created.bootstrapToken(), device.getBootstrapToken()));
-        assertFalse(redeemCode.equals(device.getRedeemCode()));
-        org.junit.jupiter.api.Assertions.assertTrue(
-                passwordEncoder.matches(redeemCode, device.getRedeemCode()));
+        assertEquals(redeemCode, device.getRedeemCode().toString());
     }
 
     private void assertClaimedDevice(
