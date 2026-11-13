@@ -12,6 +12,7 @@ import org.springframework.http.HttpMethod;
 import org.springframework.security.authorization.AuthorizationDecision;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
+import org.springframework.security.core.Authentication;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -48,16 +49,21 @@ public class SecurityConfig {
                 .csrf(csrf -> csrf.disable())
                 .authorizeHttpRequests((var auth) -> auth
                         .requestMatchers(HttpMethod.POST,"/api/devices/*/claim").hasRole("USER")
+                        .requestMatchers(HttpMethod.GET, "/api/devices/{serial}/code")
+                        .access((authentication, context) -> {
+                            var currentAuthentication = authentication.get();
+                            String serial = context.getVariables().get("serial");
+                            boolean isAdminOrUser = isAdmin(currentAuthentication) || isUser(currentAuthentication);
+                            boolean isMatchingDevice = isDevice(currentAuthentication)
+                                    && serialMatches(currentAuthentication, serial);
+                            return new AuthorizationDecision(isAdminOrUser || isMatchingDevice);
+                        })
                         .requestMatchers(HttpMethod.POST,"/api/devices/{serial}/enrollment")
                         .access((authentication, context) -> {
                             var currentAuthentication = authentication.get();
                             String serial = context.getVariables().get("serial");
-                            boolean isDevice = currentAuthentication.getAuthorities().stream()
-                                    .anyMatch(authority -> authority.getAuthority().equals("ROLE_DEVICE"));
-                            boolean serialMatches = currentAuthentication.getPrincipal() instanceof Jwt jwt
-                                    && serial != null
-                                    && serial.equals(jwt.getSubject());
-                            return new AuthorizationDecision(isDevice && serialMatches);
+                            return new AuthorizationDecision(
+                                    isDevice(currentAuthentication) && serialMatches(currentAuthentication, serial));
                         })
                         .requestMatchers(HttpMethod.POST,"/api/devices/*/revoke").hasAnyRole("ADMIN", "USER")
                         .requestMatchers(HttpMethod.GET, "/api/devices/*").hasAnyRole("ADMIN", "USER")
@@ -69,5 +75,26 @@ public class SecurityConfig {
                 .oauth2ResourceServer(oauth -> oauth
                         .jwt(jwt -> jwt.jwtAuthenticationConverter(jwtAuthenticationConverter)))
                 .build();
+    }
+
+    private boolean serialMatches(Authentication authentication, String serial) {
+        return authentication.getPrincipal() instanceof Jwt jwt
+                && serial != null
+                && serial.equals(jwt.getSubject());
+    }
+
+    private boolean isDevice(Authentication authentication) {
+        return authentication.getAuthorities().stream()
+                .anyMatch(authority -> authority.getAuthority().equals("ROLE_DEVICE"));
+    }
+
+    private boolean isUser(Authentication authentication) {
+        return authentication.getAuthorities().stream()
+                .anyMatch(authority -> authority.getAuthority().equals("ROLE_USER"));
+    }
+
+    private boolean isAdmin(Authentication authentication) {
+        return authentication.getAuthorities().stream()
+                .anyMatch(authority -> authority.getAuthority().equals("ROLE_ADMIN"));
     }
 }
