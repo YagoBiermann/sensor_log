@@ -99,7 +99,7 @@ class RevokeDeviceUseCaseTest {
         Device device = Device.restore(
                 SERIAL_NUMBER, OWNER_ID, null, Instant.now(), ClaimStatus.CLAIMED,
                 ConnectionStatus.ONLINE, null, "", Map.of(MetricsType.TEMPERATURE, 0.0),
-                "", "redeem-hash", Instant.now());
+                "", null, Instant.now());
         when(repository.findById(SERIAL_NUMBER)).thenReturn(Optional.of(device));
 
         assertThrows(SecurityException.class, () -> new RevokeDeviceUseCase(
@@ -132,6 +132,6 @@ class RevokeDeviceUseCaseTest {
                 SERIAL_NUMBER, OWNER_ID,
                 new Certificate("pem", "certificate-serial", Instant.now().plusSeconds(3600), Instant.now()),
                 Instant.now(), ClaimStatus.CLAIMED, ConnectionStatus.ONLINE, null, "",
-                Map.of(MetricsType.TEMPERATURE, 0.0), "", "redeem-hash", Instant.now());
+                Map.of(MetricsType.TEMPERATURE, 0.0), "", null, Instant.now());
     }
 }

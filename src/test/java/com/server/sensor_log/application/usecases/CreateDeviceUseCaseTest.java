@@ -48,7 +48,7 @@ class CreateDeviceUseCaseTest {
         assertEquals(List.of(MetricsType.TEMPERATURE), List.copyOf(captor.getValue().getMetrics().keySet()));
         assertEquals("hashed-bootstrap", captor.getValue().getBootstrapToken());
         assertEquals("", captor.getValue().getDescription());
-        assertEquals("", captor.getValue().getRedeemCode());
+        assertNull(captor.getValue().getRedeemCode());
         assertEquals(ClaimStatus.UNCLAIMED, captor.getValue().getClaimStatus());
         assertEquals(ConnectionStatus.OFFLINE, captor.getValue().getConnectionStatus());
         assertEquals(0.0, captor.getValue().getLocation().latitude());

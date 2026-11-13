@@ -90,7 +90,7 @@ class MqttMetricsIntegrationTest {
                 "",
                 metrics,
                 "",
-                "",
+                null,
                 now);
         deviceRepository.save(device);
 

@@ -51,7 +51,7 @@ public final class DeviceLifecycleScenario {
         this.bootDeviceUseCase = new BootDeviceUseCase(
                 deviceRepository, identityGenerator, passwordEncoder);
         this.claimDeviceUseCase = new ClaimDeviceUseCase(
-                deviceRepository, passwordEncoder, authenticationService);
+                deviceRepository, passwordEncoder, identityGenerator, authenticationService);
     }
 
     public User registerUser() {

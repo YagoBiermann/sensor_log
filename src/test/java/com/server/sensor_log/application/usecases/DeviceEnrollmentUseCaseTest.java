@@ -109,7 +109,7 @@ class DeviceEnrollmentUseCaseTest {
                 "",
                 Map.of(MetricsType.TEMPERATURE, 0.0),
                 "",
-                "",
+                null,
                 Instant.now());
     }
 }
