@@ -136,43 +136,57 @@ public class Device {
         return device;
     }
 
-    public String boot(String serialNumber, String bootstrapToken, RandomGenerator identityGenerator,
+    public RedeemCode boot(String serialNumber, String bootstrapToken, RandomGenerator codeGenerator,
             PasswordEncoder passwordEncoder)
             throws SecurityException {
         if (!this.serialNumber.equals(serialNumber)) {
             throw new SecurityException("Invalid serial number.");
         }
+        if(bootstrapToken == null || bootstrapToken.isEmpty()){
+            throw new SecurityException("Unable to proof device identity.");
+        }
         if (!passwordEncoder.matches(bootstrapToken, this.bootstrapToken)) {
             throw new SecurityException("Invalid token.");
         }
-        if (this.claimStatus != ClaimStatus.UNCLAIMED || this.bootstrapToken.isEmpty()) {
-            throw new SecurityException("Device was already booted.");
+        if (this.isClaimed()) {
+            throw new SecurityException("Device has already booted.");
+        }
+        if (this.isRevoked()) {
+            throw new SecurityException("Device has been revoked.");
+        }
+        if(this.isPending() && !this.redeemCode.isExpired()){
+            throw new SecurityException("Device is waiting for confirmation.");
         }
 
         this.connectionStatus = ConnectionStatus.ONLINE;
         this.claimStatus = ClaimStatus.PENDING;
-        String plainRedeemCode = identityGenerator.generateRedeemCode();
-        this.redeemCode = passwordEncoder.encode(plainRedeemCode);
+        this.redeemCode = RedeemCode.issue(codeGenerator);
 
-        return plainRedeemCode;
+        return this.redeemCode;
     }
 
-    public void claim(String ownerId, String redeemCode, PasswordEncoder passwordEncoder)
-            throws SecurityException {
-        if (this.claimStatus == ClaimStatus.CLAIMED) {
+    public void claim(String ownerId, String redeemCode, RandomGenerator codeGenerator, PasswordEncoder passwordEncoder)
+            throws SecurityException, RetryBeforeCooldownException, MaxAttemptsFailedException {
+        if (this.isClaimed()) {
             throw new SecurityException("Device property already confirmed.");
         }
-        if (this.claimStatus != ClaimStatus.PENDING) {
+        if (this.isUnclaimed()) {
             throw new SecurityException("Please, boot the device first.");
         }
-        if (!passwordEncoder.matches(redeemCode, this.redeemCode)) {
-            throw new SecurityException("The given code is invalid.");
+        if(this.isRevoked()){
+            throw new SecurityException("Device has been revoked.");
         }
-        this.ownerId = ownerId;
-        this.redeemCode = "";
-        this.claimStatus = ClaimStatus.CLAIMED;
-        this.connectionStatus = ConnectionStatus.ONLINE;
-        this.claimedAt = Instant.now();
+
+        if(this.redeemCode.matches(redeemCode)){
+            this.ownerId = ownerId;
+            this.redeemCode = null;
+            this.claimStatus = ClaimStatus.CLAIMED;
+            this.connectionStatus = ConnectionStatus.ONLINE;
+            this.claimedAt = Instant.now();
+        } else {
+            this.redeemCode = this.redeemCode.withFailedAttempt();
+            throw new InvalidCodeException("Invalid code.");
+        }
     }
 
     public boolean isClaimed() {
