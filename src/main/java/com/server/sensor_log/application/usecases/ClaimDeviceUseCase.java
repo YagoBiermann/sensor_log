@@ -1,4 +1,4 @@
-﻿package com.server.sensor_log.application.usecases;
+package com.server.sensor_log.application.usecases;
 
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
